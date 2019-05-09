@@ -18,12 +18,14 @@ class Accuracy(object):
 
     def update(self, labels, preds):
         _, pred = torch.max(preds, dim=1)
-        pred = pred.cpu().view(-1).detach().numpy().astype('int32')
-        lbs = labels.cpu().view(-1).detach().numpy().astype('int32')
+        pred = pred.detach().view(-1).cpu().numpy().astype('int32')
+        lbs = labels.detach().view(-1).cpu().numpy().astype('int32')
         self.num_metric += int((pred == lbs).sum())
         self.num_inst += len(lbs)
 
     def get(self):
+        if self.num_inst == 0:
+            return self.name, np.NAN
         return self.name, self.num_metric / self.num_inst
 
 
@@ -42,4 +44,6 @@ class Loss(object):
         self.sum_num += 1
 
     def get(self):
+        if self.sum_num == 0:
+            return self.name, np.NAN
         return self.name, self.sum_loss / self.sum_num
