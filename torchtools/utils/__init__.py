@@ -3,3 +3,4 @@
 
 from .no_bias_decay import *
 from .lr_scheduler import *
+from .mixup import *
