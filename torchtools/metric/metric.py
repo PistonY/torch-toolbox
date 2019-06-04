@@ -7,10 +7,9 @@ import numpy as np
 
 
 class Accuracy(object):
-    def __init__(self, name='Acc'):
+    def __init__(self):
         self.num_metric = 0
         self.num_inst = 0
-        self.name = name
 
     def reset(self):
         self.num_metric = 0
@@ -24,16 +23,14 @@ class Accuracy(object):
         self.num_inst += len(lbs)
 
     def get(self):
-        if self.num_inst == 0:
-            return self.name, np.NAN
-        return self.name, self.num_metric / self.num_inst
+        assert self.num_inst != 0, 'Please call update before get'
+        return self.num_metric / self.num_inst
 
 
 class Loss(object):
-    def __init__(self, name='loss'):
+    def __init__(self):
         self.sum_loss = 0
         self.sum_num = 0
-        self.name = name
 
     def reset(self):
         self.sum_loss = 0
@@ -44,6 +41,5 @@ class Loss(object):
         self.sum_num += 1
 
     def get(self):
-        if self.sum_num == 0:
-            return self.name, np.NAN
-        return self.name, self.sum_loss / self.sum_num
+        assert self.sum_num != 0, 'Please call update before get'
+        return self.sum_loss / self.sum_num
