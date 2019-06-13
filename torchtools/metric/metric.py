@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Author: pistonyang@gmail.com
 
-__all__ = ['Accuracy', 'Loss']
+__all__ = ['Accuracy', 'NumericalCost']
 import torch
 import numpy as np
 
@@ -27,7 +27,7 @@ class Accuracy(object):
         return self.num_metric / self.num_inst
 
 
-class Loss(object):
+class NumericalCost(object):
     def __init__(self):
         self.sum_loss = 0
         self.sum_num = 0
