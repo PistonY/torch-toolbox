@@ -3,11 +3,31 @@
 
 __all__ = ['Accuracy', 'NumericalCost']
 import torch
-import numpy as np
 
 
-class Accuracy(object):
-    def __init__(self):
+class Metric(object):
+    def __init__(self, name=None):
+        if name is not None:
+            assert isinstance(name, (str, dict))
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+
+    def reset(self):
+        raise NotImplementedError
+
+    def update(self):
+        raise NotImplementedError
+
+    def get(self):
+        raise NotImplementedError
+
+
+class Accuracy(Metric):
+    def __init__(self, name=None):
+        super(Accuracy, self).__init__(name)
         self.num_metric = 0
         self.num_inst = 0
 
@@ -15,6 +35,7 @@ class Accuracy(object):
         self.num_metric = 0
         self.num_inst = 0
 
+    @torch.no_grad()
     def update(self, labels, preds):
         _, pred = torch.max(preds, dim=1)
         pred = pred.detach().view(-1).cpu().numpy().astype('int32')
@@ -27,8 +48,9 @@ class Accuracy(object):
         return self.num_metric / self.num_inst
 
 
-class NumericalCost(object):
-    def __init__(self):
+class NumericalCost(Metric):
+    def __init__(self, name=None):
+        super(NumericalCost, self).__init__(name)
         self.sum_loss = 0
         self.sum_num = 0
 
@@ -36,6 +58,7 @@ class NumericalCost(object):
         self.sum_loss = 0
         self.sum_num = 0
 
+    @torch.no_grad()
     def update(self, loss):
         self.sum_loss += loss.cpu().detach().numpy()
         self.sum_num += 1
