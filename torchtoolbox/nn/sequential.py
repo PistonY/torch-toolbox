@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Author: pistonyang@gmail.com
 
-
+__all__ = ['AdaptiveSequential']
 from torch import nn
 
 """
