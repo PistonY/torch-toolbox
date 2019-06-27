@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 VERSION = '0.0.1'
 
 setup(
-    name='torchtools',
+    name='torchtoolbox',
     version=VERSION,
     author='X.Yang',
     author_email='pistonyang@gmail.com',
