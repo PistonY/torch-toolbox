@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # Author: pistonyang@gmail.com
 
-__all__ = ['Accuracy', 'NumericalCost']
+__all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost']
 import torch
+import numpy as np
 
 
 class Metric(object):
@@ -18,7 +19,7 @@ class Metric(object):
     def reset(self):
         raise NotImplementedError
 
-    def update(self):
+    def step(self):
         raise NotImplementedError
 
     def get(self):
@@ -36,7 +37,7 @@ class Accuracy(Metric):
         self.num_inst = 0
 
     @torch.no_grad()
-    def update(self, labels, preds):
+    def step(self, preds, labels):
         _, pred = torch.max(preds, dim=1)
         pred = pred.detach().view(-1).cpu().numpy().astype('int32')
         lbs = labels.detach().view(-1).cpu().numpy().astype('int32')
@@ -44,25 +45,52 @@ class Accuracy(Metric):
         self.num_inst += len(lbs)
 
     def get(self):
-        assert self.num_inst != 0, 'Please call update before get'
+        assert self.num_inst != 0, 'Please call step before get'
+        return self.num_metric / self.num_inst
+
+
+class TopKAccuracy(Metric):
+    def __init__(self, top=1, name=None):
+        super(TopKAccuracy, self).__init__(name)
+        assert top > 1, 'Please use Accuracy if top_k is no more than 1'
+        self.topK = top
+        self.num_metric = 0
+        self.num_inst = 0
+
+    def reset(self):
+        self.num_metric = 0
+        self.num_inst = 0
+
+    @torch.no_grad()
+    def step(self, preds, labels):
+        preds = preds.cpu().numpy().astype('float32')
+        labels = labels.cpu().numpy().astype('int32')
+
+        preds = np.argpartition(preds, -self.topK)[:, :self.topK]
+        for l, p in zip(labels, preds):
+            self.num_metric += 1 if l in p else 0
+            self.num_inst += 1
+
+    def get(self):
+        assert self.num_inst != 0, 'Please call step before get'
         return self.num_metric / self.num_inst
 
 
 class NumericalCost(Metric):
     def __init__(self, name=None):
         super(NumericalCost, self).__init__(name)
-        self.sum_loss = 0
+        self.sum_cost = 0
         self.sum_num = 0
 
     def reset(self):
-        self.sum_loss = 0
+        self.sum_cost = 0
         self.sum_num = 0
 
     @torch.no_grad()
-    def update(self, loss):
-        self.sum_loss += loss.cpu().detach().numpy()
+    def step(self, loss):
+        self.sum_cost += loss.cpu().detach().numpy()
         self.sum_num += 1
 
     def get(self):
-        assert self.sum_num != 0, 'Please call update before get'
-        return self.sum_loss / self.sum_num
+        assert self.sum_num != 0, 'Please call step before get'
+        return self.sum_cost / self.sum_num

@@ -23,6 +23,7 @@ class LabelSmoothingLoss(nn.Module):
             true_dist.scatter_(1, target.data.unsqueeze(1), self.confidence)
         return self.criterion(pred, true_dist)
 
+# This will be used in test module
 # if __name__ == '__main__':
 #     pred = torch.rand(3, 10)
 #     label = torch.randint(0, 2, size=(3,))
