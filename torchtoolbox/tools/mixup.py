@@ -15,12 +15,8 @@ def mixup_data(x, y, alpha=0.2):
     else:
         lam = 1
 
-    def get_inv(t):
-        inv_idx = torch.arange(t.size(0) - 1, -1, -1).long()
-        return t[inv_idx]
-
-    mixed_x = lam * x + (1 - lam) * get_inv(x)
-    y_a, y_b = y, get_inv(y)
+    mixed_x = lam * x + (1 - lam) * x.flip(dims=(0,))
+    y_a, y_b = y, y.flip(dims=(0,))
     return mixed_x, y_a, y_b, lam
 
 
