@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-
+__all__ = ['NonLabelDataset']
 import os
 from PIL import Image
 from torch.utils.data import Dataset
