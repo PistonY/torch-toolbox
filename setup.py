@@ -14,7 +14,7 @@ setup(
     description='Collect and write useful tools for Pytorch.',
     long_description=open('README.md').read(),
     license='MIT',
-    packages=find_packages(exclude=('*test*',)),
+    packages=find_packages(exclude=('*tests*',)),
     zip_safe=True,
     classifiers=[
         'Programming Language :: Python :: 3',
