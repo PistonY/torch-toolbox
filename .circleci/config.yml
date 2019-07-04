@@ -1,0 +1,28 @@
+# Python CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-python/ for more details
+#
+version: 2
+jobs:
+  build:
+    docker:
+      - image: pistonyang/pytorch:base-cu100
+
+    working_directory: ~/torch-toolbox
+
+    steps:
+      - checkout
+      # run tests!
+      # https://pytest.org
+      - run:
+          name: install pytest
+          command: |
+            pip install pytest
+      - run:
+          name: run tests
+          command: |
+            pytest tests
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports

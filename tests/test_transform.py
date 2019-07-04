@@ -4,7 +4,6 @@
 from torchtoolbox.nn.transform import Cutout
 import numpy as np
 from PIL import Image
-import os
 
 
 def _Cutout(p=0.5, s_l=0.02, s_h=0.4, r_1=0.3, r_2=1 / 0.3, v_l=0, v_h=255, pixel_level=False):
