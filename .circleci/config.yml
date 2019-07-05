@@ -5,27 +5,28 @@
 version: 2
 jobs:
   build:
+    docker:
+      - image: pistonyang/pytorch:base-cu100
+        auth:
+          username: $DOCKER_USERNAME
+          password: $DOCKERHUB_PASSWORD
+
+
+    working_directory: ~/torch-toolbox
+
     steps:
-      - run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-    test_image:
-      docker:
-        - image: pistonyang/pytorch:base-cu100
+      - checkout
+      # run tests!
+      # https://pytest.org
+      - run:
+          name: install pytest
+          command: |
+            pip install pytest
+      - run:
+          name: run tests
+          command: |
+            pytest tests
 
-      working_directory: ~/torch-toolbox
-
-      steps:
-        - checkout
-        # run tests!
-        # https://pytest.org
-        - run:
-            name: install pytest
-            command: |
-              pip install pytest
-        - run:
-            name: run tests
-            command: |
-              pytest tests
-
-        - store_artifacts:
-            path: test-reports
-            destination: test-reports
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports
