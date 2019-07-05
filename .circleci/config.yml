@@ -30,7 +30,3 @@ jobs:
           command: |
             export PYTHONPATH=/home/circleci/torch-toolbox/:${PYTHONPATH}
             pytest tests
-
-      - store_artifacts:
-          path: test-reports
-          destination: test-reports
