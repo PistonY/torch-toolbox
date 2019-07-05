@@ -28,6 +28,7 @@ jobs:
       - run:
           name: run tests
           command: |
+            export PYTHONPATH=/home/circleci/torch-toolbox/:${PYTHONPATH}
             pytest tests
 
       - store_artifacts:
