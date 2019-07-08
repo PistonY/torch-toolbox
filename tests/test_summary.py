@@ -11,5 +11,5 @@ model2 = mobilenet_v2()
 
 
 def test_summary():
-    summary(model1, torch.rand((1, 3, 224, 224)))
+    summary(model1, torch.rand((1, 3, 224, 224)), True)
     summary(model2, torch.rand((1, 3, 224, 224)))
