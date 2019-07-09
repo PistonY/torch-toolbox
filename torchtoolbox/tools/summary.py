@@ -2,7 +2,6 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = ['summary']
 from collections import OrderedDict
-import torch
 import torch.nn as nn
 import numpy as np
 
