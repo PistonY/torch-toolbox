@@ -8,6 +8,32 @@ __all__ = ['CosineWarmupLr']
 
 
 class CosineWarmupLr(object):
+    """Cosine lr decay function with warmup.
+
+    Lr warmup is proposed by `
+        Accurate, Large Minibatch SGD:Training ImageNet in 1 Hour`
+        `https://arxiv.org/pdf/1706.02677.pdf`
+
+    Cosine decay is proposed by `
+        Stochastic Gradient Descent with Warm Restarts`
+        `https://arxiv.org/abs/1608.03983`
+
+    Args:
+        optimizer (Optimizer): optimizer of a model.
+        batches (int): batches of one epoch.
+        epochs (int): epochs to train.
+        base_lr (float): init lr.
+        target_lr (float): minimum(final) lr.
+        warmup_epochs (int): warmup epochs before cosine decay.
+        warmup_lr (float): warmup starting lr.
+        last_iter (int): init iteration.
+
+    Attributes:
+        niters (int): number of iterations of all epochs.
+        warmup_iters (int): number of iterations of all warmup epochs.
+
+    """
+
     def __init__(self, optimizer, batches, epochs, base_lr,
                  target_lr=0, warmup_epochs=0, warmup_lr=0, last_iter=-1):
         if not isinstance(optimizer, Optimizer):
@@ -59,10 +85,16 @@ class CosineWarmupLr(object):
                                  (1 + cos(pi * (self.last_iter - self.warmup_iters) /
                                           (self.niters - self.warmup_iters))) / 2
 
-    def step(self, iter=None):
-        if iter is None:
-            iter = self.last_iter + 1
-        self.last_iter = iter
+    def step(self, iteration=None):
+        """Update status of lr.
+
+        Args:
+            iteration(int, optional): now training iteration of all epochs.
+                Normally need to set it manually.
+        """
+        if iteration is None:
+            iteration = self.last_iter + 1
+        self.last_iter = iteration
         self.get_lr()
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = self.learning_rate

@@ -23,5 +23,3 @@ class LabelSmoothingLoss(nn.Module):
             true_dist.fill_(self.smoothing / (self.cls - 1))
             true_dist.scatter_(1, target.data.unsqueeze(1), self.confidence)
         return self.criterion(pred, true_dist)
-
-

@@ -7,7 +7,26 @@ from PIL import Image
 
 
 class Cutout(object):
-    def __init__(self, p=0.5, s_l=0.02, s_h=0.4, r_1=0.3, r_2=1 / 0.3, v_l=0, v_h=255, pixel_level=False):
+    """Random erase the given PIL Image.
+
+    It has been proposed in
+    `Improved Regularization of Convolutional Neural Networks with Cutout`.
+    `https://arxiv.org/pdf/1708.04552.pdf`
+
+
+    Arguments:
+        p (float): probability of the image being perspectively transformed. Default value is 0.5
+        s_l (float): min cut square ratio. Default value is 0.02
+        s_h (float): max cut square ratio. Default value is 0.4
+        r_1 (float): aspect ratio of cut square. Default value is 0.3
+        r_2 (float): aspect ratio of cut square. Default value is 1/0.3
+        v_l (int): low filling num. Default value is 0
+        v_h (int): high filling num. Default value is 255
+        pixel_level (bool): filling one number or not. Default value is False
+    """
+
+    def __init__(self, p=0.5, s_l=0.02, s_h=0.4, r_1=0.3, r_2=1 / 0.3,
+                 v_l=0, v_h=255, pixel_level=False):
         self.p = p
         self.s_l = s_l
         self.s_h = s_h

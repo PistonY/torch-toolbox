@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = ['summary']
+from collections import OrderedDict
 import torch
 import torch.nn as nn
-from collections import OrderedDict
 import numpy as np
 
 
@@ -100,7 +100,17 @@ def _cac_linear(layer, input, output):
     return tb_params, ntb__params, flops
 
 
-def summary(model: nn.Module, x: torch.Tensor, return_results=False):
+def summary(model, x, return_results=False):
+    """
+
+    Args:
+        model (nn.Module): model to summary
+        x (torch.Tensor): input data
+        return_results (bool): return results
+
+    Returns:
+
+    """
     # change bn work way
     model.eval()
 
@@ -146,7 +156,8 @@ def summary(model: nn.Module, x: torch.Tensor, return_results=False):
         h.remove()
 
     print('-' * 80)
-    line_new = "{:>20}  {:>25} {:>15} {:>15}".format("Layer (type)", "Output Shape", "Params", "FLOPs(M+A) #")
+    line_new = "{:>20}  {:>25} {:>15} {:>15}".format(
+        "Layer (type)", "Output Shape", "Params", "FLOPs(M+A) #")
     print(line_new)
     print('=' * 80)
     total_params = 0

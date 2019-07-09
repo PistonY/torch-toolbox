@@ -7,6 +7,17 @@ from torch.utils.data import Dataset
 
 
 class NonLabelDataset(Dataset):
+    """This is used for label-free training like GAN, VAE...
+
+    root/xxx.jpg
+    root/xxy.jpg
+    root/xxz.jpg
+
+    Args:
+        root_dir (str): root dir of data.
+        transform (callable): transform func.
+    """
+
     def __init__(self, root_dir, transform=None):
         self.transform = transform
         self.items = os.listdir(root_dir)
