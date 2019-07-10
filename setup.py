@@ -13,7 +13,7 @@ setup(
     url='https://github.com/deeplearningforfun/torch-tools',
     description='Collect and write useful tools for Pytorch.',
     long_description=open('README.md').read(),
-    license='MIT',
+    license='BSD 3-Clause',
     packages=find_packages(exclude=('*tests*',)),
     zip_safe=True,
     classifiers=[
