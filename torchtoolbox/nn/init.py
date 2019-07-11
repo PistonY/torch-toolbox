@@ -50,12 +50,12 @@ def Kaiming(model, slope=0, mode='fan_out', nonlinearity='relu', random_type='no
         model (nn.Module): model you need to initialize.
         slope: the negative slope of the rectifier used after this layer (0 for ReLU
             by default)
-        mode (string): either ``'fan_in'`` (default) or ``'fan_out'``. Choosing ``'fan_in'``
+        mode (string): either ``'fan_out'`` (default) or ``'fan_in'``. Choosing ``'fan_in'``
             preserves the magnitude of the variance of the weights in the
             forward pass. Choosing ``'fan_out'`` preserves the magnitudes in the
             backwards pass.
         nonlinearity (string): the non-linear function (`nn.functional` name),
-            recommended to use only with ``'relu'`` or ``'leaky_relu'`` (default).
+            recommended to use only with ``'leaky_relu'`` or ``'relu'`` (default).
         random_type (string): random_type
 
     """
