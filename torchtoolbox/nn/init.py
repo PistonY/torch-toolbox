@@ -39,7 +39,7 @@ def Xavier(model, random_type='uniform', gain=math.sqrt(2.0)):
                 m.bias.data.zero_()
 
 
-def Kaiming(model, slope=0, mode='fan_out', nonlinearity='leaky_relu', random_type='normal'):
+def Kaiming(model, slope=0, mode='fan_out', nonlinearity='relu', random_type='normal'):
     """Initialize a model params by Xavier.
 
     Fills the input `Tensor` with values according to the method
