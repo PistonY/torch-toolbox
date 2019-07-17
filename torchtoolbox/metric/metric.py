@@ -124,10 +124,11 @@ class TopKAccuracy(Metric):
             preds (Tensor): Model outputs
             labels (Tensor): True label
         """
+
         preds = preds.cpu().numpy().astype('float32')
         labels = labels.cpu().numpy().astype('int32')
 
-        preds = np.argpartition(preds, -self.topK)[:, :self.topK]
+        preds = np.argpartition(preds, -self.topK)[:, -self.topK:]
         # TODO: Is there any more quick way?
         for l, p in zip(labels, preds):
             self.num_metric += 1 if l in p else 0
