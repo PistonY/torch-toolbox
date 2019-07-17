@@ -10,7 +10,7 @@ setup(
     version=VERSION,
     author='X.Yang',
     author_email='pistonyang@gmail.com',
-    url='https://github.com/deeplearningforfun/torch-tools',
+    url='https://github.com/deeplearningforfun/torch-toolbox',
     description='Collect and write useful tools for Pytorch.',
     long_description=open('README.md').read(),
     license='BSD 3-Clause',

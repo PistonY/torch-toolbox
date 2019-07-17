@@ -7,7 +7,7 @@ from torch.nn.init import xavier_normal_, xavier_uniform_, \
 import math
 
 
-def Xavier(model, random_type='uniform', gain=math.sqrt(2.0)):
+def XavierInitializer(model, random_type='uniform', gain=math.sqrt(2.0)):
     """Initialize a model params by Xavier.
 
     Fills the input `Tensor` with values according to the method
@@ -39,8 +39,8 @@ def Xavier(model, random_type='uniform', gain=math.sqrt(2.0)):
                 m.bias.data.zero_()
 
 
-def Kaiming(model, slope=0, mode='fan_out', nonlinearity='relu', random_type='normal'):
-    """Initialize a model params by Xavier.
+def KaimingInitializer(model, slope=0, mode='fan_out', nonlinearity='relu', random_type='normal'):
+    """Initialize a model params by Kaiming.
 
     Fills the input `Tensor` with values according to the method
     described in `Delving deep into rectifiers: Surpassing human-level
