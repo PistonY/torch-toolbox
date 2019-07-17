@@ -25,7 +25,7 @@ def get_true_acc(label, pred):
 
 # tests top acc
 def get_ture_top3(label, pred):
-    pred = np.argpartition(pred, -3)[:, :3]
+    pred = np.argpartition(pred, -3)[:, -3:]
     num_ture_idx = 0
     for l, p in zip(label, pred):
         if l in p:
