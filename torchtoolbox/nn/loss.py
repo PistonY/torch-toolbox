@@ -9,7 +9,6 @@ from torch import nn
 class LabelSmoothingLoss(nn.Module):
     def __init__(self, classes, smoothing=0.0, dim=-1):
         super(LabelSmoothingLoss, self).__init__()
-        self.criterion = nn.KLDivLoss()
         self.confidence = 1.0 - smoothing
         self.smoothing = smoothing
         self.cls = classes
@@ -22,4 +21,4 @@ class LabelSmoothingLoss(nn.Module):
             true_dist = torch.zeros_like(pred)
             true_dist.fill_(self.smoothing / (self.cls - 1))
             true_dist.scatter_(1, target.data.unsqueeze(1), self.confidence)
-        return self.criterion(pred, true_dist)
+        return torch.mean(torch.sum(-true_dist * pred, dim=self.dim))
