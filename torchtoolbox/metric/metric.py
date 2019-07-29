@@ -2,8 +2,9 @@
 # Author: pistonyang@gmail.com
 
 __all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost']
-import torch
+
 from torch import Tensor
+import torch
 import numpy as np
 
 
