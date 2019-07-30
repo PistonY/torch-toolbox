@@ -4,7 +4,7 @@
 import pytest
 import torch
 from torch import nn
-from torchtoolbox.tools import CosineWarmupLr
+from torchtoolbox.optimizer import CosineWarmupLr
 
 # Backup func.
 # class IterLRScheduler(object):
