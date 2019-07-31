@@ -2,11 +2,50 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 import torch
 from torch import nn
+from . import functional as F
 
 
-class SwitchNorm2d(nn.Module):
-    def __init__(self, num_features, eps=1e-5, momentum=0.9, using_moving_average=True):
-        super(SwitchNorm2d, self).__init__()
+class _SwitchNorm(nn.Module):
+    _version = 2
+
+    def __init__(self, num_features, eps=1e-5, momentum=0.9, affine=True):
+        super(_SwitchNorm, self).__init__()
+        self.num_features = num_features
         self.eps = eps
         self.momentum = momentum
-        self.ma = using_moving_average
+        self.affine = affine
+        if self.affine:
+            self.weight = nn.Parameter(torch.Tensor(num_features))
+            self.bias = nn.Parameter(torch.Tensor(num_features))
+        else:
+            self.register_parameter('weight', None)
+            self.register_parameter('bias', None)
+
+        self.mean_weight = nn.Parameter(torch.ones(3))
+        self.var_weight = nn.Parameter(torch.ones(3))
+
+        self.register_buffer('running_mean', torch.zeros(num_features))
+        self.register_buffer('running_var', torch.ones(num_features))
+
+    def _check_input_dim(self, x):
+        raise NotImplementedError
+
+    def forward(self, x):
+        self._check_input_dim(x)
+        return F.switch_norm(x, self.running_mean, self.running_var, self.weight,
+                             self.bias, self.mean_weight, self.var_weight,
+                             self.training, self.momentum, self.eps)
+
+
+class SwitchNorm2d(_SwitchNorm):
+    def _check_input_dim(self, x):
+        if x.dim() != 4:
+            raise ValueError('expected 4D input (got {}D input)'
+                             .format(x.dim()))
+
+
+class SwitchNorm3d(_SwitchNorm):
+    def _check_input_dim(self, x):
+        if x.dim() != 5:
+            raise ValueError('expected 5D input (got {}D input)'
+                             .format(x.dim()))
