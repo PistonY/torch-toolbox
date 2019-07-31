@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-from torchtoolbox.nn import LabelSmoothingLoss, AdaptiveSequential
+from torchtoolbox.nn import *
 import torch
 from torch import nn
 
@@ -62,3 +62,15 @@ def test_ad_sequential():
     out = seq(td)
 
     assert out.size() == torch.Size([1, 3, 32, 32])
+
+
+@torch.no_grad()
+def test_switch_norm():
+    td2 = torch.rand(1, 3, 32, 32)
+    td3 = torch.rand(1, 3, 32, 32, 3)
+    norm2 = SwitchNorm2d(3)
+    norm3 = SwitchNorm3d(3)
+    out2 = norm2(td2)
+    out3 = norm3(td3)
+
+    assert out2.size() == td2.size() and out3.size() == td3.size()

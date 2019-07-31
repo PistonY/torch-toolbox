@@ -34,8 +34,8 @@ def switch_norm(x, running_mean, running_var, weight, bias,
     var_layer = x.var((1, -1), keepdim=True)
 
     if training:
-        mean_batch = x.mean((0, -1), keepdim=True)
-        var_batch = x.var((0, -1), keepdim=True)
+        mean_batch = x.mean((0, -1))
+        var_batch = x.var((0, -1))
         if moving_average:
             running_mean.mul_(momentum)
             running_mean.add_((1 - momentum) * mean_batch.data)
@@ -51,12 +51,12 @@ def switch_norm(x, running_mean, running_var, weight, bias,
     mean_weight = mean_weight.softmax(0)
     var_weight = var_weight.softmax(0)
 
-    mean = mean_weight[0] * mean_instance + \
-           mean_weight[1] * mean_layer + mean_weight[2] * mean_batch
-    var = var_weight[0] * var_instance + \
-          var_weight[1] * var_layer + var_weight[2] * var_batch
+    mean = mean_weight[0] * mean_instance + mean_weight[1] * mean_layer + \
+           mean_weight[2] * mean_batch.unsqueeze(1)
+    var = var_weight[0] * var_instance + var_weight[1] * var_layer + \
+          var_weight[2] * var_batch.unsqueeze(1)
 
     x = (x - mean) / (var + eps).sqrt()
+    x = x * weight.unsqueeze(1) + bias.unsqueeze(1)
     x = x.view(size)
-    x = x * weight.expand_as(x) + bias.expand_as(x)
     return x

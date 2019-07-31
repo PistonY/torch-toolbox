@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
+__all__ = ['SwitchNorm2d', 'SwitchNorm3d']
 import torch
 from torch import nn
 from . import functional as F
