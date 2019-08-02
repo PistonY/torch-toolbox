@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
+"""This file should not be used by 'form functional import *'"""
 
 import torch
+from .operators import *
+
+swish = SwishOP.apply
 
 
 @torch.no_grad()

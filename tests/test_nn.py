@@ -74,3 +74,9 @@ def test_switch_norm():
     out3 = norm3(td3)
 
     assert out2.size() == td2.size() and out3.size() == td3.size()
+
+
+def test_swish():
+    td = torch.rand(1, 16, 32, 32)
+    swish = Swish(beta=10.0)
+    swish(td)

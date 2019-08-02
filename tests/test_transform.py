@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
 
-from torchtoolbox.nn.transform import Cutout
+from torchtoolbox.transform import Cutout
 import numpy as np
 from PIL import Image
 
