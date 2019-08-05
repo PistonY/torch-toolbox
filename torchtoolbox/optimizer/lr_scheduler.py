@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 # @Author  : PistonYang(pistonyang@gmail.com)
+__all__ = ['CosineWarmupLr']
 
 from math import pi, cos
 from torch.optim.optimizer import Optimizer
-
-__all__ = ['CosineWarmupLr']
 
 
 class CosineWarmupLr(object):

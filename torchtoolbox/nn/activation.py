@@ -9,6 +9,10 @@ from torch import nn
 class Swish(nn.Module):
     """Switch activation from 'SEARCHING FOR ACTIVATION FUNCTIONS'
         https://arxiv.org/pdf/1710.05941.pdf
+
+        swish =  x / (1 + e^-beta*x)
+        d_swish = (1 + (1+beta*x)) / ((1 + e^-beta*x)^2)
+
     """
 
     def __init__(self, beta=1.0):
