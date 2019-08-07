@@ -9,7 +9,8 @@ __all__ = ['mixup_data', 'mixup_criterion']
 
 @torch.no_grad()
 def mixup_data(x, y, alpha=0.2):
-    '''Returns mixed inputs, pairs of targets, and lambda'''
+    """Returns mixed inputs, pairs of targets, and lambda
+    """
     if alpha > 0:
         lam = np.random.beta(alpha, alpha)
     else:

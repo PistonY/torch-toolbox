@@ -41,8 +41,12 @@ class Cutout(object):
 
         img_h, img_w = img.size
         img_c = len(img.getbands())
-        s = np.random.uniform(s_l, s_h) * img_h * img_w
+        s = np.random.uniform(s_l, s_h)
+        # if you img_h != img_w you may need this.
+        # r_1 = max(r_1, (img_h*s)/img_w)
+        # r_2 = min(r_2, img_h / (img_w*s))
         r = np.random.uniform(r_1, r_2)
+        s = s * img_h * img_w
         w = int(np.sqrt(s / r))
         h = int(np.sqrt(s * r))
         left = np.random.randint(0, img_w - w)
