@@ -5,11 +5,11 @@ __all__ = []
 import os
 
 
-def check_dir(path):
-    """Check dir exist or not, if not make one.
+def check_dir(*path):
+    """Check dir(s) exist or not, if not make one(them).
     Args:
-        path: full path to check.
+        path: full path(s) to check.
     """
-    if not os.path.exists(path):
-        os.mkdir(path)
-
+    for p in path:
+        if not os.path.exists(p):
+            os.mkdir(p)
