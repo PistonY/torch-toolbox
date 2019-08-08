@@ -21,4 +21,5 @@ class SwishOP(Function):
         grad_switch = (torch.exp(-beta * tensor) * (1 + beta * tensor) + 1) / \
                       (1 + torch.exp(-beta * tensor)) ** 2
         grad_switch = grad_outputs * grad_switch
-        return grad_switch, None
+        return grad_switch,
+
