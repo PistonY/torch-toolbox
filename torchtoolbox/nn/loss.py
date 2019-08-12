@@ -9,8 +9,6 @@ from .functional import smooth_one_hot
 
 class LabelSmoothingLoss(nn.Module):
     """This is label smoothing loss function.
-
-
     """
 
     def __init__(self, classes, smoothing=0.0, dim=-1):
