@@ -21,7 +21,7 @@ def smooth_one_hot(true_labels: torch.Tensor, classes: int, smoothing=0.0):
     """
     if smoothing == 0, it's one-hot method
     if 0 < smoothing < 1, it's smooth method
-
+    Warning: This function has no grad.
     """
     # assert 0 <= smoothing < 1
     confidence = 1.0 - smoothing
@@ -63,9 +63,12 @@ def switch_norm(x, running_mean, running_var, weight, bias,
     mean_weight = mean_weight.softmax(0)
     var_weight = var_weight.softmax(0)
 
-    mean = mean_weight[0] * mean_instance + mean_weight[1] * mean_layer + \
+    mean = mean_weight[0] * mean_instance + \
+           mean_weight[1] * mean_layer + \
            mean_weight[2] * mean_batch.unsqueeze(1)
-    var = var_weight[0] * var_instance + var_weight[1] * var_layer + \
+
+    var = var_weight[0] * var_instance + \
+          var_weight[1] * var_layer + \
           var_weight[2] * var_batch.unsqueeze(1)
 
     x = (x - mean) / (var + eps).sqrt()
