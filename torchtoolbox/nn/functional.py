@@ -5,7 +5,15 @@
 import torch
 from .operators import *
 
-swish = SwishOP.apply
+
+def swish(x, beta=1.0):
+    """Swish activation.
+    'https://arxiv.org/pdf/1710.05941.pdf'
+    Args:
+        x: Input tensor.
+        beta:
+    """
+    return SwishOP.apply(x, beta)
 
 
 @torch.no_grad()

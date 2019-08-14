@@ -11,16 +11,14 @@ class SwishOP(Function):
     def forward(ctx, tensor, beta=1.0):
         ctx.save_for_backward(tensor)
         ctx.beta = beta
-        switch = tensor / (1 + torch.exp(-beta * tensor))
-        return switch
+        swish = tensor / (1 + torch.exp(-beta * tensor))
+        return swish
 
     @staticmethod
     def backward(ctx, grad_outputs):
         tensor = ctx.saved_tensors[0]
         beta = ctx.beta
-        grad_switch = (torch.exp(-beta * tensor) * (1 + beta * tensor) + 1) / \
-                      (1 + torch.exp(-beta * tensor)) ** 2
-        grad_switch = grad_outputs * grad_switch
-        return grad_switch, None
-
-
+        grad_swish = (torch.exp(-beta * tensor) * (1 + beta * tensor) + 1) / \
+                     (1 + torch.exp(-beta * tensor)) ** 2
+        grad_swish = grad_outputs * grad_swish
+        return None, grad_swish, None
