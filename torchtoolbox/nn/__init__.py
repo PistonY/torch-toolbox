@@ -5,4 +5,8 @@ from .loss import *
 from .sequential import *
 from .switch_norm import *
 from .activation import *
-from .parallel import *
+try:
+    from .parallel import *
+except ImportError:
+    pass
+
