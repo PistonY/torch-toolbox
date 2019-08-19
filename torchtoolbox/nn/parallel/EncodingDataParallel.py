@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
+"""Refers to 'https://github.com/zhanghang1989/PyTorch-Encoding/blob/master/encoding/parallel.py'"""
 __all__ = ['EncodingDataParallel', 'EncodingCriterionParallel']
 import threading
 import torch

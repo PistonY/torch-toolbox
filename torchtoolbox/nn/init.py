@@ -30,7 +30,8 @@ def XavierInitializer(model, random_type='uniform', gain=math.sqrt(2.0)):
             if m.bias is not None:
                 m.bias.data.zero_()
         elif isinstance(m, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
-            m.weight.data.fill_(1)
+            if m.weight is not None:
+                m.weight.data.fill_(1)
             if m.bias is not None:
                 m.bias.data.zero_()
         elif isinstance(m, nn.Linear):
@@ -68,7 +69,8 @@ def KaimingInitializer(model, slope=0, mode='fan_out', nonlinearity='relu', rand
             if m.bias is not None:
                 m.bias.data.zero_()
         elif isinstance(m, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
-            m.weight.data.fill_(1)
+            if m.weight is not None:
+                m.weight.data.fill_(1)
             if m.bias is not None:
                 m.bias.data.zero_()
         elif isinstance(m, nn.Linear):
