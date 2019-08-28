@@ -153,21 +153,21 @@ class NumericalCost(Metric):
 
     Args:
         name (string or dict, optional): Acc name. eg: name='Loss'
-
+        record_type (string, optional): how to a calculate this,
+            only 'mean', 'max', 'min' supported.
     Attributes:
-        sum_cost (float): sum cost.
-        sum_num (int): sum num of step.
+        coll (list): element to be calculated.
     """
 
-    def __init__(self, name=None):
+    def __init__(self, name=None, record_type='mean'):
         super(NumericalCost, self).__init__(name)
-        self.sum_cost = 0
-        self.sum_num = 0
+        self.coll = []
+        self.type = record_type
+        assert record_type in ('mean', 'max', 'min')
 
     def reset(self):
         """Reset status."""
-        self.sum_cost = 0
-        self.sum_num = 0
+        self.coll = []
 
     @torch.no_grad()
     def step(self, cost):
@@ -176,8 +176,7 @@ class NumericalCost(Metric):
         Args:
             cost (Tensor): cost to record.
         """
-        self.sum_cost += cost.cpu().detach().numpy()
-        self.sum_num += 1
+        self.coll.append(cost.cpu().detach().numpy())
 
     def get(self):
         """Get top cost recorded.
@@ -188,5 +187,11 @@ class NumericalCost(Metric):
             A float number of cost.
 
         """
-        assert self.sum_num != 0, 'Please call step before get'
-        return self.sum_cost / self.sum_num
+        assert len(self.coll) != 0, 'Please call step before get'
+        if self.type == 'mean':
+            ret = np.mean(self.coll)
+        elif self.type == 'max':
+            ret = np.max(self.coll)
+        else:
+            ret = np.min(self.coll)
+        return ret
