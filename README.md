@@ -22,7 +22,7 @@ Toolbox have two mainly parts:
 2. Some fashion work which don't exist in Pytorch core.
 
 ### Tools
-1. Show your model parameters and FLOPs.
+#### 1. Show your model parameters and FLOPs.
 ```python
 import torch
 from torchtoolbox.tools import summary
@@ -51,17 +51,17 @@ Total flops(M+A): 610,505,744  610.5M
 Parameters size (MB): 13.50
 ```
 
-2. Metric collection
+#### 2. Metric collection
 When we train a model we usually need to calculate some metrics like accuracy(top1-acc), loss etc.
 Now toolbox support as below:
 1. Accuracy: top-1 acc.
 2. TopKAccuracy: topK-acc.
-3. NumericalCost: This is a number metric collection which support `mean`, 'max', 'min' calculate type.
+3. NumericalCost: This is a number metric collection which support `mean`, `max`, `min` calculate type.
 
 ```python
 from torchtoolbox import metric
 
-# defined first
+# define first
 top1_acc = metric.Accuracy(name='Top1 Accuracy')
 top5_acc = metric.TopKAccuracy(top=5, name='Top5 Accuracy')
 loss_record = metric.NumericalCost(name='Loss')
@@ -94,3 +94,135 @@ Then you may get outputs like this
 Test Epoch 101: Top1 Accuracy:0.7332, Top5 Accuracy:0.91514, Loss:1.0605
 ```
 
+#### 3. Model Initializer
+Now ToolBox support `XavierInitializer` and `KaimingInitializer`.
+```python
+from torchtoolbox.nn.init import KaimingInitializer
+
+model = XXX
+KaimingInitializer(model)
+```
+
+### Fashion work
+#### 1. LabelSmoothingLoss
+```python
+from torchtoolbox.nn import LabelSmoothingLoss
+# The num classes of your task should be defined.
+classes = 10
+# Loss
+Loss = LabelSmoothingLoss(classes, smoothing=0.1)
+
+...
+for i, (data, labels) in enumerate(train_data):
+    data = data.to(device, non_blocking=True)
+    labels = labels.to(device, non_blocking=True)
+
+    optimizer.zero_grad()
+    outputs = model(data)
+    # just use as usual.
+    loss = Loss(outputs, labels)
+    loss.backward()
+    optimizer.step()
+```
+
+#### 2. CosineWarmupLr
+Cosine lr scheduler with warm-up epochs.It's helpful to improve acc for classification models.
+```python
+from torchtoolbox.optimizer import CosineWarmupLr
+
+optimizer = optim.SGD(...)
+# define scheduler
+# `batches_pre_epoch` means how many batches(times update/step the model) within one epoch.
+# `warmup_epochs` means increase lr how many epochs to `base_lr`.
+# you can find more details in file.
+lr_scheduler = CosineWarmupLr(optimizer, batches_pre_epoch, epochs,
+                              base_lr=lr, warmup_epochs=warmup_epochs)
+...
+for i, (data, labels) in enumerate(train_data):
+    ...
+    optimizer.step()
+    # remember to step/update status here.
+    lr_scheduler.step()
+    ...
+```
+
+#### 3. SwitchNorm2d/3d
+```python
+from torchtoolbox.nn import SwitchNorm2d, SwitchNorm3d
+```
+Just use it like Batchnorm2d/3d.
+More details please refer to origin paper 
+[Differentiable Learning-to-Normalize via Switchable Normalization](https://arxiv.org/pdf/1806.10779.pdf) 
+[OpenSourse](https://github.com/switchablenorms/Switchable-Normalization)
+
+
+#### 4. Swish activation
+```python
+from torchtoolbox.nn import Swish
+```
+Just use it like Relu.
+More details please refer to origin paper 
+[SEARCHING FOR ACTIVATION FUNCTIONS](https://arxiv.org/pdf/1710.05941.pdf)
+
+#### 5. Lookahead optimizer
+A wrapper optimizer seems better than Adam. 
+[Lookahead Optimizer: k steps forward, 1 step back](https://arxiv.org/abs/1907.08610)
+```python
+from torchtoolbox.optimizer import Lookahead
+from torch import optim
+
+optimizer = optim.Adam(...)
+optimizer = Lookahead(optimizer)
+```
+
+#### 5. Mixup training
+Mixup method to train a classification model.
+[mixup: BEYOND EMPIRICAL RISK MINIMIZATION](https://arxiv.org/pdf/1710.09412.pdf)
+```python
+from torchtoolbox.tools import mixup_data, mixup_criterion
+
+# set beta distributed parm, 0.2 is recommend.
+alpha = 0.2
+for i, (data, labels) in enumerate(train_data):
+    data = data.to(device, non_blocking=True)
+    labels = labels.to(device, non_blocking=True)
+
+    data, labels_a, labels_b, lam = mixup_data(data, labels, alpha)
+    optimizer.zero_grad()
+    outputs = model(data)
+    loss = mixup_criterion(Loss, outputs, labels_a, labels_b, lam)
+
+    loss.backward()
+    optimizer.step()
+```
+
+#### 6. Cutout
+A image transform method.
+[Improved Regularization of Convolutional Neural Networks with Cutout](https://arxiv.org/pdf/1708.04552.pdf)
+```python
+from torchvision import transforms
+from torchtoolbox.transform import Cutout
+
+_train_transform = transforms.Compose([
+    transforms.RandomResizedCrop(224),
+    Cutout(),
+    transforms.RandomHorizontalFlip(),
+    transforms.ColorJitter(0.4, 0.4, 0.4),
+    transforms.ToTensor(),
+    normalize,
+])
+```
+
+#### 7. No decay bias
+If you train a model with big batch size, eg. 64k, you may need this,
+[Highly Scalable Deep Learning Training System with Mixed-Precision: Training ImageNet in Four Minutes](https://arxiv.org/pdf/1807.11205.pdf)
+
+```python
+from torchtoolbox.tools import split_weights
+from torch import optim
+
+model = XXX
+parameters = split_weights(model)
+optimizer = optim.SGD(parameters, ...)
+
+```

@@ -89,7 +89,7 @@ class CosineWarmupLr(object):
 
         Args:
             iteration(int, optional): now training iteration of all epochs.
-                Normally need to set it manually.
+                Normally need not to set it manually.
         """
         if iteration is None:
             iteration = self.last_iter + 1
