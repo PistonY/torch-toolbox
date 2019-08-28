@@ -2,8 +2,7 @@
 # Author: pistonyang@gmail.com
 
 from setuptools import setup, find_packages
-
-VERSION = '0.0.3'
+from torchtoolbox import VERSION
 
 setup(
     name='torchtoolbox',
@@ -11,7 +10,7 @@ setup(
     author='X.Yang',
     author_email='pistonyang@gmail.com',
     url='https://github.com/deeplearningforfun/torch-toolbox',
-    description='Collect and write useful tools for Pytorch.',
+    description='ToolBox to make using Pytorch much easier.',
     long_description=open('README.md').read(),
     license='BSD 3-Clause',
     packages=find_packages(exclude=('*tests*',)),
