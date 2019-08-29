@@ -11,6 +11,7 @@ setup(
     author_email='pistonyang@gmail.com',
     url='https://github.com/deeplearningforfun/torch-toolbox',
     description='ToolBox to make using Pytorch much easier.',
+    long_description_content_type="text/markdown",
     long_description=open('README.md').read(),
     license='BSD 3-Clause',
     packages=find_packages(exclude=('*tests*',)),
