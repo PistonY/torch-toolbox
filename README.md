@@ -278,3 +278,8 @@ parameters = split_weights(model)
 optimizer = optim.SGD(parameters, ...)
 
 ```
+
+## Contribution
+
+Welcome pull requests and issues!!!
+ 
