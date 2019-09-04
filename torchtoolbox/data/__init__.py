@@ -2,3 +2,4 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 
 from .datasets import *
+from .dataprefetcher import DataPreFetcher
