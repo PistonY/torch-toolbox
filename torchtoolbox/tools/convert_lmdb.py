@@ -5,7 +5,7 @@ import os
 import pyarrow
 import argparse
 from torchvision.datasets import ImageFolder
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='Convert a ImageFolder dataset to LMDB format.')
@@ -17,6 +17,9 @@ parser.add_argument('--name', type=str, required=True,
                     help='Save file name, need not to add `.lmdb`')
 parser.add_argument('-j', dest='num_workers', type=int, default=0)
 parser.add_argument('--write-frequency', type=int, default=5000)
+parser.add_argument('--max-size', type=float, default=1.0,
+                    help='Maximum size database, this is a rate, default is 1T, final setting will be '
+                         '1T * `this param`')
 
 args = parser.parse_args()
 
@@ -44,7 +47,8 @@ num_samples = len(data_set)
 def generate_lmdb_dataset():
     lmdb_path = os.path.join(args.save_dir, '{}.lmdb'.format(args.name))
     isdir = os.path.isdir(lmdb_path)
-    db = lmdb.open(lmdb_path, subdir=isdir, map_size=1099511627776,
+    db = lmdb.open(lmdb_path, subdir=isdir,
+                   map_size=int(1099511627776 * args.max_size),
                    readonly=False, meminit=True, map_async=True)
     txn = db.begin(write=True)
     for idx, data in enumerate(tqdm(data_loader)):
