@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# @Author  : PistonYang(pistonyang@gmail.com)
+# @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = ['CosineWarmupLr']
 
 from math import pi, cos

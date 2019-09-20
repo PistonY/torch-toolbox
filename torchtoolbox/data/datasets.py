@@ -52,6 +52,7 @@ class ImageLMDB(Dataset):
         with self.env.begin() as txn:
             self.length = load_pyarrow(txn.get(b'__len__'))
 
+        self.map_list = [get_key(i) for i in range(self.length)]
         self.transform = transform
         self.target_transform = target_transform
 
@@ -60,7 +61,7 @@ class ImageLMDB(Dataset):
 
     def __getitem__(self, item):
         with self.env.begin() as txn:
-            byteflow = txn.get(get_key(item))
+            byteflow = txn.get(self.map_list[item])
         unpacked = load_pyarrow(byteflow)
         imgbuf, target = unpacked
         buf = six.BytesIO(imgbuf)
