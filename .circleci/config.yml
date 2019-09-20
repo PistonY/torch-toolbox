@@ -19,8 +19,7 @@ jobs:
       - run:
           name: install pytorch
           command: |
-            sudo pip3 -q install https://download.pytorch.org/whl/cpu/torch-1.1.0-cp36-cp36m-linux_x86_64.whl
-            sudo pip3 -q install https://download.pytorch.org/whl/cpu/torchvision-0.3.0-cp36-cp36m-linux_x86_64.whl
+            sudo pip3 install torch==1.2.0+cpu torchvision==0.4.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
       - run:
           name: install dependence
           command: |
