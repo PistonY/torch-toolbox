@@ -4,6 +4,7 @@ import pytest
 from torchtoolbox.data import NonLabelDataset
 
 
+@pytest.mark.skip(reason="no way of currently testing this")
 def test_nonlabeldataset(root_dir='/media/piston/data/FFHQ/train'):
     try:
         dt = NonLabelDataset(root_dir)
