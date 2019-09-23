@@ -13,9 +13,8 @@ pip install torchtoolbox
 ```
 If you want to install the nightly version(recommend for now):
 ```shell
-pip install -U git+https://github.com/deeplearningforfun/torch-toolbox.git@master
+pip install -U git+https://github.com/PistonY/torch-toolbox.git@master
 ```
-
 ## Usage
 Toolbox have two mainly parts:
 1. Additional tools to make you use Pytorch easier.
