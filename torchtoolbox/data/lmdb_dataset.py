@@ -6,16 +6,9 @@ import os
 import pyarrow
 import lmdb
 import six
+from ..tools.convert_lmdb import get_key, load_pyarrow
 from PIL import Image
 from torch.utils.data import Dataset
-
-
-def get_key(index):
-    return u'{}'.format(index).encode('ascii')
-
-
-def load_pyarrow(buf):
-    return pyarrow.deserialize(buf)
 
 
 class ImageLMDB(Dataset):
