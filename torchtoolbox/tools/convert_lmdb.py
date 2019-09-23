@@ -7,22 +7,6 @@ from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
 
 
-# parser = argparse.ArgumentParser(description='Convert a ImageFolder dataset to LMDB format.')
-# parser.add_argument('--data-dir', type=str, required=True,
-#                     help='ImageFolder path, this param will give to ImageFolder Dataset.')
-# parser.add_argument('--save-dir', type=str, required=True,
-#                     help='Save dir.')
-# parser.add_argument('--name', type=str, required=True,
-#                     help='Save file name, need not to add `.lmdb`')
-# parser.add_argument('-j', dest='num_workers', type=int, default=0)
-# parser.add_argument('--write-frequency', type=int, default=5000)
-# parser.add_argument('--max-size', type=float, default=1.0,
-#                     help='Maximum size database, this is a rate, default is 1T, final setting would be '
-#                          '1T * `this param`')
-
-# args = parser.parse_args()
-
-
 def get_key(index):
     return u'{}'.format(index).encode('ascii')
 
