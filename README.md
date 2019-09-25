@@ -1,5 +1,4 @@
 # Pytorch-Toolbox
-[![CircleCI](https://circleci.com/gh/deeplearningforfun/torch-toolbox/tree/master.svg?style=svg)](https://circleci.com/gh/deeplearningforfun/torch-toolbox/tree/master)
 
 This is toolbox project for Pytorch. Aiming to make you write Pytorch code more easier, readable and concise.
 
