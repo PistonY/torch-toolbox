@@ -81,7 +81,7 @@ for data, labels in val_data:
     top1_acc.step(outputs, labels)
     top5_acc.step(outputs, labels)
     loss_record.step(losses)
-test_msg = 'Test Epoch {}: {}:{:.5}, {}:{:.5}, {}:{:.5}\n'.format(
+    test_msg = 'Test Epoch {}: {}:{:.5}, {}:{:.5}, {}:{:.5}\n'.format(
     epoch, top1_acc.name, top1_acc.get(), top5_acc.name, top5_acc.get(),
     loss_record.name, loss_record.get())
 
