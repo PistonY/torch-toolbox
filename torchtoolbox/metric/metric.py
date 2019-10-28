@@ -10,8 +10,10 @@ import numpy as np
 
 
 @torch.no_grad()
-def to_numpy(tensor: torch.Tensor):
-    if tensor.get_device() == -1:  # cpu tensor
+def to_numpy(tensor):
+    if isinstance(tensor, np.ndarray):
+        return tensor
+    elif tensor.get_device() == -1:  # cpu tensor
         return tensor.numpy()
     else:
         return tensor.cpu().numpy()
