@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
 # Author: pistonyang@gmail.com
 
-__all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost']
+__all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost',
+           'to_numpy']
 
 from torch import Tensor
 import torch
 import numpy as np
+
+
+@torch.no_grad()
+def to_numpy(tensor: torch.Tensor):
+    if tensor.get_device() == -1:  # cpu tensor
+        return tensor.numpy()
+    else:
+        return tensor.cpu().numpy()
 
 
 class Metric(object):
@@ -75,8 +84,8 @@ class Accuracy(Metric):
             labels (Tensor): True label
         """
         _, pred = torch.max(preds, dim=1)
-        pred = pred.detach().view(-1).cpu().numpy().astype('int32')
-        lbs = labels.detach().view(-1).cpu().numpy().astype('int32')
+        pred = to_numpy(labels.view(-1)).astype('int32')
+        lbs = to_numpy(labels.view(-1)).astype('int32')
         self.num_metric += int((pred == lbs).sum())
         self.num_inst += len(lbs)
 
@@ -126,9 +135,8 @@ class TopKAccuracy(Metric):
             labels (Tensor): True label
         """
 
-        preds = preds.cpu().numpy().astype('float32')
-        labels = labels.cpu().numpy().astype('int32')
-
+        preds = to_numpy(preds).astype('float32')
+        labels = to_numpy(labels).astype('float32')
         preds = np.argpartition(preds, -self.topK)[:, -self.topK:]
         # TODO: Is there any more quick way?
         for l, p in zip(labels, preds):
@@ -176,7 +184,7 @@ class NumericalCost(Metric):
         Args:
             cost (Tensor): cost to record.
         """
-        self.coll.append(cost.cpu().detach().numpy())
+        self.coll.append(to_numpy(cost))
 
     def get(self):
         """Get top cost recorded.
