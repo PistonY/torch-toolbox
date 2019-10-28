@@ -22,9 +22,9 @@ class FeatureVerification(Metric):
     far_target: float, default is 1e-3.
         This is used to get the verification accuracy of expected far.
 
-    dist_type: int, default is 0.
-        Option value is {0, 1}, 0 for euclidean distance, 1 for cosine similarity. Here for cosine distance,
-        we use `1 - cosine` as the final distances.
+    dist_type: str, default is euclidean.
+        Option value is {euclidean, cosine}, 0 for euclidean distance, 1 for cosine similarity.
+        Here for cosine distance, we use `1 - cosine` as the final distances.
 
     """
 

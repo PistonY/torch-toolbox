@@ -2,7 +2,7 @@
 # Author: pistonyang@gmail.com
 
 __all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost',
-           'to_numpy']
+           'to_numpy', 'Metric']
 
 from torch import Tensor
 import torch
