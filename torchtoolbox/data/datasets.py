@@ -74,3 +74,6 @@ class FeaturePairDataset(Dataset):
         if self.transform:
             img0, img1 = map(self.transform, (img0, img1))
         return (img0, img1), is_same
+
+    def __len__(self):
+        return len(self.file_list)
