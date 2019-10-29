@@ -64,16 +64,20 @@ class FeaturePairDataset(Dataset):
                 is_same_list.append(line.replace('\n', '').split(' '))
         self.file_list = is_same_list
         self.transform = transform
+        self.pre_check()
 
-    def __getitem__(self, item):
-        dir = os.path.join(self.root, self.file_list[item][0])
-        is_same = int(self.file_list[item][1])
-        imgs = glob.glob(os.path.join(dir, '*.jpg'))
-        assert len(imgs) == 2
-        img0, img1 = map(Image.open, (imgs[0], imgs[1]))
-        if self.transform:
-            img0, img1 = map(self.transform, (img0, img1))
-        return (img0, img1), is_same
+    def pre_check(self):
+        self.file_list = [[glob.glob(os.path.join(self.root, dir_name, '*.jpg')), int(is_same)]
+                          for dir_name, is_same in self.file_list]
+        for files, _ in self.file_list:
+            assert len(files) == 2
 
     def __len__(self):
         return len(self.file_list)
+
+    def __getitem__(self, item):
+        pair, is_same = self.file_list[item]
+        img0, img1 = map(Image.open, (pair[0], pair[1]))
+        if self.transform:
+            img0, img1 = map(self.transform, (img0, img1))
+        return (img0, img1), is_same
