@@ -1,5 +1,5 @@
 # Pytorch-Toolbox
-**Please ignore CI, I don't know what happen to it.**
+![](https://github.com/PistonY/torch-toolbox/workflows/Torch-Toolbox_CI/badge.svg)
 
 
 This is toolbox project for Pytorch. Aiming to make you write Pytorch code more easier, readable and concise.
