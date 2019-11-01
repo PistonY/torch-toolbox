@@ -1,0 +1,19 @@
+name: Torch-Toolbox CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Test task.
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Install Pytorch
+        run: |
+          conda install -y pytorch torchvision cpuonly -c pytorch \
+          && conda clean --all --yes
+      - name: Install dependence
+        run: |
+          conda install -y tqdm pyarrow six lmdb pytest
+      - name: Run test
+        run: |
+          pytest tests
