@@ -16,4 +16,5 @@ jobs:
           conda install -y tqdm pyarrow six lmdb pytest
       - name: Run test
         run: |
+          ls
           /usr/share/miniconda/bin/pytest tests/
