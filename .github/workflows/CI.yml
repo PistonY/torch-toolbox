@@ -16,5 +16,5 @@ jobs:
           conda install -y tqdm pyarrow six lmdb pytest
       - name: Run test
         run: |
-          conda activate base
+          source activate base
           pytest tests
