@@ -23,7 +23,7 @@ jobs:
       - run:
           name: install dependence
           command: |
-            sudo pip3 -q install tqdm pyarrow six lmdb
+            sudo pip3 -q install tqdm pyarrow six lmdb scikit-learn
       - run:
           name: install pytest
           command: |
