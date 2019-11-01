@@ -1,4 +1,4 @@
-name: Torch-Toolbox CI
+name: Torch-Toolbox_CI
 
 on: [push, pull_request]
 
@@ -16,5 +16,4 @@ jobs:
           conda install -y tqdm pyarrow six lmdb pytest
       - name: Run test
         run: |
-          source activate base
-          pytest tests
+          /usr/share/miniconda/bin/pytest pytest tests
