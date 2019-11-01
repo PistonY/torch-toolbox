@@ -86,7 +86,7 @@ class Accuracy(Metric):
             labels (Tensor): True label
         """
         _, pred = torch.max(preds, dim=1)
-        pred = to_numpy(labels.view(-1)).astype('int32')
+        pred = to_numpy(pred.view(-1)).astype('int32')
         lbs = to_numpy(labels.view(-1)).astype('int32')
         self.num_metric += int((pred == lbs).sum())
         self.num_inst += len(lbs)
