@@ -1,4 +1,4 @@
-name: Torch-Toolbox_CI
+name: Torch-Toolbox-CI
 
 on: [push, pull_request]
 
