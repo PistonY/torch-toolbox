@@ -11,10 +11,14 @@ jobs:
         run: |
           conda install -y pytorch torchvision cpuonly -c pytorch \
           && conda clean --all --yes
+
       - name: Install dependence
         run: |
           conda install -y tqdm pyarrow six lmdb pytest
+
+      - name: Checkout
+        uses: actions/checkout@master
+
       - name: Run test
         run: |
-          ls
           /usr/share/miniconda/bin/pytest tests/
