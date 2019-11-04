@@ -3,8 +3,11 @@
 __all__ = ['NonLabelDataset']
 import glob
 import os
+import pickle
+import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
+from .utils import decode_img_from_buf
 
 
 class NonLabelDataset(Dataset):
@@ -81,3 +84,46 @@ class FeaturePairDataset(Dataset):
         if self.transform:
             imgs = map(self.transform, imgs)
         return imgs, is_same
+
+
+class FeaturePairBin(Dataset):
+    """A dataset wrapping over a pickle serialized (.bin) file provided by InsightFace Repo.
+
+    Parameters
+    ----------
+    name : str. Name of val dataset.
+    root : str. Path to face folder.
+    transform : callable, default None
+        A function that takes data and transforms them.
+
+    """
+
+    def __init__(self, name, root, transform=None):
+        self._transform = transform
+        self.name = name
+        with open(os.path.join(root, "{}.bin".format(name)), 'rb') as f:
+            self.bins, self.issame_list = pickle.load(f, encoding='iso-8859-1')
+
+        self._do_encode = not isinstance(self.bins[0], np.ndarray)
+
+    def __getitem__(self, idx):
+        img0 = self._decode(self.bins[2 * idx])
+        img1 = self._decode(self.bins[2 * idx + 1])
+
+        issame = 1 if self.issame_list[idx] else 0
+
+        if self._transform is not None:
+            img0 = self._transform(img0)
+            img1 = self._transform(img1)
+
+        return (img0, img1), issame
+
+    def __len__(self):
+        return len(self.issame_list)
+
+    def _decode(self, im):
+        if self._do_encode:
+            im = im.encode("iso-8859-1")
+        im = decode_img_from_buf(im).convert('RGB')
+        return im
+

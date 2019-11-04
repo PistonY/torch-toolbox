@@ -7,6 +7,7 @@ import pyarrow
 import lmdb
 import six
 from ..tools.convert_lmdb import get_key, load_pyarrow
+from .utils import decode_img_from_buf
 from PIL import Image
 from torch.utils.data import Dataset
 
@@ -35,8 +36,7 @@ class ImageLMDB(Dataset):
             byteflow = txn.get(self.map_list[item])
         unpacked = load_pyarrow(byteflow)
         imgbuf, target = unpacked
-        buf = six.BytesIO(imgbuf)
-        img = Image.open(buf).convert('RGB')
+        img = decode_img_from_buf(imgbuf).convert('RGB')
 
         if self.transform is not None:
             img = self.transform(img)
