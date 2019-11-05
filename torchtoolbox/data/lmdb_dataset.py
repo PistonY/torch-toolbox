@@ -3,12 +3,9 @@
 __all__ = ['ImageLMDB']
 
 import os
-import pyarrow
 import lmdb
-import six
 from ..tools.convert_lmdb import get_key, load_pyarrow
 from .utils import decode_img_from_buf
-from PIL import Image
 from torch.utils.data import Dataset
 
 

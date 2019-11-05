@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['LabelSmoothingLoss']
+__all__ = ['LabelSmoothingLoss', 'ArcLoss', 'L2Softmax']
 
 from torch import nn
 from torch.nn import functional as F
