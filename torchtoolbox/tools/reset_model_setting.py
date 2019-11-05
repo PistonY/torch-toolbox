@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 __all__ = ['no_decay_bias', 'reset_model_setting']
+
+from .utils import to_list
 from torch import nn
 
 
@@ -35,9 +37,21 @@ def no_decay_bias(net):
     return [dict(params=decay), dict(params=no_decay, weight_decay=0)]
 
 
-def reset_model_setting(model, layer_names, setting_name, base_value, rate):
-    if not isinstance(layer_names, (list, tuple)):
-        layer_names = [layer_names]
+def reset_model_setting(model, layer_names, setting_names, values):
+    """Split model params in to parts.One is normal setting, another is setting manually.
+
+    Args:
+        model:
+        layer_names:
+        setting_name:
+        base_value:
+        rate:
+
+    Returns:
+
+    """
+    layer_names, setting_names, values = map(to_list, (layer_names, setting_names, values))
+    assert len(setting_names) == len(values)
     ignore_params = []
     for name in layer_names:
         ignore_params.extend(list(map(id, getattr(model, name).parameters())))
@@ -46,5 +60,5 @@ def reset_model_setting(model, layer_names, setting_name, base_value, rate):
     reset_param = filter(lambda p: id(p) in ignore_params, model.parameters())
 
     parameters = [{'params': base_param},
-                  {'params': reset_param, setting_name: base_value * rate}]
+                  {'params': reset_param}.update(dict(zip(setting_names, values)))]
     return parameters
