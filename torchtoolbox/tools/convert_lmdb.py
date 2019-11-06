@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
+"""This file should not be included in __init__"""
+__all__ = ['get_key', 'load_pyarrow', 'dumps_pyarrow', 'generate_lmdb_dataset']
+
 import lmdb
 import os
 import pyarrow

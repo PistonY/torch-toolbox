@@ -41,14 +41,15 @@ def reset_model_setting(model, layer_names, setting_names, values):
     """Split model params in to parts.One is normal setting, another is setting manually.
 
     Args:
-        model:
-        layer_names:
-        setting_name:
-        base_value:
-        rate:
+        model: model to control.
+        layer_names: layers to change setting.
+        setting_name: param name to reset.
+        values: reset values.
 
-    Returns:
+    Returns: new params dict
 
+    For example:
+    parameters = reset_model_setting(model, 'output', 'lr', '0.1')
     """
     layer_names, setting_names, values = map(to_list, (layer_names, setting_names, values))
     assert len(setting_names) == len(values)

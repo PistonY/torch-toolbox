@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['NonLabelDataset']
+__all__ = ['NonLabelDataset', 'FeaturePairDataset', 'FeaturePairBin']
 import glob
 import os
 import pickle
@@ -106,6 +106,12 @@ class FeaturePairBin(Dataset):
 
         self._do_encode = not isinstance(self.bins[0], np.ndarray)
 
+    def _decode(self, im):
+        if self._do_encode:
+            im = im.encode("iso-8859-1")
+        im = decode_img_from_buf(im).convert('RGB')
+        return im
+
     def __getitem__(self, idx):
         img0 = self._decode(self.bins[2 * idx])
         img1 = self._decode(self.bins[2 * idx + 1])
@@ -120,10 +126,3 @@ class FeaturePairBin(Dataset):
 
     def __len__(self):
         return len(self.issame_list)
-
-    def _decode(self, im):
-        if self._do_encode:
-            im = im.encode("iso-8859-1")
-        im = decode_img_from_buf(im).convert('RGB')
-        return im
-

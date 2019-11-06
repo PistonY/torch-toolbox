@@ -9,7 +9,7 @@ setup(
     version=VERSION,
     author='X.Yang',
     author_email='pistonyang@gmail.com',
-    url='https://github.com/deeplearningforfun/torch-toolbox',
+    url='https://https://github.com/PistonY/torch-toolbox',
     description='ToolBox to make using Pytorch much easier.',
     long_description_content_type="text/markdown",
     long_description=open('README.md').read(),
