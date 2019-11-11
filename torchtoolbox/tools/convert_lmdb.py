@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
 """This file should not be included in __init__"""
-__all__ = ['get_key', 'load_pyarrow', 'dumps_pyarrow', 'generate_lmdb_dataset']
+__all__ = ['get_key', 'load_pyarrow', 'dumps_pyarrow', 'generate_lmdb_dataset', 'raw_reader']
 
 import lmdb
 import os
