@@ -25,6 +25,7 @@ def dumps_pyarrow(obj):
 
 
 def load_pyarrow(buf):
+    assert buf is not None, 'buf should not be None.'
     return pyarrow.deserialize(buf)
 
 
@@ -45,6 +46,14 @@ def generate_lmdb_dataset(data_set: Dataset, save_dir: str, name: str,
             txn.commit()
             txn = db.begin(write=True)
     txn.put(b'__len__', dumps_pyarrow(num_samples))
+    try:
+        classes = data_set.classes
+        class_to_idx = data_set.class_to_idx
+        txn.put(b'classes', dumps_pyarrow(classes))
+        txn.put(b'class_to_idx', dumps_pyarrow(class_to_idx))
+    except AttributeError:
+        pass
+
     txn.commit()
     db.sync()
     db.close()

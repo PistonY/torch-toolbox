@@ -20,6 +20,11 @@ class ImageLMDB(Dataset):
                              readahead=False, meminit=False)
         with self.env.begin() as txn:
             self.length = load_pyarrow(txn.get(b'__len__'))
+            try:
+                self.classes = load_pyarrow(txn.get(b'classes'))
+                self.class_to_idx = load_pyarrow(txn.get(b'class_to_idx'))
+            except AssertionError:
+                pass
 
         self.map_list = [get_key(i) for i in range(self.length)]
         self.transform = transform
