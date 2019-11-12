@@ -45,8 +45,6 @@ class FeatureVerification(Metric):
         self.issame = []
 
     def step(self, embeddings0, embeddings1, labels):
-        if len(labels.shape) == 1:
-            labels = labels.unsqueeze(1)
         embeddings0, embeddings1, labels = map(to_numpy, (embeddings0, embeddings1, labels))
         if self.dist_type is 'euclidean':
             diff = np.subtract(embeddings0, embeddings1)
@@ -54,8 +52,9 @@ class FeatureVerification(Metric):
         else:
             dists = 1 - np.sum(np.multiply(embeddings0, embeddings1), axis=1) / \
                     (np.linalg.norm(embeddings0, axis=1) * np.linalg.norm(embeddings1, axis=1))
-        self.dists += [d for d in dists]
-        self.issame += [l for l in labels]
+
+        self.dists.extend(dists)
+        self.issame.extend(labels)
 
     def get(self):
         tpr, fpr, accuracy = calculate_roc(self.thresholds, np.asarray(self.dists),
