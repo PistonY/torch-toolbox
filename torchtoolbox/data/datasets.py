@@ -80,9 +80,9 @@ class FeaturePairDataset(Dataset):
 
     def __getitem__(self, item):
         pair, is_same = self.file_list[item]
-        imgs = map(Image.open, pair)
+        imgs = list(map(Image.open, pair))
         if self.transform:
-            imgs = map(self.transform, imgs)
+            imgs = list(map(self.transform, imgs))
         return imgs, is_same
 
 
