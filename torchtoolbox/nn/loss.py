@@ -110,7 +110,8 @@ class ArcLoss(_WeightedLoss):
             cond_v = cos_t - self.threshold
             cond = torch.relu(cond_v)
         cond = cond.bool()
-        new_zy = torch.cos(torch.acos(cos_t) + self.m)  # cos(theta_yi + m)
+        # Apex would convert FP16 to FP32 here
+        new_zy = torch.cos(torch.acos(cos_t) + self.m).type(cos_t.dtype)  # cos(theta_yi + m)
         if self.easy_margin:
             zy_keep = cos_t
         else:
