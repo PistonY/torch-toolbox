@@ -67,6 +67,47 @@ class L2Softmax(_WeightedLoss):
                                reduction=self.reduction)
 
 
+class CosLoss(_WeightedLoss):
+    r"""CosLoss from
+       `"CosFace: Large Margin Cosine Loss for Deep Face Recognition"
+       <https://arxiv.org/abs/1801.09414>`_ paper.
+
+       It is also AM-Softmax from
+       `"Additive Margin Softmax for Face Verification"
+       <https://arxiv.org/abs/1801.05599>`_ paper.
+
+    Parameters
+    ----------
+    classes: int.
+        Number of classes.
+    m: float, default 0.4
+        Margin parameter for loss.
+    s: int, default 64
+        Scale parameter for loss.
+
+
+    Outputs:
+        - **loss**: loss tensor with shape (batch_size,). Dimensions other than
+          batch_axis are averaged out.
+    """
+
+    def __init__(self, classes, m, s, weight=None, size_average=None,
+                 ignore_index=-100, reduce=None, reduction='mean'):
+        super(CosLoss, self).__init__(weight, size_average, reduce, reduction)
+        assert m > 0 and s > 0
+        self.ignore_index = ignore_index
+        self.classes = classes
+        self.scale = s
+        self.margin = m
+
+    def forward(self, x, target):
+        target = F.one_hot(target, num_classes=self.classes)
+        x = x - target * self.margin
+        x = x * self.scale
+        return F.cross_entropy(x, target, weight=self.weight, ignore_index=self.ignore_index,
+                               reduction=self.reduction)
+
+
 class ArcLoss(_WeightedLoss):
     r"""ArcLoss from
     `"ArcFace: Additive Angular Margin Loss for Deep Face Recognition"

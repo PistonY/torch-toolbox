@@ -10,6 +10,10 @@ from torch.utils.data import Dataset
 from .utils import decode_img_from_buf
 
 
+def _default_reader(img):
+    pass
+
+
 class NonLabelDataset(Dataset):
     """This is used for label-free training like GAN, VAE...
 
@@ -24,7 +28,7 @@ class NonLabelDataset(Dataset):
 
     def __init__(self, root_dir, transform=None):
         self.transform = transform
-        self.items = os.listdir(root_dir)
+        self.items = sorted(os.listdir(root_dir))
         self.items = [os.path.join(root_dir, f) for f in self.items]
 
     def __len__(self):

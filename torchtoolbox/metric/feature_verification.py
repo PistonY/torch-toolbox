@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 __all__ = ['FeatureVerification']
+
 import numpy as np
 from .metric import Metric, to_numpy
 from sklearn.model_selection import KFold
@@ -57,13 +58,15 @@ class FeatureVerification(Metric):
         self.issame.extend(labels)
 
     def get(self):
-        tpr, fpr, accuracy = calculate_roc(self.thresholds, np.asarray(self.dists),
-                                           np.asarray(self.issame), self.nfolds)
+        tpr, fpr, accuracy, threshold = calculate_roc(self.thresholds, np.asarray(self.dists),
+                                                      np.asarray(self.issame), self.nfolds)
 
         val, val_std, far = calculate_val(self.thresholds, np.asarray(self.dists),
                                           np.asarray(self.issame), self.far_target, self.nfolds)
+
         acc, acc_std = np.mean(accuracy), np.std(accuracy)
-        return tpr, fpr, acc, val, val_std, far, acc_std
+        threshold = (1 - threshold) if self.dist_type == 'cosine' else threshold
+        return tpr, fpr, acc, threshold, val, val_std, far, acc_std
 
 
 # code below is modified from project <Facenet (David Sandberg)> and <Gluon-Face>
@@ -89,6 +92,7 @@ def calculate_roc(thresholds, dist, actual_issame, nrof_folds=10):
 
     tprs = np.zeros((nrof_folds, nrof_thresholds))
     fprs = np.zeros((nrof_folds, nrof_thresholds))
+    avg_thresholds = []
     accuracy = np.zeros((nrof_folds,))
     indices = np.arange(nrof_pairs)
     dist = np.array(dist)
@@ -102,11 +106,13 @@ def calculate_roc(thresholds, dist, actual_issame, nrof_folds=10):
             tprs[fold_idx, threshold_idx], \
             fprs[fold_idx, threshold_idx], _ = calculate_accuracy(threshold, dist[test_set],
                                                                   actual_issame[test_set])
+        avg_thresholds.append(thresholds[best_threshold_index])
         _, _, accuracy[fold_idx] = calculate_accuracy(thresholds[best_threshold_index], dist[test_set],
                                                       actual_issame[test_set])
+    avg_thresholds = np.mean(avg_thresholds)
     tpr = np.mean(tprs, 0)
     fpr = np.mean(fprs, 0)
-    return tpr, fpr, accuracy
+    return tpr, fpr, accuracy, avg_thresholds
 
 
 def calculate_accuracy(threshold, dist, actual_issame):

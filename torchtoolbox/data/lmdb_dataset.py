@@ -14,8 +14,9 @@ class ImageLMDB(Dataset):
     LMDB format for image folder.
     """
 
-    def __init__(self, db_path, transform=None, target_transform=None):
-        self.env = lmdb.open(db_path, subdir=os.path.isdir(db_path),
+    def __init__(self, db_path, db_name, transform=None, target_transform=None):
+        self.env = lmdb.open(os.path.join(db_path, '{}.lmdb'.format(db_name)),
+                             subdir=os.path.isdir(db_path),
                              readonly=True, lock=False,
                              readahead=False, meminit=False)
         with self.env.begin() as txn:

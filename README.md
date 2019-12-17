@@ -57,6 +57,8 @@ Now toolbox support as below:
 1. Accuracy: top-1 acc.
 2. TopKAccuracy: topK-acc.
 3. NumericalCost: This is a number metric collection which support `mean`, `max`, `min` calculate type.
+4. FeatureVerification.
+    - This is widely used in margin based algorithm.
 
 ```python
 from torchtoolbox import metric
@@ -100,7 +102,9 @@ Now ToolBox support `XavierInitializer` and `KaimingInitializer`.
 from torchtoolbox.nn.init import KaimingInitializer
 
 model = XXX
-KaimingInitializer(model)
+initializer = KaimingInitializer()
+model.apply(initializer)
+
 ```
 #### 4. AdaptiveSequential
 Make Pytorch `nn.Sequential` could handle multi input/output layer.
@@ -154,6 +158,33 @@ print(out.size())
 # output
 # torch.Size([1, 3, 32, 32])
 ```
+#### 5. Make and Use LMDB dataset.
+If you meet IO speed limit, you may think about [LMDB](https://lmdb.readthedocs.io/en/release/) format dataset.
+LMDB is a tiny database with some excellent properties.
+
+Easy to generate a LMDB format dataset.
+```python
+from torchtoolbox.tools.convert_lmdb import generate_lmdb_dataset, raw_reader
+from torchvision.datasets import ImageFolder
+
+dt = ImageFolder(..., loader=raw_reader)
+save_dir = XXX 
+dataset_name = YYY
+generate_lmdb_dataset(dt, save_dir=save_dir, name=dataset_name)
+
+```
+
+Then if you use `ImageFolder` like dataset you can easily use `ImageLMDB` to load you dataset.
+```python
+from torchtoolbox.data import ImageLMDB
+
+dt = ImageLMDB(db_path=save_dir, db_name=dataset_name, ...)
+```
+
+#### 6. Non-Lable dataset
+This dataset only return images.
+
+More details please refers to [codes](https://github.com/PistonY/torch-toolbox/blob/4838af996b972cd666fadb9fb6bd6dab2103ccad/torchtoolbox/data/datasets.py#L13)
 
 ### Fashion work
 #### 1. LabelSmoothingLoss
