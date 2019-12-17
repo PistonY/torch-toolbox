@@ -310,6 +310,18 @@ optimizer = optim.SGD(parameters, ...)
 
 ```
 
+#### 8. Margin based classification loss
+Now support:
+1. ArcLoss
+2. CosLoss
+3. L2Softmax
+
+```python
+from torchtoolbox.nn.loss import ArcLoss, CosLoss, L2Softmax
+```
+
+You could use this like `nn.CrossEntropyLoss`
+
 ## Contribution
 
 Welcome pull requests and issues!!!
