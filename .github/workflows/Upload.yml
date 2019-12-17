@@ -1,0 +1,16 @@
+name: Automatic upload package to PyPI
+
+on: [push]
+
+jobs:
+  build:
+    name: Publish package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Automatic Publish
+        if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: ${{ secrets.PYPI_USER_NAME }}
+          password: ${{ secrets.PYPI_PASSWOED }}
+
