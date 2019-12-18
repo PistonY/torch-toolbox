@@ -7,6 +7,9 @@ jobs:
     name: Publish package
     runs-on: ubuntu-latest
     steps:
+      - name: Generate Pubilsh File
+        run: |
+          python3 setup.py sdist bdist_wheel
       - name: Automatic Publish
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@master
