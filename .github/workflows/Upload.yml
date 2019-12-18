@@ -17,7 +17,7 @@ jobs:
         run: >-
           python -m
           pip install
-          setuptools
+          setuptools wheel
           --user
       - name: Generate Pubilsh File
         run: |
