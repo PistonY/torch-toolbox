@@ -1,6 +1,7 @@
 # Pytorch-Toolbox
 ![](https://github.com/PistonY/torch-toolbox/workflows/Torch-Toolbox-CI/badge.svg)
 
+Stable Version: v0.1.2
 
 This is toolbox project for Pytorch. Aiming to make you write Pytorch code more easier, readable and concise.
 
