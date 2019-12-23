@@ -1,7 +1,9 @@
 # Pytorch-Toolbox
 ![](https://github.com/PistonY/torch-toolbox/workflows/Torch-Toolbox-CI/badge.svg)
 
-Stable Version: v0.1.2
+Stable Version: v0.1.2 
+
+Automatic upload to PyPI has been finished.
 
 This is toolbox project for Pytorch. Aiming to make you write Pytorch code more easier, readable and concise.
 
@@ -22,6 +24,7 @@ Toolbox have two mainly parts:
 1. Additional tools to make you use Pytorch easier.
 2. Some fashion work which don't exist in Pytorch core.
 
+More details please refer to my [ModelZoo project](https://github.com/PistonY/ModelZoo.pytorch)
 ### Tools
 #### 1. Show your model parameters and FLOPs.
 ```python
