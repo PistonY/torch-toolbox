@@ -664,7 +664,7 @@ class RandomResizedCrop(object):
 
         for attempt in range(10):
             target_area = random.uniform(*scale) * area
-            aspect_ratio = math.exp(*ratio)
+            aspect_ratio = random.uniform(*ratio)
 
             w = int(round(math.sqrt(target_area * aspect_ratio)))
             h = int(round(math.sqrt(target_area / aspect_ratio)))
@@ -1049,7 +1049,7 @@ class RandomAffine(object):
 
     """
 
-    def __init__(self, degrees, translate=None, scale=None, shear=None, resample=False, fillcolor=0):
+    def __init__(self, degrees, translate=None, scale=None, shear=None, resample='BILINEAR', fillcolor=0):
         if isinstance(degrees, numbers.Number):
             if degrees < 0:
                 raise ValueError("If degrees is a single number, it must be positive.")

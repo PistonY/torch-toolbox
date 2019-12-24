@@ -51,6 +51,8 @@ def to_tensor(pic):
             return img.float().div(255)
         else:
             return img
+    else:
+        raise TypeError('pic should be ndarray. Got {}.'.format(type(pic)))
 
 
 def to_cv_image(pic, mode=None):
@@ -132,7 +134,7 @@ def resize(img, size, interpolation='BILINEAR'):
 
     interpolation = INTER_MODE[interpolation]
     if isinstance(size, int):
-        w, h = img.size
+        w, h, _ = img.shape
         if (w <= h and w == size) or (h <= w and h == size):
             return img
         if w < h:
@@ -197,10 +199,10 @@ def pad(img, padding, fill=0, padding_mode='constant'):
 
     if isinstance(padding, int):
         pad_left = pad_right = pad_top = pad_bottom = padding
-    if isinstance(padding, collections.Sequence) and len(padding) == 2:
+    if isinstance(padding, Sequence) and len(padding) == 2:
         pad_left = pad_right = padding[0]
         pad_top = pad_bottom = padding[1]
-    if isinstance(padding, collections.Sequence) and len(padding) == 4:
+    if isinstance(padding, Sequence) and len(padding) == 4:
         pad_left, pad_top, pad_right, pad_bottom = padding
 
     if isinstance(fill, numbers.Number):
@@ -500,7 +502,7 @@ def adjust_contrast(img, contrast_factor):
         raise TypeError('img should be CV Image. Got {}'.format(type(img)))
 
     im = img.astype(np.float32)
-    mean = round(cv2.cvtColor(im, cv2.COLOR_RGB2GRAY))
+    mean = round(cv2.cvtColor(im, cv2.COLOR_RGB2GRAY).mean())
     im = (1 - contrast_factor) * mean + contrast_factor * im
     im = im.clip(min=0, max=255)
     return im.astype(img.dtype)
