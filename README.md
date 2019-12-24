@@ -26,6 +26,17 @@ Toolbox have two mainly parts:
 
 More details please refer to my [ModelZoo project](https://github.com/PistonY/ModelZoo.pytorch)
 ### Tools
+#### 0. Now CV2 transforms have been released.
+Support as list:(need test)
+```python
+__all__ = ["Compose", "ToTensor", "ToCVImage", "Normalize", "Resize", "Scale", "CenterCrop", "Pad",
+           "Lambda", "RandomApply", "RandomChoice", "RandomOrder", "RandomCrop", "RandomHorizontalFlip",
+           "RandomVerticalFlip", "RandomResizedCrop", "RandomSizedCrop", "FiveCrop", "TenCrop", "LinearTransformation",
+           "ColorJitter", "RandomRotation", "RandomAffine", "Grayscale", "RandomGrayscale",
+           "RandomPerspective", "RandomErasing", "RandomGaussianNoise", "RandomPoissonNoise", "RandomSPNoise",
+           "RandomTransforms", "Cutout"]
+```
+Part of this code refers to [opencv_transforms_torchvision](https://github.com/YU-Zhiyang/opencv_transforms_torchvision)
 #### 1. Show your model parameters and FLOPs.
 ```python
 import torch
