@@ -326,6 +326,9 @@ from torchtoolbox.nn.loss import ArcLoss, CosLoss, L2Softmax
 
 You could use this like `nn.CrossEntropyLoss`
 
+## Todo
+- [x] cv2 transforms.
+
 ## Contribution
 
 Welcome pull requests and issues!!!

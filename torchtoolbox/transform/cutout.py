@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # @Author  : PistonYang(pistonyang@gmail.com)
-__all__ = ['Cutout']
+__all__ = ['Cutout_PIL']
 
 import numpy as np
 from PIL import Image
 
 
-class Cutout(object):
+class Cutout_PIL(object):
     """Random erase the given PIL Image.
 
     It has been proposed in

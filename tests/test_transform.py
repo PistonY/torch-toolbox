@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
 
-from torchtoolbox.transform import Cutout
+from torchtoolbox.transform.cutout import Cutout_PIL
 import numpy as np
 from PIL import Image
 
@@ -45,6 +45,6 @@ def test_cutout():
     _cutout_pic = _cutout(np.array(pic))
 
     np.random.seed(226)
-    co = Cutout(p=1)
+    co = Cutout_PIL(p=1)
     co_pic = np.array(co(pic))
     assert (_cutout_pic == co_pic).all()
