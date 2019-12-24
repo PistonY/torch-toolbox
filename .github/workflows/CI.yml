@@ -16,7 +16,7 @@ jobs:
         run: |
           conda install -y tqdm pyarrow six python-lmdb pytest scikit-learn \
           && conda clean --all --yes
-
+          conda install -c conda-forge opencv
       - name: Checkout
         uses: actions/checkout@master
 
