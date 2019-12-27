@@ -14,7 +14,7 @@ class ImageLMDB(Dataset):
     LMDB format for image folder.
     """
 
-    def __init__(self, db_path, db_name, transform=None, target_transform=None):
+    def __init__(self, db_path, db_name, transform=None, target_transform=None, backend='cv2'):
         self.env = lmdb.open(os.path.join(db_path, '{}.lmdb'.format(db_name)),
                              subdir=os.path.isdir(db_path),
                              readonly=True, lock=False,
@@ -30,6 +30,7 @@ class ImageLMDB(Dataset):
         self.map_list = [get_key(i) for i in range(self.length)]
         self.transform = transform
         self.target_transform = target_transform
+        self.backend = backend
 
     def __len__(self):
         return self.length
@@ -39,7 +40,7 @@ class ImageLMDB(Dataset):
             byteflow = txn.get(self.map_list[item])
         unpacked = load_pyarrow(byteflow)
         imgbuf, target = unpacked
-        img = decode_img_from_buf(imgbuf).convert('RGB')
+        img = decode_img_from_buf(imgbuf, self.backend)
 
         if self.transform is not None:
             img = self.transform(img)
