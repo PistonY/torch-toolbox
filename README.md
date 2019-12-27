@@ -15,7 +15,7 @@ A easy way to install this is by using pip:
 ```shell
 pip install torchtoolbox
 ```
-If you want to install the nightly version(recommend for now):
+If you want to install the nightly version:
 ```shell
 pip install -U git+https://github.com/PistonY/torch-toolbox.git@master
 ```
@@ -24,7 +24,6 @@ Toolbox have two mainly parts:
 1. Additional tools to make you use Pytorch easier.
 2. Some fashion work which don't exist in Pytorch core.
 
-More details please refer to my [ModelZoo project](https://github.com/PistonY/ModelZoo.pytorch)
 ### Tools
 #### 0. Now CV2 transforms have been released.
 Support as list:(need test)
