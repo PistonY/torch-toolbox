@@ -169,3 +169,69 @@ class ArcLoss(_WeightedLoss):
         x = x * self.s
         return F.cross_entropy(x, target, weight=self.weight, ignore_index=self.ignore_index,
                                reduction=self.reduction)
+
+
+class RingLoss(nn.Module):
+    """Computes the Ring Loss from
+    `"Ring loss: Convex Feature Normalization for Face Recognition"
+
+    Parameters
+    ----------
+    lamda: float
+        The loss weight enforcing a trade-off between the softmax loss and ring loss.
+    l2_norm: bool
+        Whether use l2 norm to embedding.
+    weight_initializer (None or torch.Tensor): If not None a torch.Tensor should be provided.
+
+    Outputs:
+        - **loss**: loss tensor with shape (batch_size,). Dimensions other than
+          batch_axis are averaged out.
+    """
+
+    def __init__(self, lamda, l2_norm=True, weight_initializer=None):
+        super(RingLoss, self).__init__()
+        self.lamda = lamda
+        self.l2_norm = l2_norm
+        if weight_initializer is None:
+            self.R = self.parameters(torch.rand(1))
+        else:
+            assert torch.is_tensor(weight_initializer), 'weight_initializer should be a Tensor.'
+            self.R = self.parameters(weight_initializer)
+
+    def forward(self, embedding):
+        if self.l2_norm:
+            embedding = F.normalize(embedding, 2, dim=-1)
+        loss = (embedding - self.R).pow(2).sum(1).mean(0) * self.lamda * 0.5
+        return loss
+
+
+class CenterLoss(nn.Module):
+    """Computes the Center Loss from
+    `"A Discriminative Feature Learning Approach for Deep Face Recognition"
+    <http://ydwen.github.io/papers/WenECCV16.pdf>`_paper.
+    Implementation is refer to
+    'https://github.com/lyakaap/image-feature-learning-pytorch/blob/master/code/center_loss.py'
+
+    Parameters
+    ----------
+    classes: int.
+        Number of classes.
+    embedding_dim: int
+        embedding_dim.
+    lamda: float
+        The loss weight enforcing a trade-off between the softmax loss and center loss.
+
+    Outputs:
+        - **loss**: loss tensor with shape (batch_size,). Dimensions other than
+          batch_axis are averaged out.
+    """
+    def __init__(self, classes, embedding_dim, lamda):
+        super(CenterLoss, self).__init__()
+        self.lamda = lamda
+        self.centers = nn.Parameter(torch.randn(classes, embedding_dim))
+
+    def forward(self, embedding, target):
+        expanded_centers = self.centers.index_select(0, target)
+        intra_distances = embedding.dist(expanded_centers)
+        loss = self.lamda * 0.5 * intra_distances / target.size()[0]
+        return loss
