@@ -101,8 +101,8 @@ class CosLoss(_WeightedLoss):
         self.margin = m
 
     def forward(self, x, target):
-        target = F.one_hot(target, num_classes=self.classes)
-        x = x - target * self.margin
+        sparse_target = F.one_hot(target, num_classes=self.classes)
+        x = x - sparse_target * self.margin
         x = x * self.scale
         return F.cross_entropy(x, target, weight=self.weight, ignore_index=self.ignore_index,
                                reduction=self.reduction)
