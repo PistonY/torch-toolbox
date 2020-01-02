@@ -225,6 +225,7 @@ class CenterLoss(nn.Module):
         - **loss**: loss tensor with shape (batch_size,). Dimensions other than
           batch_axis are averaged out.
     """
+
     def __init__(self, classes, embedding_dim, lamda):
         super(CenterLoss, self).__init__()
         self.lamda = lamda
@@ -235,3 +236,4 @@ class CenterLoss(nn.Module):
         intra_distances = embedding.dist(expanded_centers)
         loss = self.lamda * 0.5 * intra_distances / target.size()[0]
         return loss
+
