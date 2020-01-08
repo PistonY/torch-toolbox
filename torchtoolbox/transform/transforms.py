@@ -1449,3 +1449,18 @@ class Cutout(object):
                 c = random.randint(*self.value)
             return F.cutout(img, top, left, h, w, c, self.inplace)
         return img
+
+
+class RandomTextOverlay(object):
+    def __init__(self, p, max_occupancy, length=(10, 25), font=1, text_scale=(0.1, 1.5)):
+        self.p = p
+        self.length = length
+        self.font = font
+        self.text_scale = text_scale
+        self.max_occupancy = max_occupancy
+
+    def __call__(self, img):
+        if random.random() < self.p:
+            for _ in range(random.randint(0, self.max_occupancy)):
+                img = F.text_overlay(img, self.length, self.font, self.text_scale)
+        return img

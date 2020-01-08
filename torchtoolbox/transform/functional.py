@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import division
+from string import ascii_letters
 import torch
 import math
 import cv2
 import numpy as np
+import random
 import numbers
 import collections
 import warnings
@@ -260,7 +262,7 @@ def resized_crop(img, i, j, h, w, size, interpolation='BILINEAR'):
     Returns:
         CV Image: Cropped image.
     """
-    assert _is_numpy_image(img), 'img should be PIL Image'
+    assert _is_numpy_image(img), 'img should be CV Image'
     img = crop(img, i, j, h, w)
     img = resize(img, size, interpolation)
     return img
@@ -821,3 +823,15 @@ def salt_and_pepper(img, prob=0.01):
     noisy[rnd < prob / 2] = 0.0
     noisy[rnd > 1 - prob / 2] = 255.0
     return noisy.astype(imgtype)
+
+
+def text_overlay(img, length, font, text_scale):
+    assert _is_numpy_image(img) and img.dtype == np.uint8
+    h, w, c = img.shape
+    length = np.random.randint(*length)
+    text_scale = np.random.uniform(*text_scale)
+    text = ''.join(random.choice(ascii_letters) for _ in range(length))
+    color = np.random.randint(0, 255, c).tolist()
+    pos = (random.randint(0, w), random.randint(0, h))
+    img = cv2.putText(img, text, pos, font, text_scale, color)
+    return img
