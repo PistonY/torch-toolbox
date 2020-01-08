@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__all__ = ['decode_img_from_buf', 'cv_loader']
+__all__ = ['decode_img_from_buf', 'pil_loader', 'cv_loader']
 
 import cv2
 import six
