@@ -796,7 +796,7 @@ def cutout(img, i, j, h, w, v, inplace=False):
 def gaussian_noise(img: np.ndarray, mean, std):
     imgtype = img.dtype
     gauss = np.random.normal(mean, std, img.shape).astype(np.float32)
-    noisy = np.clip((1 + gauss) * img.astype(np.float32), 0, 255)
+    noisy = np.clip(gauss + img.astype(np.float32), 0, 255)
     return noisy.astype(imgtype)
 
 
