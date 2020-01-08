@@ -18,5 +18,5 @@ setup(
     zip_safe=True,
     classifiers=[
         'Programming Language :: Python :: 3',
-    ], install_requires=['numpy', 'tqdm', 'pyarrow', 'six', 'lmdb', 'scikit-learn', 'scipy', 'cv2']
+    ], install_requires=['numpy', 'tqdm', 'pyarrow', 'six', 'lmdb', 'scikit-learn', 'scipy', 'opencv-python']
 )
