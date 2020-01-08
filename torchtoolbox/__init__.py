@@ -1,3 +1,4 @@
 # -*- coding: utf-8 -*-
 # Author: pistonyang@gmail.com
-VERSION = '0.1.2'
+
+VERSION = '0.1.3rc0'
