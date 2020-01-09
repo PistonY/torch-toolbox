@@ -45,7 +45,7 @@ class FeatureVerification(Metric):
         self.dists = []
         self.issame = []
 
-    def step(self, embeddings0, embeddings1, labels):
+    def update(self, embeddings0, embeddings1, labels):
         embeddings0, embeddings1, labels = map(to_numpy, (embeddings0, embeddings1, labels))
         if self.dist_type is 'euclidean':
             diff = np.subtract(embeddings0, embeddings1)

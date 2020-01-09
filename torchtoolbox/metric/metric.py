@@ -42,7 +42,7 @@ class Metric(object):
         """
         raise NotImplementedError
 
-    def step(self):
+    def update(self):
         """Update status.
 
         """
@@ -78,7 +78,7 @@ class Accuracy(Metric):
         self.num_inst = 0
 
     @torch.no_grad()
-    def step(self, preds, labels):
+    def update(self, preds, labels):
         """Update status.
 
         Args:
@@ -129,7 +129,7 @@ class TopKAccuracy(Metric):
         self.num_inst = 0
 
     @torch.no_grad()
-    def step(self, preds, labels):
+    def update(self, preds, labels):
         """Update status.
 
         Args:
@@ -180,7 +180,7 @@ class NumericalCost(Metric):
         self.coll = []
 
     @torch.no_grad()
-    def step(self, cost):
+    def update(self, cost):
         """Update status.
 
         Args:

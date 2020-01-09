@@ -37,7 +37,7 @@ def get_ture_top3(label, pred):
 def test_top1_acc():
     true_acc = get_true_acc(acc_test_label, acc_test_pred)
     top1_acc = Accuracy()
-    top1_acc.step(torch.Tensor(acc_test_pred), torch.Tensor(acc_test_label))
+    top1_acc.update(torch.Tensor(acc_test_pred), torch.Tensor(acc_test_label))
     acc = top1_acc.get()
     assert true_acc == acc
 
@@ -46,7 +46,7 @@ def test_top1_acc():
 def test_top_acc():
     top3_true = get_ture_top3(acc_test_label, acc_test_pred)
     top3_acc = TopKAccuracy(top=3)
-    top3_acc.step(torch.Tensor(acc_test_pred), torch.Tensor(acc_test_label))
+    top3_acc.update(torch.Tensor(acc_test_pred), torch.Tensor(acc_test_label))
     top3 = top3_acc.get()
     assert top3_true == top3
 
@@ -56,7 +56,7 @@ def test_numerical_cost():
     true_cost = get_true_numerical_result(numerical_test_data)
     nc = NumericalCost()
     for c in numerical_test_data:
-        nc.step(torch.Tensor([c, ]))
+        nc.update(torch.Tensor([c, ]))
     cost = float(nc.get())
     try:
         assert_allclose(true_cost, cost)

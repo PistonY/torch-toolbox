@@ -75,6 +75,7 @@ Now toolbox support as below:
     - This is widely used in margin based algorithm.
 
 ```python
+```python
 from torchtoolbox import metric
 
 # define first
@@ -96,9 +97,9 @@ for data, labels in val_data:
     outputs = model(data)
     losses = Loss(outputs, labels)
     # update/record
-    top1_acc.step(outputs, labels)
-    top5_acc.step(outputs, labels)
-    loss_record.step(losses)
+    top1_acc.update(outputs, labels)
+    top5_acc.update(outputs, labels)
+    loss_record.update(losses)
     test_msg = 'Test Epoch {}: {}:{:.5}, {}:{:.5}, {}:{:.5}\n'.format(
     epoch, top1_acc.name, top1_acc.get(), top5_acc.name, top5_acc.get(),
     loss_record.name, loss_record.get())
@@ -202,6 +203,7 @@ More details please refers to [codes](https://github.com/PistonY/torch-toolbox/b
 
 ### Fashion work
 #### 1. LabelSmoothingLoss
+
 ```python
 from torchtoolbox.nn import LabelSmoothingLoss
 # The num classes of your task should be defined.
@@ -275,6 +277,7 @@ optimizer = Lookahead(optimizer)
 #### 5. Mixup training
 Mixup method to train a classification model.
 [mixup: BEYOND EMPIRICAL RISK MINIMIZATION](https://arxiv.org/pdf/1710.09412.pdf)
+
 ```python
 from torchtoolbox.tools import mixup_data, mixup_criterion
 
@@ -290,7 +293,7 @@ for i, (data, labels) in enumerate(train_data):
     loss = mixup_criterion(Loss, outputs, labels_a, labels_b, lam)
 
     loss.backward()
-    optimizer.step()
+    optimizer.update()
 ```
 
 #### 6. Cutout
