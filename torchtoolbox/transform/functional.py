@@ -234,7 +234,7 @@ def crop(img, i, j, h, w):
     if not _is_numpy_image(img):
         raise TypeError('img should be CV Image. Got {}'.format(type(img)))
 
-    return img[i:i + h, j:j + w, ...].copy()
+    return img[i:i + w, j:j + h, ...].copy()
 
 
 def center_crop(img, output_size):
