@@ -425,8 +425,8 @@ class RandomCrop(object):
         if w == tw and h == th:
             return 0, 0, h, w
 
-        i = random.randint(0, w - tw)
-        j = random.randint(0, h - th)
+        i = random.randint(0, h - th)
+        j = random.randint(0, w - tw)
         return i, j, th, tw
 
     def __call__(self, img):
