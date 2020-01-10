@@ -1304,15 +1304,19 @@ class RandomGaussianNoise(object):
     """Applying gaussian noise on the given CV Image randomly with a given probability.
         Args:
             p (float): probability of the image being noised. Default value is 0.5
+            mean (float): Gaussian distribution mean if not fixed_distribution it will random in [0, mean]
+            std (float): Gaussian distribution std if not fixed_distribution it will random in [0, std]
+            fixed_distribution (bool): whether use a fixed distribution
         """
 
-    def __init__(self, p=0.5, mean=0, std=0.1):
+    def __init__(self, p=0.5, mean=0, std=0.1, fixed_distribution=True):
         assert isinstance(mean, numbers.Number) and mean >= 0, 'mean should be a positive value'
         assert isinstance(std, numbers.Number) and std >= 0, 'std should be a positive value'
         assert isinstance(p, numbers.Number) and p >= 0, 'p should be a positive value'
         self.p = p
         self.mean = mean
         self.std = std
+        self.fixed_distribution = fixed_distribution
 
     @staticmethod
     def get_params(mean, std):
@@ -1320,8 +1324,8 @@ class RandomGaussianNoise(object):
         Returns:
             sequence: params to be passed to the affine transformation
         """
-        mean = random.uniform(-mean, mean)
-        std = random.uniform(-std, std)
+        mean = random.uniform(0, mean)
+        std = random.uniform(0, std)
 
         return mean, std
 
@@ -1333,7 +1337,11 @@ class RandomGaussianNoise(object):
             np.ndarray: Randomly noised image.
         """
         if random.random() < self.p:
-            return F.gaussian_noise(img, mean=self.mean, std=self.std)
+            if self.fixed_distribution:
+                mean, std = self.mean, self.std
+            else:
+                mean, std = self.get_params(self.mean, self.std)
+            return F.gaussian_noise(img, mean=mean, std=std)
         return img
 
     def __repr__(self):
