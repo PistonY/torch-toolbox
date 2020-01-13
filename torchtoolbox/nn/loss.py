@@ -24,7 +24,7 @@ class L0Loss(nn.Module):
 
     def forward(self, pred, target):
         loss = (torch.abs(pred - target) + self.eps).pow(self.gamma)
-        return loss
+        return torch.mean(loss)
 
 
 class LabelSmoothingLoss(nn.Module):
