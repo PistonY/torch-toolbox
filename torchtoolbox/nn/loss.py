@@ -10,6 +10,23 @@ import torch
 import math
 
 
+class L0Loss(nn.Module):
+    """L0loss from
+    "Noise2Noise: Learning Image Restoration without Clean Data"
+    <https://arxiv.org/pdf/1803.04189>`_ paper.
+
+    """
+
+    def __init__(self, gamma=2, eps=1e-8):
+        super(L0Loss, self).__init__()
+        self.gamma = gamma
+        self.eps = eps
+
+    def forward(self, pred, target):
+        loss = (torch.abs(pred - target) + self.eps).pow(self.gamma)
+        return loss
+
+
 class LabelSmoothingLoss(nn.Module):
     """This is label smoothing loss function.
     """
@@ -236,4 +253,3 @@ class CenterLoss(nn.Module):
         intra_distances = embedding.dist(expanded_centers)
         loss = self.lamda * 0.5 * intra_distances / target.size()[0]
         return loss
-
