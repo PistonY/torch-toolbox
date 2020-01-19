@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
+from torchtoolbox.nn.functional import class_balanced_weight
 from torchtoolbox.nn import *
 import torch
 from torch import nn
+import numpy as np
 
 
 @torch.no_grad()
@@ -17,6 +19,22 @@ def test_lsloss():
     cost1 = Loss1(pred, label)
 
     assert cost.shape == cost1.shape
+
+
+@torch.no_grad()
+def test_logits_loss():
+    pred = torch.rand(3, 10)
+    label = torch.randint(0, 10, size=(3,))
+    weight = class_balanced_weight(0.9999, np.random.randint(0, 100, size=(10,)).tolist())
+
+    Loss = SigmoidCrossEntropy(classes=10, weight=weight)
+    Loss1 = FocalLoss(classes=10, weight=weight, gamma=0.5)
+    Loss2 = ArcLoss(classes=10, weight=weight)
+
+    cost = Loss(pred, label)
+    cost1 = Loss1(pred, label)
+    cost2 = Loss2(pred, label)
+    print(cost, cost1, cost2)
 
 
 class n_to_n(nn.Module):

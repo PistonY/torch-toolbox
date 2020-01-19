@@ -1,13 +1,36 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['LabelSmoothingLoss', 'ArcLoss', 'L2Softmax']
+__all__ = ['LabelSmoothingLoss', 'ArcLoss', 'L2Softmax', 'SigmoidCrossEntropy',
+           'FocalLoss', 'L0Loss', 'CosLoss', 'RingLoss', 'CenterLoss']
 
+from . import functional as BF
 from torch import nn
 from torch.nn import functional as F
 from torch.nn.modules.loss import _WeightedLoss
-from .functional import smooth_one_hot
 import torch
 import math
+
+
+class SigmoidCrossEntropy(_WeightedLoss):
+    def __init__(self, classes, weight=None, reduction='mean'):
+        super(SigmoidCrossEntropy, self).__init__(weight=weight, reduction=reduction)
+        self.classes = classes
+
+    def forward(self, pred, target):
+        zt = BF.logits_distribution(pred, target, self.classes)
+        return BF.logits_nll_loss(- F.logsigmoid(zt), target, self.weight, self.reduction)
+
+
+class FocalLoss(_WeightedLoss):
+    def __init__(self, classes, gamma, weight=None, reduction='mean'):
+        super(FocalLoss, self).__init__(weight=weight, reduction=reduction)
+        self.classes = classes
+        self.gamma = gamma
+
+    def forward(self, pred, target):
+        zt = BF.logits_distribution(pred, target, self.classes)
+        ret = - (1 - torch.sigmoid(zt)).pow(self.gamma) * F.logsigmoid(zt)
+        return BF.logits_nll_loss(ret, target, self.weight, self.reduction)
 
 
 class L0Loss(nn.Module):
@@ -40,7 +63,7 @@ class LabelSmoothingLoss(nn.Module):
 
     def forward(self, pred, target):
         pred = pred.log_softmax(dim=self.dim)
-        true_dist = smooth_one_hot(target, self.cls, self.smoothing)
+        true_dist = BF.smooth_one_hot(target, self.cls, self.smoothing)
         return torch.mean(torch.sum(-true_dist * pred, dim=self.dim))
 
 
