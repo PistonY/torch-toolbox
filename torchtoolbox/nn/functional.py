@@ -48,6 +48,7 @@ def logits_nll_loss(input, target, weight=None, reduction='mean'):
 
 
 def class_balanced_weight(beta, samples_per_class):
+    assert 0 <= beta < 1, 'Wrong rang of beta {}'.format(beta)
     if not isinstance(samples_per_class, np.ndarray):
         if isinstance(samples_per_class, (list, tuple)):
             samples_per_class = np.array(samples_per_class)

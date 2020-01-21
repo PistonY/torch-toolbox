@@ -20,7 +20,7 @@ __all__ = ["Compose", "ToTensor", "ToCVImage", "Normalize", "Resize", "Scale", "
            "RandomVerticalFlip", "RandomResizedCrop", "RandomSizedCrop", "FiveCrop", "TenCrop", "LinearTransformation",
            "ColorJitter", "RandomRotation", "RandomAffine", "Grayscale", "RandomGrayscale",
            "RandomPerspective", "RandomErasing", "RandomGaussianNoise", "RandomPoissonNoise", "RandomSPNoise",
-           "RandomTransforms", "Cutout"]
+           "RandomTransforms", "Cutout", 'RandomTextOverlay']
 
 
 class Compose(object):
