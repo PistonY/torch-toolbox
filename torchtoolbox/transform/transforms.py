@@ -1,12 +1,9 @@
 from __future__ import division
 import torch
 import math
-import sys
 import random
-
 import numpy as np
 import numbers
-import types
 import collections
 import warnings
 

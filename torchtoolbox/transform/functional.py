@@ -8,7 +8,6 @@ import numpy as np
 import random
 import numbers
 import collections
-import warnings
 
 Sequence = collections.abc.Sequence
 Iterable = collections.abc.Iterable
