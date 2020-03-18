@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+__all__ = ['JsonParse', 'ArgsParse']
 
 import json
 
@@ -35,7 +36,7 @@ class ArgsParse(JsonParse):
 
     def __parse_json__(self):
         for k, v in self.js.items():
-            k = k.replace('-', '_')
+            k = self.format_str(k)
             if not isinstance(v, dict):
                 setattr(self, k, v)
             else:
