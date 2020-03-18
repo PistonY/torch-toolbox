@@ -20,6 +20,10 @@ class JsonParse(object):
         assert len(js) > 0, 'Json file is empty'
         self.js = js
 
+    def __repr__(self):
+        format_string = 'Namespace{}'.format(self.js)
+        return format_string
+
     def __parse_json__(self):
         raise NotImplementedError
 
