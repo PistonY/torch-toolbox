@@ -19,6 +19,10 @@ If you want to install the nightly version:
 ```shell
 pip install -U git+https://github.com/PistonY/torch-toolbox.git@master
 ```
+## Todo
+- [x] cv2 transforms.
+- [ ] Prepare tensorboard support with metric collection.
+
 ## Usage
 Toolbox have two mainly parts:
 1. Additional tools to make you use Pytorch easier.
@@ -339,8 +343,6 @@ from torchtoolbox.nn.loss import ArcLoss, CosLoss, L2Softmax
 
 You could use this like `nn.CrossEntropyLoss`
 
-## Todo
-- [x] cv2 transforms.
 
 ## Contribution
 

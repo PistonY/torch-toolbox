@@ -4,41 +4,49 @@ __all__ = ['JsonParse', 'ArgsParse']
 import json
 
 
-class JsonParse(object):
+def load_json(json_path):
+    with open(self.file_path, 'r') as f:
+        js = json.load(f)
+    assert len(js) > 0, 'Json file is empty.'
+    return js
+
+class Parse(object):
     """
-    A json args parser to support json configuration file.
+    A parser to support configuration file.
     """
 
     def __init__(self, file_path):
         self.file_path = file_path
-        self.__load_json__()
-        self.__parse_json__()
+        self.file_ret = None
+        self.__load_file__()
+        assert self.file_ret is not None
+        self.__parse_file__()
 
-    def __load_json__(self):
-        with open(self.file_path, 'r') as f:
-            js = json.load(f)
-        assert len(js) > 0, 'Json file is empty'
-        self.js = js
+    def __load_file__(self):
+        raise NotImplementedError
 
     def __repr__(self):
-        format_string = 'Namespace{}'.format(self.js)
+        format_string = 'Namespace{}'.format(self.js).replace('{', '(').replace('}', ')')
         return format_string
 
-    def __parse_json__(self):
+    def __parse_file__(self):
         raise NotImplementedError
 
     def format_str(self, string):
         return string.lower().replace('-', '_').replace(' ', '')
 
 
-class ArgsParse(JsonParse):
-    """Only need to implement parser_json.
+class JsonParse(Parse):
+    """A json file parser.
     """
 
     def __init__(self, file_path):
-        super(ArgsParse, self).__init__(file_path)
+        super(JsonParse, self).__init__(file_path)
 
-    def __parse_json__(self):
+    def __load_file__(self):
+        self.file_ret = load_json(self.file_path)
+
+    def __parse_file__(self):
         for k, v in self.js.items():
             k = self.format_str(k)
             if not isinstance(v, dict):
