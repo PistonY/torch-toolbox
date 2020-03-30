@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = ['summary']
+
 from collections import OrderedDict
+import torch
 import torch.nn as nn
 import numpy as np
 
@@ -99,6 +101,7 @@ def _cac_linear(layer, input, output):
     return tb_params, ntb__params, flops
 
 
+@torch.no_grad()
 def summary(model, x, return_results=False):
     """
 
