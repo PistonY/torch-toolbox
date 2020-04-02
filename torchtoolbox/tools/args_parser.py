@@ -5,10 +5,11 @@ import json
 
 
 def load_json(json_path):
-    with open(self.file_path, 'r') as f:
+    with open(json_path, 'r') as f:
         js = json.load(f)
     assert len(js) > 0, 'Json file is empty.'
     return js
+
 
 class Parse(object):
     """
