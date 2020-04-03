@@ -16,7 +16,8 @@ class ImageLMDB(Dataset):
 
     def __init__(self, db_path, db_name, transform=None, target_transform=None, backend='cv2'):
         self.env = lmdb.open(os.path.join(db_path, '{}.lmdb'.format(db_name)),
-                             subdir=os.path.isdir(db_path),
+                             subdir=False,
+                             # subdir=os.path.isdir(db_path), # bug is here!
                              readonly=True, lock=False,
                              readahead=False, meminit=False)
         with self.env.begin() as txn:
