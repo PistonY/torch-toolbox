@@ -86,7 +86,7 @@ class L2Softmax(_WeightedLoss):
          Whether input has already been normalized.
 
     Outputs:
-        - **loss**: loss tensor with shape (batch_size,). Dimensions other than
+        - **loss**: loss tensor with shape (1,). Dimensions other than
           batch_axis are averaged out.
     """
 
@@ -127,7 +127,7 @@ class CosLoss(_WeightedLoss):
 
 
     Outputs:
-        - **loss**: loss tensor with shape (batch_size,). Dimensions other than
+        - **loss**: loss tensor with shape (1,). Dimensions other than
           batch_axis are averaged out.
     """
 
@@ -163,8 +163,7 @@ class ArcLoss(_WeightedLoss):
         Scale parameter for loss.
 
     Outputs:
-        - **loss**: loss tensor with shape (batch_size,). Dimensions other than
-          batch_axis are averaged out.
+        - **loss**:
     """
 
     def __init__(self, classes, m=0.5, s=64, easy_margin=True, weight=None,
@@ -211,6 +210,55 @@ class ArcLoss(_WeightedLoss):
                                reduction=self.reduction)
 
 
+class CircleLoss(nn.Module):
+    r"""CircleLoss from
+    `"Circle Loss: A Unified Perspective of Pair Similarity Optimization"
+    <https://arxiv.org/pdf/2002.10857>`_ paper.
+
+    Parameters
+    ----------
+    m: float.
+        Margin parameter for loss.
+    gamma: int.
+        Scale parameter for loss.
+
+    Outputs:
+        - **loss**: scalar.
+    """
+
+    def __init__(self, m, gamma):
+        super(CircleLoss, self).__init__()
+        self.m = m
+        self.gamma = gamma
+
+    def _get_matrix(self, x, target):
+        similarity_matrix = x @ x.T  # need gard here
+        label_matrix = target.unsqueeze(1) == target.unsqueeze(0)
+        positive_matrix = label_matrix.triu(1)
+        negative_matrix = label_matrix.logical_not().triu(1)
+        sp = torch.where(positive_matrix, similarity_matrix, torch.Tensor([0]))
+        sn = torch.where(negative_matrix, similarity_matrix, torch.Tensor([0]))
+        return sp, sn
+
+    @torch.no_grad()
+    def _get_param(self, sp, sn):
+        ap = torch.clamp_min(1 + self.m - sp, min=0.)
+        an = torch.clamp_min(sn + self.m, min=0.)
+        dp = 1 - self.m
+        dn = self.m
+        return ap, an, dp, dn
+
+    def forward(self, x, target):
+        sp, sn = self._get_matrix(x, target)
+        ap, an, dp, dn = self._get_param(sp, sn)
+
+        logit_p = -self.gamma * ap * (sp - dp)
+        logit_n = self.gamma * an * (sn - dn)
+
+        loss = F.softplus(torch.logsumexp(logit_p, dim=1) + torch.logsumexp(logit_n, dim=1)).mean()
+        return loss
+
+
 class RingLoss(nn.Module):
     """Computes the Ring Loss from
     `"Ring loss: Convex Feature Normalization for Face Recognition"
@@ -224,8 +272,7 @@ class RingLoss(nn.Module):
     weight_initializer (None or torch.Tensor): If not None a torch.Tensor should be provided.
 
     Outputs:
-        - **loss**: loss tensor with shape (batch_size,). Dimensions other than
-          batch_axis are averaged out.
+        - **loss**: scalar.
     """
 
     def __init__(self, lamda, l2_norm=True, weight_initializer=None):
