@@ -336,6 +336,7 @@ Now support:
 1. ArcLoss
 2. CosLoss
 3. L2Softmax
+4. CircleLoss
 
 ```python
 from torchtoolbox.nn.loss import ArcLoss, CosLoss, L2Softmax
