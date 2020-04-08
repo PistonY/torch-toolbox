@@ -1,7 +1,7 @@
 # Pytorch-Toolbox
 ![](https://github.com/PistonY/torch-toolbox/workflows/Torch-Toolbox-CI/badge.svg)
 
-Stable Version: v0.1.3
+Stable Version: v0.1.4(recommend to use.)
 
 Automatic upload to PyPI has been finished.
 
@@ -40,6 +40,8 @@ __all__ = ["Compose", "ToTensor", "ToCVImage", "Normalize", "Resize", "Scale", "
            "RandomTransforms", "Cutout"]
 ```
 Part of this code refers to [opencv_transforms_torchvision](https://github.com/YU-Zhiyang/opencv_transforms_torchvision)
+- [albumentations](https://github.com/albumentations-team/albumentations) is also recommend to use which is cv2 backend transform tools.
+
 #### 1. Show your model parameters and FLOPs.
 ```python
 import torch
