@@ -59,7 +59,7 @@ def class_balanced_weight(beta, samples_per_class):
                 (list, tuple), np.ndarray, torch.Tensor, type(samples_per_class)
             ))
     assert isinstance(samples_per_class, np.ndarray) \
-        and isinstance(beta, numbers.Number)
+           and isinstance(beta, numbers.Number)
 
     balanced_matrix = (1 - beta) / (1 - np.power(beta, samples_per_class))
     return torch.Tensor(balanced_matrix)
@@ -133,4 +133,41 @@ def switch_norm(x, running_mean, running_var, weight, bias,
     x = (x - mean) / (var + eps).sqrt()
     x = x * weight.unsqueeze(1) + bias.unsqueeze(1)
     x = x.view(size)
+    return x
+
+
+def instance_std(x, eps=1e-5):
+    var = torch.var(x, dim=(2, 3), keepdim=True)
+    std = torch.sqrt(var + eps)
+    return std
+
+
+def group_std(x: torch.Tensor, groups=32, eps=1e-5):
+    n, c, h, w = x.size()
+    x = torch.reshape(x, (n, groups, c // groups, h, w))
+    var = torch.var(x, dim=(2, 3, 4), keepdim=True)
+    std = torch.sqrt(var + eps)
+    return torch.reshape(std, (n, c, h, w))
+
+
+def evo_norm(x, prefix, running_var, v, weight, bias,
+             training, momentum, eps=0.1, groups=32):
+    if prefix == 'b0':
+        if training:
+            var = torch.var(x, dim=(0, 2, 3), keepdim=True)
+            running_var.mul_(momentum)
+            running_var.add_((1 - momentum) * var)
+        else:
+            var = running_var
+        if v is not None:
+            den = torch.max((var + eps).sqrt(), v * x + instance_std(x, eps))
+            x = x / den * weight + bias
+        else:
+            x = x * weight + bias
+    else:
+        if v is not None:
+            x = x * torch.sigmoid(v * x) / group_std(x, groups, eps) * weight + bias
+        else:
+            x = x * weight + bias
+
     return x
