@@ -207,6 +207,19 @@ This dataset only return images.
 
 More details please refers to [codes](https://github.com/PistonY/torch-toolbox/blob/4838af996b972cd666fadb9fb6bd6dab2103ccad/torchtoolbox/data/datasets.py#L13)
 
+#### 7. Activation Layer
+A `Activation` Layer is provided to select a activation by string.
+```python
+from torchtoolbox.nn import Activation
+
+relu = Activation('relu', auto_optimize=True)
+
+```
+
+#### 8. FeatureVerification Metric
+A `FeatureVerification Metric` used to test feature based accuracy.
+More details refers to code.
+
 ### Fashion work
 #### 1. LabelSmoothingLoss
 
@@ -332,13 +345,11 @@ parameters = split_weights(model)
 optimizer = optim.SGD(parameters, ...)
 
 ```
-
 #### 8. Margin based classification loss
 Now support:
 1. ArcLoss
 2. CosLoss
 3. L2Softmax
-4. CircleLoss
 
 ```python
 from torchtoolbox.nn.loss import ArcLoss, CosLoss, L2Softmax
@@ -346,6 +357,29 @@ from torchtoolbox.nn.loss import ArcLoss, CosLoss, L2Softmax
 
 You could use this like `nn.CrossEntropyLoss`
 
+#### 9. DCNv2
+- [Deformable ConvNets v2: More Deformable, Better Results](https://arxiv.org/abs/1811.11168)
+#### 10. FocalLoss
+- [Focal Loss for Dense Object Detection](https://arxiv.org/abs/1708.02002)
+#### 11. SigmoidCrossEntropy
+#### 12. CircleLoss
+- [Circle Loss: A Unified Perspective of Pair Similarity Optimization](https://arxiv.org/pdf/2002.10857)
+#### 13. EvoNrom
+- [Evolving Normalization-Activation Layers](https://arxiv.org/pdf/2004.02967)
+
+#### 14. Activation Layer Added
+1. Swish
+2. HardSwish
+3. HardSigmoid
+Usage:
+```python
+from torchtoolbox.nn import Swish, HardSwish, HardSigmoid
+
+swish = Swish()
+hswish = HardSwish()
+hsigmoid = HardSigmoid()
+
+```
 
 ## Contribution
 
