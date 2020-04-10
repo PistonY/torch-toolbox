@@ -9,7 +9,38 @@ This is toolbox project for Pytorch. Aiming to make you write Pytorch code more 
 
 You could also regard this as a auxiliary tool for Pytorch. It will contain what you use most frequently tools.
 
-[TOC]
+- [Pytorch-Toolbox](#pytorch-toolbox)
+  * [Installing](#installing)
+  * [Todo](#todo)
+  * [Usage](#usage)
+    + [Tools](#tools)
+      - [0. Now CV2 transforms have been released.](#0-now-cv2-transforms-have-been-released)
+      - [1. Show your model parameters and FLOPs.](#1-show-your-model-parameters-and-flops)
+      - [2. Metric collection](#2-metric-collection)
+      - [3. Model Initializer](#3-model-initializer)
+      - [4. AdaptiveSequential](#4-adaptivesequential)
+      - [5. Make and Use LMDB dataset.](#5-make-and-use-lmdb-dataset)
+      - [6. Non-Lable dataset](#6-non-lable-dataset)
+      - [7. Activation Layer](#7-activation-layer)
+      - [8. FeatureVerification Metric](#8-featureverification-metric)
+    + [Fashion work](#fashion-work)
+      - [1. LabelSmoothingLoss](#1-labelsmoothingloss)
+      - [2. CosineWarmupLr](#2-cosinewarmuplr)
+      - [3. SwitchNorm2d/3d](#3-switchnorm2d-3d)
+      - [4. Swish activation](#4-swish-activation)
+      - [5. Lookahead optimizer](#5-lookahead-optimizer)
+      - [5. Mixup training](#5-mixup-training)
+      - [6. Cutout](#6-cutout)
+      - [7. No decay bias](#7-no-decay-bias)
+      - [8. Margin based classification loss](#8-margin-based-classification-loss)
+      - [9. DCNv2](#9-dcnv2)
+      - [10. FocalLoss](#10-focalloss)
+      - [11. SigmoidCrossEntropy](#11-sigmoidcrossentropy)
+      - [12. CircleLoss](#12-circleloss)
+      - [13. EvoNrom](#13-evonrom)
+      - [14. Activation Layer Added](#14-activation-layer-added)
+  * [Contribution](#contribution)
+
 ## Installing
 A easy way to install this is by using pip:
 ```shell
