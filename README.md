@@ -9,7 +9,7 @@ This is toolbox project for Pytorch. Aiming to make you write Pytorch code more 
 
 You could also regard this as a auxiliary tool for Pytorch. It will contain what you use most frequently tools.
 
-
+[TOC]
 ## Installing
 A easy way to install this is by using pip:
 ```shell
@@ -27,6 +27,7 @@ pip install -U git+https://github.com/PistonY/torch-toolbox.git@master
 Toolbox have two mainly parts:
 1. Additional tools to make you use Pytorch easier.
 2. Some fashion work which don't exist in Pytorch core.
+
 
 ### Tools
 #### 0. Now CV2 transforms have been released.
@@ -80,7 +81,6 @@ Now toolbox support as below:
 4. FeatureVerification.
     - This is widely used in margin based algorithm.
 
-```python
 ```python
 from torchtoolbox import metric
 
@@ -221,6 +221,7 @@ A `FeatureVerification Metric` used to test feature based accuracy.
 More details refers to code.
 
 ### Fashion work
+
 #### 1. LabelSmoothingLoss
 
 ```python
