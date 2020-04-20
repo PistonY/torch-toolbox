@@ -43,7 +43,7 @@ class HardSigmoid(nn.Module):
 
 
 class Activation(nn.Module):
-    def __init__(self, act_type, auto_optimize=False, **kwargs):
+    def __init__(self, act_type, auto_optimize=True, **kwargs):
         super(Activation, self).__init__()
         if act_type == 'relu':
             self.act = nn.ReLU(inplace=True) if auto_optimize else nn.ReLU(**kwargs)

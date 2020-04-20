@@ -38,7 +38,7 @@ You could also regard this as a auxiliary tool for Pytorch. It will contain what
       - [11. SigmoidCrossEntropy](#11-sigmoidcrossentropy)
       - [12. CircleLoss](#12-circleloss)
       - [13. EvoNrom](#13-evonrom)
-      - [14. Activation Layer Added](#14-activation-layer-added)
+      - [14. Activation Layer](#14-activation-layer)
   * [Contribution](#contribution)
 
 ## Installing
@@ -52,6 +52,7 @@ pip install -U git+https://github.com/PistonY/torch-toolbox.git@master
 ```
 ## Todo
 - [x] cv2 transforms.
+- [ ] Integrate with [albumentations](https://github.com/albumentations-team/albumentations)
 - [ ] Prepare tensorboard support with metric collection.
 
 ## Usage
@@ -391,15 +392,19 @@ You could use this like `nn.CrossEntropyLoss`
 
 #### 9. DCNv2
 - [Deformable ConvNets v2: More Deformable, Better Results](https://arxiv.org/abs/1811.11168)
+
 #### 10. FocalLoss
 - [Focal Loss for Dense Object Detection](https://arxiv.org/abs/1708.02002)
+
 #### 11. SigmoidCrossEntropy
+
 #### 12. CircleLoss
 - [Circle Loss: A Unified Perspective of Pair Similarity Optimization](https://arxiv.org/pdf/2002.10857)
+
 #### 13. EvoNrom
 - [Evolving Normalization-Activation Layers](https://arxiv.org/pdf/2004.02967)
 
-#### 14. Activation Layer Added
+#### 14. Activation Layer
 1. Swish
 2. HardSwish
 3. HardSigmoid
