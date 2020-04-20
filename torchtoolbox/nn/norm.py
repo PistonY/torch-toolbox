@@ -68,18 +68,17 @@ class _EvoNorm(nn.Module):
         self.momentum = momentum
         self.affine = affine
         if self.affine:
-            self.weight = nn.Parameter(torch.Tensor(num_features))
-            self.bias = nn.Parameter(torch.Tensor(num_features))
-            self.v = nn.Parameter(torch.Tensor(num_features))
+            self.weight = nn.Parameter(torch.Tensor(1, num_features, 1, 1))
+            self.bias = nn.Parameter(torch.Tensor(1, num_features, 1, 1))
+            self.v = nn.Parameter(torch.Tensor(1, num_features, 1, 1))
         else:
             self.register_parameter('weight', None)
             self.register_parameter('bias', None)
             self.register_parameter('v', None)
-        self.register_buffer('running_var', torch.ones(num_features))
+        self.register_buffer('running_var', torch.ones(1, num_features, 1, 1))
         self.reset_parameters()
 
     def reset_parameters(self):
-        self.reset_running_stats()
         if self.affine:
             torch.nn.init.ones_(self.weight)
             torch.nn.init.zeros_(self.bias)
@@ -99,11 +98,11 @@ class _EvoNorm(nn.Module):
 
 class EvoNormB0(_EvoNorm):
     def __init__(self, num_features, eps=1e-5, momentum=0.9, affine=True):
-        super(EvoNormB0, self).__init__('s0', num_features, eps, momentum,
+        super(EvoNormB0, self).__init__('b0', num_features, eps, momentum,
                                         affine=affine)
 
 
 class EvoNormS0(_EvoNorm):
     def __init__(self, num_features, groups=32, affine=True):
-        super(EvoNormS0, self).__init__('b0', num_features, groups=groups,
+        super(EvoNormS0, self).__init__('s0', num_features, groups=groups,
                                         affine=affine)
