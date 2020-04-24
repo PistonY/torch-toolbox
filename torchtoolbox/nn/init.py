@@ -4,7 +4,7 @@
 import math
 from torch import nn
 from torch.nn.init import xavier_normal_, xavier_uniform_, \
-    kaiming_normal_, kaiming_uniform_
+    kaiming_normal_, kaiming_uniform_, zeros_
 
 
 class XavierInitializer(object):
@@ -64,6 +64,17 @@ class KaimingInitializer(object):
             self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
             if module.bias is not None:
                 module.bias.data.zero_()
+
+
+class ZeroLastGamma(object):
+    def __init__(self, block_name='Bottleneck', bn_name='bn3'):
+        self.block_name = block_name
+        self.bn_name = bn_name
+
+    def __call__(self, module):
+        if module.__class__.__name__ == self.block_name:
+            target_bn = module.__getattr__(self.bn_name)
+            zeros_(target_bn.weight)
 
 # def XavierInitializer(model, random_type='uniform', gain=math.sqrt(2.0)):
 #     """Initialize a model params by Xavier.
