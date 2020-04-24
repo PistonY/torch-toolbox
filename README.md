@@ -39,6 +39,7 @@ You could also regard this as a auxiliary tool for Pytorch. It will contain what
       - [12. CircleLoss](#12-circleloss)
       - [13. EvoNrom](#13-evonrom)
       - [14. Activation Layer](#14-activation-layer)
+      - [15. Zero LastGamma Init](#15-zero-lastgamma-init)
   * [Contribution](#contribution)
 
 ## Installing
@@ -417,6 +418,16 @@ hswish = HardSwish()
 hsigmoid = HardSigmoid()
 
 ```
+
+#### 15. Zero LastGamma Init
+```python
+from torchtoolbox.nn.init import ZeroLastGamma
+
+model == XXX
+init = ZeroLastGamma(block_name='Bottleneck', bn_name='bn3')
+model.apply(init)
+```
+
 
 ## Contribution
 
