@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = ['LabelSmoothingLoss', 'ArcLoss', 'L2Softmax', 'SigmoidCrossEntropy',
-           'FocalLoss', 'L0Loss', 'CosLoss', 'RingLoss', 'CenterLoss']
+           'FocalLoss', 'L0Loss', 'CosLoss', 'RingLoss', 'CenterLoss', 'CircleLoss']
 
 from . import functional as BF
 from torch import nn
@@ -236,8 +236,9 @@ class CircleLoss(nn.Module):
         label_matrix = target.unsqueeze(1) == target.unsqueeze(0)
         positive_matrix = label_matrix.triu(1)
         negative_matrix = label_matrix.logical_not().triu(1)
-        sp = torch.where(positive_matrix, similarity_matrix, torch.Tensor([0]))
-        sn = torch.where(negative_matrix, similarity_matrix, torch.Tensor([0]))
+        sp = torch.where(positive_matrix, similarity_matrix, torch.zeros([1], dtype=x.dtype, device=x.device))
+        sn = torch.where(negative_matrix, similarity_matrix, torch.zeros([1], dtype=x.dtype, device=x.device))
+        torch.zeros()
         return sp, sn
 
     @torch.no_grad()
