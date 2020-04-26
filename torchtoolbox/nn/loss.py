@@ -236,9 +236,9 @@ class CircleLoss(nn.Module):
         label_matrix = target.unsqueeze(1) == target.unsqueeze(0)
         positive_matrix = label_matrix.triu(1)
         negative_matrix = label_matrix.logical_not().triu(1)
-        sp = torch.where(positive_matrix, similarity_matrix, torch.zeros([1], dtype=x.dtype, device=x.device))
-        sn = torch.where(negative_matrix, similarity_matrix, torch.zeros([1], dtype=x.dtype, device=x.device))
-        torch.zeros()
+        zero = torch.zeros([1], dtype=similarity_matrix.dtype, device=similarity_matrix.device)
+        sp = torch.where(positive_matrix, similarity_matrix, zero)
+        sn = torch.where(negative_matrix, similarity_matrix, zero)
         return sp, sn
 
     @torch.no_grad()
