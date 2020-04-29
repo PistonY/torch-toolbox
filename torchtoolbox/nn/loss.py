@@ -230,31 +230,32 @@ class CircleLoss(nn.Module):
         super(CircleLoss, self).__init__()
         self.m = m
         self.gamma = gamma
+        self.dp = 1 - m
+        self.dn = m
 
-    def _get_matrix(self, x, target):
-        similarity_matrix = x @ x.T  # need gard here
-        label_matrix = target.unsqueeze(1) == target.unsqueeze(0)
-        positive_matrix = label_matrix.triu(1)
-        negative_matrix = label_matrix.logical_not().triu(1)
-        zero = torch.zeros([1], dtype=similarity_matrix.dtype, device=similarity_matrix.device)
-        sp = torch.where(positive_matrix, similarity_matrix, zero)
-        sn = torch.where(negative_matrix, similarity_matrix, zero)
-        return sp, sn
 
     @torch.no_grad()
     def _get_param(self, sp, sn):
         ap = torch.clamp_min(1 + self.m - sp, min=0.)
         an = torch.clamp_min(sn + self.m, min=0.)
-        dp = 1 - self.m
-        dn = self.m
-        return ap, an, dp, dn
+        return ap, an
 
     def forward(self, x, target):
-        sp, sn = self._get_matrix(x, target)
-        ap, an, dp, dn = self._get_param(sp, sn)
+        similarity_matrix = x @ x.T  # need gard here
+        label_matrix = target.unsqueeze(1) == target.unsqueeze(0)
+        negative_matrix = label_matrix.logical_not()
+        positive_matrix = label_matrix.fill_diagonal_(False)
 
-        logit_p = -self.gamma * ap * (sp - dp)
-        logit_n = self.gamma * an * (sn - dn)
+        sp = torch.where(positive_matrix, similarity_matrix, torch.zeros_like(similarity_matrix))
+        sn = torch.where(negative_matrix, similarity_matrix, torch.zeros_like(similarity_matrix))
+        ap, an = self._get_param(sp, sn)
+
+
+        logit_p = -self.gamma * ap * (sp - self.dp)
+        logit_n = self.gamma * an * (sn - self.dn)
+
+        logit_p = torch.where(positive_matrix, logit_p, torch.zeros_like(logit_p))
+        logit_n = torch.where(negative_matrix, logit_n, torch.zeros_like(logit_n))
 
         loss = F.softplus(torch.logsumexp(logit_p, dim=1) + torch.logsumexp(logit_n, dim=1)).mean()
         return loss
