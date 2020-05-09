@@ -1,7 +1,16 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['LabelSmoothingLoss', 'ArcLoss', 'L2Softmax', 'SigmoidCrossEntropy',
-           'FocalLoss', 'L0Loss', 'CosLoss', 'RingLoss', 'CenterLoss', 'CircleLoss']
+__all__ = [
+    'LabelSmoothingLoss',
+    'ArcLoss',
+    'L2Softmax',
+    'SigmoidCrossEntropy',
+    'FocalLoss',
+    'L0Loss',
+    'CosLoss',
+    'RingLoss',
+    'CenterLoss',
+    'CircleLoss']
 
 from . import functional as BF
 from torch import nn
@@ -13,12 +22,14 @@ import math
 
 class SigmoidCrossEntropy(_WeightedLoss):
     def __init__(self, classes, weight=None, reduction='mean'):
-        super(SigmoidCrossEntropy, self).__init__(weight=weight, reduction=reduction)
+        super(SigmoidCrossEntropy, self).__init__(
+            weight=weight, reduction=reduction)
         self.classes = classes
 
     def forward(self, pred, target):
         zt = BF.logits_distribution(pred, target, self.classes)
-        return BF.logits_nll_loss(- F.logsigmoid(zt), target, self.weight, self.reduction)
+        return BF.logits_nll_loss(- F.logsigmoid(zt),
+                                  target, self.weight, self.reduction)
 
 
 class FocalLoss(_WeightedLoss):
@@ -90,11 +101,22 @@ class L2Softmax(_WeightedLoss):
           batch_axis are averaged out.
     """
 
-    def __init__(self, classes, alpha, p=0.9, from_normx=False, weight=None,
-                 size_average=None, ignore_index=-100, reduce=None, reduction='mean'):
-        super(L2Softmax, self).__init__(weight, size_average, reduce, reduction)
+    def __init__(
+            self,
+            classes,
+            alpha,
+            p=0.9,
+            from_normx=False,
+            weight=None,
+            size_average=None,
+            ignore_index=-100,
+            reduce=None,
+            reduction='mean'):
+        super(L2Softmax, self).__init__(
+            weight, size_average, reduce, reduction)
         alpha_low = math.log(p * (classes - 2) / (1 - p))
-        assert alpha > alpha_low, "For given probability of p={}, alpha should higher than {}.".format(p, alpha_low)
+        assert alpha > alpha_low, "For given probability of p={}, alpha should higher than {}.".format(
+            p, alpha_low)
         self.ignore_index = ignore_index
         self.alpha = alpha
         self.from_normx = from_normx
@@ -103,8 +125,12 @@ class L2Softmax(_WeightedLoss):
         if not self.from_normx:
             x = F.normalize(x, 2, dim=-1)
         x = x * self.alpha
-        return F.cross_entropy(x, target, weight=self.weight, ignore_index=self.ignore_index,
-                               reduction=self.reduction)
+        return F.cross_entropy(
+            x,
+            target,
+            weight=self.weight,
+            ignore_index=self.ignore_index,
+            reduction=self.reduction)
 
 
 class CosLoss(_WeightedLoss):
@@ -144,8 +170,12 @@ class CosLoss(_WeightedLoss):
         sparse_target = F.one_hot(target, num_classes=self.classes)
         x = x - sparse_target * self.margin
         x = x * self.scale
-        return F.cross_entropy(x, target, weight=self.weight, ignore_index=self.ignore_index,
-                               reduction=self.reduction)
+        return F.cross_entropy(
+            x,
+            target,
+            weight=self.weight,
+            ignore_index=self.ignore_index,
+            reduction=self.reduction)
 
 
 class ArcLoss(_WeightedLoss):
@@ -166,8 +196,17 @@ class ArcLoss(_WeightedLoss):
         - **loss**:
     """
 
-    def __init__(self, classes, m=0.5, s=64, easy_margin=True, weight=None,
-                 size_average=None, ignore_index=-100, reduce=None, reduction='mean'):
+    def __init__(
+            self,
+            classes,
+            m=0.5,
+            s=64,
+            easy_margin=True,
+            weight=None,
+            size_average=None,
+            ignore_index=-100,
+            reduce=None,
+            reduction='mean'):
         super(ArcLoss, self).__init__(weight, size_average, reduce, reduction)
         self.ignore_index = ignore_index
         assert s > 0.
@@ -191,7 +230,8 @@ class ArcLoss(_WeightedLoss):
             cond = torch.relu(cond_v)
         cond = cond.bool()
         # Apex would convert FP16 to FP32 here
-        new_zy = torch.cos(torch.acos(cos_t) + self.m).type(cos_t.dtype)  # cos(theta_yi + m)
+        # cos(theta_yi + m)
+        new_zy = torch.cos(torch.acos(cos_t) + self.m).type(cos_t.dtype)
         if self.easy_margin:
             zy_keep = cos_t
         else:
@@ -206,8 +246,12 @@ class ArcLoss(_WeightedLoss):
         body = self._get_body(x, target)
         x = x + body
         x = x * self.s
-        return F.cross_entropy(x, target, weight=self.weight, ignore_index=self.ignore_index,
-                               reduction=self.reduction)
+        return F.cross_entropy(
+            x,
+            target,
+            weight=self.weight,
+            ignore_index=self.ignore_index,
+            reduction=self.reduction)
 
 
 class CircleLoss(nn.Module):
@@ -239,8 +283,10 @@ class CircleLoss(nn.Module):
         negative_matrix = label_matrix.logical_not()
         positive_matrix = label_matrix.fill_diagonal_(False)
 
-        sp = torch.where(positive_matrix, similarity_matrix, torch.zeros_like(similarity_matrix))
-        sn = torch.where(negative_matrix, similarity_matrix, torch.zeros_like(similarity_matrix))
+        sp = torch.where(positive_matrix, similarity_matrix,
+                         torch.zeros_like(similarity_matrix))
+        sn = torch.where(negative_matrix, similarity_matrix,
+                         torch.zeros_like(similarity_matrix))
 
         ap = torch.clamp_min(1 + self.m - sp.detach(), min=0.)
         an = torch.clamp_min(sn.detach() + self.m, min=0.)
@@ -248,10 +294,13 @@ class CircleLoss(nn.Module):
         logit_p = -self.gamma * ap * (sp - self.dp)
         logit_n = self.gamma * an * (sn - self.dn)
 
-        logit_p = torch.where(positive_matrix, logit_p, torch.zeros_like(logit_p))
-        logit_n = torch.where(negative_matrix, logit_n, torch.zeros_like(logit_n))
+        logit_p = torch.where(positive_matrix, logit_p,
+                              torch.zeros_like(logit_p))
+        logit_n = torch.where(negative_matrix, logit_n,
+                              torch.zeros_like(logit_n))
 
-        loss = F.softplus(torch.logsumexp(logit_p, dim=1) + torch.logsumexp(logit_n, dim=1)).mean()
+        loss = F.softplus(torch.logsumexp(logit_p, dim=1) +
+                          torch.logsumexp(logit_n, dim=1)).mean()
         return loss
 
 
@@ -278,7 +327,8 @@ class RingLoss(nn.Module):
         if weight_initializer is None:
             self.R = self.parameters(torch.rand(1))
         else:
-            assert torch.is_tensor(weight_initializer), 'weight_initializer should be a Tensor.'
+            assert torch.is_tensor(
+                weight_initializer), 'weight_initializer should be a Tensor.'
             self.R = self.parameters(weight_initializer)
 
     def forward(self, embedding):

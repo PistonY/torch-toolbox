@@ -46,8 +46,9 @@ class CosineWarmupLr(object):
         else:
             for i, group in enumerate(optimizer.param_groups):
                 if 'initial_lr' not in group:
-                    raise KeyError("param 'initial_lr' is not specified "
-                                   "in param_groups[{}] when resuming an optimizer".format(i))
+                    raise KeyError(
+                        "param 'initial_lr' is not specified "
+                        "in param_groups[{}] when resuming an optimizer".format(i))
 
         self.baselr = base_lr
         self.learning_rate = base_lr
@@ -64,7 +65,9 @@ class CosineWarmupLr(object):
         It contains an entry for every variable in self.__dict__ which
         is not the optimizer.
         """
-        return {key: value for key, value in self.__dict__.items() if key != 'optimizer'}
+        return {
+            key: value for key,
+            value in self.__dict__.items() if key != 'optimizer'}
 
     def load_state_dict(self, state_dict):
         """Loads the schedulers state.
@@ -77,12 +80,12 @@ class CosineWarmupLr(object):
 
     def get_lr(self):
         if self.last_iter < self.warmup_iters:
-            self.learning_rate = self.warmup_lr + (self.baselr - self.warmup_lr) * \
-                                 self.last_iter / self.warmup_iters
+            self.learning_rate = self.warmup_lr + \
+                (self.baselr - self.warmup_lr) * self.last_iter / self.warmup_iters
         else:
             self.learning_rate = self.targetlr + (self.baselr - self.targetlr) * \
-                                 (1 + cos(pi * (self.last_iter - self.warmup_iters) /
-                                          (self.niters - self.warmup_iters))) / 2
+                (1 + cos(pi * (self.last_iter - self.warmup_iters) /
+                         (self.niters - self.warmup_iters))) / 2
 
     def step(self, iteration=None):
         """Update status of lr.

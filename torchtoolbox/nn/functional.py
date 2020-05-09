@@ -38,8 +38,9 @@ def logits_nll_loss(input, target, weight=None, reduction='mean'):
 
     assert input.dim() == 2, 'Input shape should be (B, C).'
     if input.size(0) != target.size(0):
-        raise ValueError('Expected input batch_size ({}) to match target batch_size ({}).'
-                         .format(input.size(0), target.size(0)))
+        raise ValueError(
+            'Expected input batch_size ({}) to match target batch_size ({}).' .format(
+                input.size(0), target.size(0)))
 
     ret = input.sum(dim=-1)
     if weight is not None:
@@ -55,11 +56,11 @@ def class_balanced_weight(beta, samples_per_class):
         elif torch.is_tensor(samples_per_class):
             samples_per_class = samples_per_class.numpy()
         else:
-            raise NotImplementedError('Type of samples_per_class should be {}, {} or {} but got {}'.format(
-                (list, tuple), np.ndarray, torch.Tensor, type(samples_per_class)
-            ))
+            raise NotImplementedError(
+                'Type of samples_per_class should be {}, {} or {} but got {}'.format(
+                    (list, tuple), np.ndarray, torch.Tensor, type(samples_per_class)))
     assert isinstance(samples_per_class, np.ndarray) \
-           and isinstance(beta, numbers.Number)
+        and isinstance(beta, numbers.Number)
 
     balanced_matrix = (1 - beta) / (1 - np.power(beta, samples_per_class))
     return torch.Tensor(balanced_matrix)
@@ -123,12 +124,12 @@ def switch_norm(x, running_mean, running_var, weight, bias,
     var_weight = var_weight.softmax(0)
 
     mean = mean_weight[0] * mean_instance + \
-           mean_weight[1] * mean_layer + \
-           mean_weight[2] * mean_batch.unsqueeze(1)
+        mean_weight[1] * mean_layer + \
+        mean_weight[2] * mean_batch.unsqueeze(1)
 
     var = var_weight[0] * var_instance + \
-          var_weight[1] * var_layer + \
-          var_weight[2] * var_batch.unsqueeze(1)
+        var_weight[1] * var_layer + \
+        var_weight[2] * var_batch.unsqueeze(1)
 
     x = (x - mean) / (var + eps).sqrt()
     x = x * weight.unsqueeze(1) + bias.unsqueeze(1)
@@ -166,7 +167,8 @@ def evo_norm(x, prefix, running_var, v, weight, bias,
             x = x * weight + bias
     else:
         if v is not None:
-            x = x * torch.sigmoid(v * x) / group_std(x, groups, eps) * weight + bias
+            x = x * torch.sigmoid(v * x) / group_std(x,
+                                                     groups, eps) * weight + bias
         else:
             x = x * weight + bias
 

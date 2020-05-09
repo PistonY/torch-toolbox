@@ -37,9 +37,17 @@ class _SwitchNorm(nn.Module):
 
     def forward(self, x):
         self._check_input_dim(x)
-        return F.switch_norm(x, self.running_mean, self.running_var, self.weight,
-                             self.bias, self.mean_weight, self.var_weight,
-                             self.training, self.momentum, self.eps)
+        return F.switch_norm(
+            x,
+            self.running_mean,
+            self.running_var,
+            self.weight,
+            self.bias,
+            self.mean_weight,
+            self.var_weight,
+            self.training,
+            self.momentum,
+            self.eps)
 
 
 class SwitchNorm2d(_SwitchNorm):

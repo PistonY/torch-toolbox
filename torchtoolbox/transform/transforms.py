@@ -12,12 +12,40 @@ from . import functional as F
 Sequence = collections.abc.Sequence
 Iterable = collections.abc.Iterable
 
-__all__ = ["Compose", "ToTensor", "ToCVImage", "Normalize", "Resize", "Scale", "CenterCrop", "Pad",
-           "Lambda", "RandomApply", "RandomChoice", "RandomOrder", "RandomCrop", "RandomHorizontalFlip",
-           "RandomVerticalFlip", "RandomResizedCrop", "RandomSizedCrop", "FiveCrop", "TenCrop", "LinearTransformation",
-           "ColorJitter", "RandomRotation", "RandomAffine", "Grayscale", "RandomGrayscale",
-           "RandomPerspective", "RandomErasing", "RandomGaussianNoise", "RandomPoissonNoise", "RandomSPNoise",
-           "RandomTransforms", "Cutout", 'RandomTextOverlay']
+__all__ = [
+    "Compose",
+    "ToTensor",
+    "ToCVImage",
+    "Normalize",
+    "Resize",
+    "Scale",
+    "CenterCrop",
+    "Pad",
+    "Lambda",
+    "RandomApply",
+    "RandomChoice",
+    "RandomOrder",
+    "RandomCrop",
+    "RandomHorizontalFlip",
+    "RandomVerticalFlip",
+    "RandomResizedCrop",
+    "RandomSizedCrop",
+    "FiveCrop",
+    "TenCrop",
+    "LinearTransformation",
+    "ColorJitter",
+    "RandomRotation",
+    "RandomAffine",
+    "Grayscale",
+    "RandomGrayscale",
+    "RandomPerspective",
+    "RandomErasing",
+    "RandomGaussianNoise",
+    "RandomPoissonNoise",
+    "RandomSPNoise",
+    "RandomTransforms",
+    "Cutout",
+    'RandomTextOverlay']
 
 
 class Compose(object):
@@ -139,7 +167,8 @@ class Normalize(object):
         return F.normalize(tensor, self.mean, self.std, self.inplace)
 
     def __repr__(self):
-        return self.__class__.__name__ + '(mean={0}, std={1})'.format(self.mean, self.std)
+        return self.__class__.__name__ + \
+            '(mean={0}, std={1})'.format(self.mean, self.std)
 
 
 class Resize(object):
@@ -156,7 +185,10 @@ class Resize(object):
     """
 
     def __init__(self, size, interpolation='BILINEAR'):
-        assert isinstance(size, int) or (isinstance(size, Iterable) and len(size) == 2)
+        assert isinstance(
+            size, int) or (
+            isinstance(
+                size, Iterable) and len(size) == 2)
         self.size = size
         self.interpolation = interpolation
 
@@ -172,7 +204,8 @@ class Resize(object):
 
     def __repr__(self):
         interpolate_str = self.interpolation
-        return self.__class__.__name__ + '(size={0}, interpolation={1})'.format(self.size, interpolate_str)
+        return self.__class__.__name__ + \
+            '(size={0}, interpolation={1})'.format(self.size, interpolate_str)
 
 
 class Scale(Resize):
@@ -181,8 +214,9 @@ class Scale(Resize):
     """
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("The use of the transforms.Scale transform is deprecated, " +
-                      "please use transforms.Resize instead.")
+        warnings.warn(
+            "The use of the transforms.Scale transform is deprecated, " +
+            "please use transforms.Resize instead.")
         super(Scale, self).__init__(*args, **kwargs)
 
 
@@ -247,8 +281,10 @@ class Pad(object):
         assert isinstance(fill, (numbers.Number, str, tuple))
         assert padding_mode in ['constant', 'edge', 'reflect', 'symmetric']
         if isinstance(padding, Sequence) and len(padding) not in [2, 4]:
-            raise ValueError("Padding must be an int or a 2, or 4 element tuple, not a " +
-                             "{} element tuple".format(len(padding)))
+            raise ValueError(
+                "Padding must be an int or a 2, or 4 element tuple, not a " +
+                "{} element tuple".format(
+                    len(padding)))
 
         self.padding = padding
         self.fill = fill
@@ -277,7 +313,8 @@ class Lambda(object):
     """
 
     def __init__(self, lambd):
-        assert callable(lambd), repr(type(lambd).__name__) + " object is not callable"
+        assert callable(lambd), repr(type(lambd).__name__) + \
+            " object is not callable"
         self.lambd = lambd
 
     def __call__(self, img):
@@ -396,7 +433,13 @@ class RandomCrop(object):
 
     """
 
-    def __init__(self, size, padding=None, pad_if_needed=False, fill=0, padding_mode='constant'):
+    def __init__(
+            self,
+            size,
+            padding=None,
+            pad_if_needed=False,
+            fill=0,
+            padding_mode='constant'):
         if isinstance(size, numbers.Number):
             self.size = (int(size), int(size))
         else:
@@ -439,17 +482,30 @@ class RandomCrop(object):
 
         # pad the width if needed
         if self.pad_if_needed and img.shape[1] < self.size[1]:
-            img = F.pad(img, (self.size[1] - img.shape[1], 0), self.fill, self.padding_mode)
+            img = F.pad(
+                img,
+                (self.size[1] -
+                 img.shape[1],
+                    0),
+                self.fill,
+                self.padding_mode)
         # pad the height if needed
         if self.pad_if_needed and img.shape[0] < self.size[0]:
-            img = F.pad(img, (0, self.size[0] - img.shape[0]), self.fill, self.padding_mode)
+            img = F.pad(
+                img,
+                (0,
+                 self.size[0] -
+                    img.shape[0]),
+                self.fill,
+                self.padding_mode)
 
         i, j, h, w = self.get_params(img, self.size)
 
         return F.crop(img, i, j, h, w)
 
     def __repr__(self):
-        return self.__class__.__name__ + '(size={0}, padding={1})'.format(self.size, self.padding)
+        return self.__class__.__name__ + \
+            '(size={0}, padding={1})'.format(self.size, self.padding)
 
 
 class RandomHorizontalFlip(object):
@@ -533,8 +589,11 @@ class RandomPerspective(object):
 
     """
 
-    def __init__(self, p, fov=0, anglex=0, angley=0, anglez=0, shear=0,
-                 translate=(0, 0), scale=(1, 1), resample='BILINEAR', fillcolor=(0, 0, 0)):
+    def __init__(
+        self, p, fov=0, anglex=0, angley=0, anglez=0, shear=0, translate=(
+            0, 0), scale=(
+            1, 1), resample='BILINEAR', fillcolor=(
+                0, 0, 0)):
         assert all([isinstance(anglex, (tuple, list)) or anglex >= 0,
                     isinstance(angley, (tuple, list)) or angley >= 0,
                     isinstance(anglez, (tuple, list)) or anglez >= 0,
@@ -542,18 +601,28 @@ class RandomPerspective(object):
             'All angles must be positive or tuple or list'
         assert 80 >= fov >= 0, 'fov should be in (0, 80)'
         self.fov = fov
-        self.anglex = (-anglex, anglex) if isinstance(anglex, numbers.Number) else anglex
-        self.angley = (-angley, angley) if isinstance(angley, numbers.Number) else angley
-        self.anglez = (-anglez, anglez) if isinstance(anglez, numbers.Number) else anglez
-        self.shear = (-shear, shear) if isinstance(shear, numbers.Number) else shear
+        self.anglex = (-anglex,
+                       anglex) if isinstance(anglex,
+                                             numbers.Number) else anglex
+        self.angley = (-angley,
+                       angley) if isinstance(angley,
+                                             numbers.Number) else angley
+        self.anglez = (-anglez,
+                       anglez) if isinstance(anglez,
+                                             numbers.Number) else anglez
+        self.shear = (-shear,
+                      shear) if isinstance(shear,
+                                           numbers.Number) else shear
         assert isinstance(translate, (tuple, list)) and len(translate) == 2, \
             "translate should be a list or tuple and it must be of length 2."
-        assert all([0.0 <= i <= 1.0 for i in translate]), "translation values should be between 0 and 1"
+        assert all([0.0 <= i <= 1.0 for i in translate]
+                   ), "translation values should be between 0 and 1"
         self.translate = translate
         if scale is not None:
             assert isinstance(scale, (tuple, list)) and len(scale) == 2, \
                 "scale should be a list or tuple and it must be of length 2."
-            assert all([s > 0 for s in scale]), "scale values should be positive"
+            assert all([s > 0 for s in scale]
+                       ), "scale values should be positive"
         self.scale = scale
 
         self.resample = resample
@@ -570,14 +639,32 @@ class RandomPerspective(object):
         """
 
         if random.random() < self.p:
-            ret = self.get_params(self.fov, self.anglex, self.angley, self.anglez, self.shear,
-                                  self.translate, self.scale, img.shape)
-            return F.perspective(img, *ret, resample=self.resample, fillcolor=self.fillcolor)
+            ret = self.get_params(
+                self.fov,
+                self.anglex,
+                self.angley,
+                self.anglez,
+                self.shear,
+                self.translate,
+                self.scale,
+                img.shape)
+            return F.perspective(
+                img,
+                *ret,
+                resample=self.resample,
+                fillcolor=self.fillcolor)
         return img
 
     @staticmethod
-    def get_params(fov_range, anglex_ranges, angley_ranges, anglez_ranges, shear_ranges,
-                   translate, scale_ranges, img_size):
+    def get_params(
+            fov_range,
+            anglex_ranges,
+            angley_ranges,
+            anglez_ranges,
+            shear_ranges,
+            translate,
+            scale_ranges,
+            img_size):
         """Get parameters for ``perspective`` for a random perspective transform.
 
         Returns:
@@ -632,7 +719,10 @@ class RandomResizedCrop(object):
         interpolation: Default: PIL.Image.BILINEAR
     """
 
-    def __init__(self, size, scale=(0.08, 1.0), ratio=(3. / 4., 4. / 3.), interpolation='BILINEAR'):
+    def __init__(
+        self, size, scale=(
+            0.08, 1.0), ratio=(
+            3. / 4., 4. / 3.), interpolation='BILINEAR'):
         if isinstance(size, tuple):
             self.size = size
         else:
@@ -700,8 +790,10 @@ class RandomResizedCrop(object):
     def __repr__(self):
         interpolate_str = self.interpolation
         format_string = self.__class__.__name__ + '(size={0}'.format(self.size)
-        format_string += ', scale={0}'.format(tuple(round(s, 4) for s in self.scale))
-        format_string += ', ratio={0}'.format(tuple(round(r, 4) for r in self.ratio))
+        format_string += ', scale={0}'.format(tuple(round(s, 4)
+                                                    for s in self.scale))
+        format_string += ', ratio={0}'.format(tuple(round(r, 4)
+                                                    for r in self.ratio))
         format_string += ', interpolation={0})'.format(interpolate_str)
         return format_string
 
@@ -712,8 +804,9 @@ class RandomSizedCrop(RandomResizedCrop):
     """
 
     def __init__(self, *args, **kwargs):
-        warnings.warn("The use of the transforms.RandomSizedCrop transform is deprecated, " +
-                      "please use transforms.RandomResizedCrop instead.")
+        warnings.warn(
+            "The use of the transforms.RandomSizedCrop transform is deprecated, " +
+            "please use transforms.RandomResizedCrop instead.")
         super(RandomSizedCrop, self).__init__(*args, **kwargs)
 
 
@@ -746,7 +839,8 @@ class FiveCrop(object):
         if isinstance(size, numbers.Number):
             self.size = (int(size), int(size))
         else:
-            assert len(size) == 2, "Please provide only two dimensions (h, w) for size."
+            assert len(
+                size) == 2, "Please provide only two dimensions (h, w) for size."
             self.size = size
 
     def __call__(self, img):
@@ -788,7 +882,8 @@ class TenCrop(object):
         if isinstance(size, numbers.Number):
             self.size = (int(size), int(size))
         else:
-            assert len(size) == 2, "Please provide only two dimensions (h, w) for size."
+            assert len(
+                size) == 2, "Please provide only two dimensions (h, w) for size."
             self.size = size
         self.vertical_flip = vertical_flip
 
@@ -796,7 +891,8 @@ class TenCrop(object):
         return F.ten_crop(img, self.size, self.vertical_flip)
 
     def __repr__(self):
-        return self.__class__.__name__ + '(size={0}, vertical_flip={1})'.format(self.size, self.vertical_flip)
+        return self.__class__.__name__ + \
+            '(size={0}, vertical_flip={1})'.format(self.size, self.vertical_flip)
 
 
 class LinearTransformation(object):
@@ -819,13 +915,18 @@ class LinearTransformation(object):
 
     def __init__(self, transformation_matrix, mean_vector):
         if transformation_matrix.size(0) != transformation_matrix.size(1):
-            raise ValueError("transformation_matrix should be square. Got " +
-                             "[{} x {}] rectangular matrix.".format(*transformation_matrix.size()))
+            raise ValueError(
+                "transformation_matrix should be square. Got " +
+                "[{} x {}] rectangular matrix.".format(
+                    *
+                    transformation_matrix.size()))
 
         if mean_vector.size(0) != transformation_matrix.size(0):
-            raise ValueError("mean_vector should have the same length {}".format(mean_vector.size(0)) +
-                             " as any one of the dimensions of the transformation_matrix [{} x {}]"
-                             .format(transformation_matrix.size()))
+            raise ValueError(
+                "mean_vector should have the same length {}".format(
+                    mean_vector.size(0)) +
+                " as any one of the dimensions of the transformation_matrix [{} x {}]" .format(
+                    transformation_matrix.size()))
 
         self.transformation_matrix = transformation_matrix
         self.mean_vector = mean_vector
@@ -838,10 +939,15 @@ class LinearTransformation(object):
         Returns:
             Tensor: Transformed image.
         """
-        if tensor.size(0) * tensor.size(1) * tensor.size(2) != self.transformation_matrix.size(0):
-            raise ValueError("tensor and transformation matrix have incompatible shape." +
-                             "[{} x {} x {}] != ".format(*tensor.size()) +
-                             "{}".format(self.transformation_matrix.size(0)))
+        if tensor.size(0) * tensor.size(1) * \
+                tensor.size(2) != self.transformation_matrix.size(0):
+            raise ValueError(
+                "tensor and transformation matrix have incompatible shape." +
+                "[{} x {} x {}] != ".format(
+                    *
+                    tensor.size()) +
+                "{}".format(
+                    self.transformation_matrix.size(0)))
         flat_tensor = tensor.view(1, -1) - self.mean_vector
         transformed_tensor = torch.mm(flat_tensor, self.transformation_matrix)
         tensor = transformed_tensor.view(tensor.size())
@@ -850,7 +956,8 @@ class LinearTransformation(object):
     def __repr__(self):
         format_string = self.__class__.__name__ + '(transformation_matrix='
         format_string += (str(self.transformation_matrix.tolist()) + ')')
-        format_string += (", (mean_vector=" + str(self.mean_vector.tolist()) + ')')
+        format_string += (", (mean_vector=" +
+                          str(self.mean_vector.tolist()) + ')')
         return format_string
 
 
@@ -879,18 +986,30 @@ class ColorJitter(object):
         self.hue = self._check_input(hue, 'hue', center=0, bound=(-0.5, 0.5),
                                      clip_first_on_zero=False)
 
-    def _check_input(self, value, name, center=1, bound=(0, float('inf')), clip_first_on_zero=True):
+    def _check_input(
+            self,
+            value,
+            name,
+            center=1,
+            bound=(
+                0,
+                float('inf')),
+            clip_first_on_zero=True):
         if isinstance(value, numbers.Number):
             if value < 0:
-                raise ValueError("If {} is a single number, it must be non negative.".format(name))
+                raise ValueError(
+                    "If {} is a single number, it must be non negative.".format(name))
             value = [center - value, center + value]
             if clip_first_on_zero:
                 value[0] = max(value[0], 0)
         elif isinstance(value, (tuple, list)) and len(value) == 2:
             if not bound[0] <= value[0] <= value[1] <= bound[1]:
-                raise ValueError("{} values should be between {}".format(name, bound))
+                raise ValueError(
+                    "{} values should be between {}".format(
+                        name, bound))
         else:
-            raise TypeError("{} should be a single number or a list/tuple with lenght 2.".format(name))
+            raise TypeError(
+                "{} should be a single number or a list/tuple with lenght 2.".format(name))
 
         # if value is 0 or (1., 1.) for brightness/contrast/saturation
         # or (0., 0.) for hue, do nothing
@@ -912,19 +1031,31 @@ class ColorJitter(object):
 
         if brightness is not None:
             brightness_factor = random.uniform(brightness[0], brightness[1])
-            transforms.append(Lambda(lambda img: F.adjust_brightness(img, brightness_factor)))
+            transforms.append(
+                Lambda(
+                    lambda img: F.adjust_brightness(
+                        img, brightness_factor)))
 
         if contrast is not None:
             contrast_factor = random.uniform(contrast[0], contrast[1])
-            transforms.append(Lambda(lambda img: F.adjust_contrast(img, contrast_factor)))
+            transforms.append(
+                Lambda(
+                    lambda img: F.adjust_contrast(
+                        img, contrast_factor)))
 
         if saturation is not None:
             saturation_factor = random.uniform(saturation[0], saturation[1])
-            transforms.append(Lambda(lambda img: F.adjust_saturation(img, saturation_factor)))
+            transforms.append(
+                Lambda(
+                    lambda img: F.adjust_saturation(
+                        img, saturation_factor)))
 
         if hue is not None:
             hue_factor = random.uniform(hue[0], hue[1])
-            transforms.append(Lambda(lambda img: F.adjust_hue(img, hue_factor)))
+            transforms.append(
+                Lambda(
+                    lambda img: F.adjust_hue(
+                        img, hue_factor)))
 
         random.shuffle(transforms)
         transform = Compose(transforms)
@@ -971,14 +1102,21 @@ class RandomRotation(object):
             Default is the center of the image.
     """
 
-    def __init__(self, degrees, resample='BILINEAR', expand=False, center=None):
+    def __init__(
+            self,
+            degrees,
+            resample='BILINEAR',
+            expand=False,
+            center=None):
         if isinstance(degrees, numbers.Number):
             if degrees < 0:
-                raise ValueError("If degrees is a single number, it must be positive.")
+                raise ValueError(
+                    "If degrees is a single number, it must be positive.")
             self.degrees = (-degrees, degrees)
         else:
             if len(degrees) != 2:
-                raise ValueError("If degrees is a sequence, it must be of len 2.")
+                raise ValueError(
+                    "If degrees is a sequence, it must be of len 2.")
             self.degrees = degrees
 
         self.resample = resample
@@ -1010,7 +1148,8 @@ class RandomRotation(object):
         return F.rotate(img, angle, self.resample, self.expand, self.center)
 
     def __repr__(self):
-        format_string = self.__class__.__name__ + '(degrees={0}'.format(self.degrees)
+        format_string = self.__class__.__name__ + \
+            '(degrees={0}'.format(self.degrees)
         format_string += ', resample={0}'.format(self.resample)
         format_string += ', expand={0}'.format(self.expand)
         if self.center is not None:
@@ -1046,10 +1185,18 @@ class RandomAffine(object):
 
     """
 
-    def __init__(self, degrees, translate=None, scale=None, shear=None, resample='BILINEAR', fillcolor=0):
+    def __init__(
+            self,
+            degrees,
+            translate=None,
+            scale=None,
+            shear=None,
+            resample='BILINEAR',
+            fillcolor=0):
         if isinstance(degrees, numbers.Number):
             if degrees < 0:
-                raise ValueError("If degrees is a single number, it must be positive.")
+                raise ValueError(
+                    "If degrees is a single number, it must be positive.")
             self.degrees = (-degrees, degrees)
         else:
             assert isinstance(degrees, (tuple, list)) and len(degrees) == 2, \
@@ -1061,7 +1208,8 @@ class RandomAffine(object):
                 "translate should be a list or tuple and it must be of length 2."
             for t in translate:
                 if not (0.0 <= t <= 1.0):
-                    raise ValueError("translation values should be between 0 and 1")
+                    raise ValueError(
+                        "translation values should be between 0 and 1")
         self.translate = translate
 
         if scale is not None:
@@ -1075,7 +1223,8 @@ class RandomAffine(object):
         if shear is not None:
             if isinstance(shear, numbers.Number):
                 if shear < 0:
-                    raise ValueError("If shear is a single number, it must be positive.")
+                    raise ValueError(
+                        "If shear is a single number, it must be positive.")
                 self.shear = (-shear, shear)
             else:
                 assert isinstance(shear, (tuple, list)) and len(shear) == 2, \
@@ -1123,8 +1272,17 @@ class RandomAffine(object):
         Returns:
             CV Image: Affine transformed image.
         """
-        ret = self.get_params(self.degrees, self.translate, self.scale, self.shear, img.shape)
-        return F.affine(img, *ret, resample=self.resample, fillcolor=self.fillcolor)
+        ret = self.get_params(
+            self.degrees,
+            self.translate,
+            self.scale,
+            self.shear,
+            img.shape)
+        return F.affine(
+            img,
+            *ret,
+            resample=self.resample,
+            fillcolor=self.fillcolor)
 
     def __repr__(self):
         s = '{name}(degrees={degrees}'
@@ -1167,10 +1325,12 @@ class Grayscale(object):
         Returns:
             CV Image: Randomly grayscaled image.
         """
-        return F.to_grayscale(img, num_output_channels=self.num_output_channels)
+        return F.to_grayscale(
+            img, num_output_channels=self.num_output_channels)
 
     def __repr__(self):
-        return self.__class__.__name__ + '(num_output_channels={0})'.format(self.num_output_channels)
+        return self.__class__.__name__ + \
+            '(num_output_channels={0})'.format(self.num_output_channels)
 
 
 class RandomGrayscale(object):
@@ -1232,14 +1392,18 @@ class RandomErasing(object):
         >>> ])
     """
 
-    def __init__(self, p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False):
+    def __init__(
+        self, p=0.5, scale=(
+            0.02, 0.33), ratio=(
+            0.3, 3.3), value=0, inplace=False):
         assert isinstance(value, (numbers.Number, str, tuple, list))
         if (scale[0] > scale[1]) or (ratio[0] > ratio[1]):
             warnings.warn("range should be of kind (min, max)")
         if scale[0] < 0 or scale[1] > 1:
             raise ValueError("range of scale should be between 0 and 1")
         if p < 0 or p > 1:
-            raise ValueError("range of random erasing probability should be between 0 and 1")
+            raise ValueError(
+                "range of random erasing probability should be between 0 and 1")
 
         self.p = p
         self.scale = scale
@@ -1275,9 +1439,11 @@ class RandomErasing(object):
                 if isinstance(value, numbers.Number):
                     v = value
                 elif isinstance(value, torch._six.string_classes):
-                    v = torch.empty([img_c, h, w], dtype=torch.float32).normal_()
+                    v = torch.empty(
+                        [img_c, h, w], dtype=torch.float32).normal_()
                 elif isinstance(value, (list, tuple)):
-                    v = torch.tensor(value, dtype=torch.float32).view(-1, 1, 1).expand(-1, h, w)
+                    v = torch.tensor(
+                        value, dtype=torch.float32).view(-1, 1, 1).expand(-1, h, w)
                 return i, j, h, w, v
 
         # Return original image
@@ -1292,7 +1458,8 @@ class RandomErasing(object):
             img (Tensor): Erased Tensor image.
         """
         if random.random() < self.p:
-            x, y, h, w, v = self.get_params(img, scale=self.scale, ratio=self.ratio, value=self.value)
+            x, y, h, w, v = self.get_params(
+                img, scale=self.scale, ratio=self.ratio, value=self.value)
             return F.erase(img, x, y, h, w, v, self.inplace)
         return img
 
@@ -1307,9 +1474,12 @@ class RandomGaussianNoise(object):
         """
 
     def __init__(self, p=0.5, mean=0, std=0.1, fixed_distribution=True):
-        assert isinstance(mean, numbers.Number) and mean >= 0, 'mean should be a positive value'
-        assert isinstance(std, numbers.Number) and std >= 0, 'std should be a positive value'
-        assert isinstance(p, numbers.Number) and p >= 0, 'p should be a positive value'
+        assert isinstance(
+            mean, numbers.Number) and mean >= 0, 'mean should be a positive value'
+        assert isinstance(
+            std, numbers.Number) and std >= 0, 'std should be a positive value'
+        assert isinstance(
+            p, numbers.Number) and p >= 0, 'p should be a positive value'
         self.p = p
         self.mean = mean
         self.std = std
@@ -1352,7 +1522,8 @@ class RandomPoissonNoise(object):
         """
 
     def __init__(self, p=0.5):
-        assert isinstance(p, numbers.Number) and p >= 0, 'p should be a positive value'
+        assert isinstance(
+            p, numbers.Number) and p >= 0, 'p should be a positive value'
         self.p = p
 
     def __call__(self, img):
@@ -1377,8 +1548,10 @@ class RandomSPNoise(object):
         """
 
     def __init__(self, p=0.5, prob=0.1):
-        assert isinstance(p, numbers.Number) and p >= 0, 'p should be a positive value'
-        assert isinstance(prob, numbers.Number) and prob >= 0, 'p should be a positive value'
+        assert isinstance(
+            p, numbers.Number) and p >= 0, 'p should be a positive value'
+        assert isinstance(
+            prob, numbers.Number) and prob >= 0, 'p should be a positive value'
         self.p = p
         self.prob = prob
 
@@ -1419,7 +1592,8 @@ class Cutout(object):
         if scale[0] < 0 or scale[1] > 1:
             raise ValueError("range of scale should be between 0 and 1")
         if p < 0 or p > 1:
-            raise ValueError("range of random erasing probability should be between 0 and 1")
+            raise ValueError(
+                "range of random erasing probability should be between 0 and 1")
         self.p = p
         self.scale = scale
         self.ratio = ratio
@@ -1457,7 +1631,10 @@ class Cutout(object):
 
 
 class RandomTextOverlay(object):
-    def __init__(self, p, max_occupancy, length=(10, 25), font=1, text_scale=(0.1, 1.5)):
+    def __init__(
+        self, p, max_occupancy, length=(
+            10, 25), font=1, text_scale=(
+            0.1, 1.5)):
         self.p = p
         self.length = length
         self.font = font
@@ -1467,5 +1644,6 @@ class RandomTextOverlay(object):
     def __call__(self, img):
         if random.random() < self.p:
             for _ in range(random.randint(0, self.max_occupancy)):
-                img = F.text_overlay(img, self.length, self.font, self.text_scale)
+                img = F.text_overlay(
+                    img, self.length, self.font, self.text_scale)
         return img

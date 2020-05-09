@@ -59,9 +59,15 @@ class FeaturePairDataset(Dataset):
         zzz 0
     """
 
-    def __init__(self, root, is_same_file=None, transform=None, loader=cv_loader):
+    def __init__(
+            self,
+            root,
+            is_same_file=None,
+            transform=None,
+            loader=cv_loader):
         self.root = root
-        is_same = os.path.join(root, 'is_same.txt' if is_same_file is None else is_same_file)
+        is_same = os.path.join(
+            root, 'is_same.txt' if is_same_file is None else is_same_file)
         is_same_list = []
         with open(is_same) as f:
             for line in f.readlines():
@@ -72,8 +78,15 @@ class FeaturePairDataset(Dataset):
         self.pre_check()
 
     def pre_check(self):
-        self.file_list = [[glob.glob(os.path.join(self.root, dir_name, '*.jpg')), int(is_same)]
-                          for dir_name, is_same in self.file_list]
+        self.file_list = [
+            [
+                glob.glob(
+                    os.path.join(
+                        self.root,
+                        dir_name,
+                        '*.jpg')),
+                int(is_same)] for dir_name,
+            is_same in self.file_list]
         for files, _ in self.file_list:
             assert len(files) == 2
 

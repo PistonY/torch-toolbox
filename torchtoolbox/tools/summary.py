@@ -137,9 +137,11 @@ def summary(model, x, return_results=False):
             if isinstance(layer, nn.Conv2d):
                 tb_params, ntb__params, flops = _cac_conv(layer, input, output)
             elif isinstance(layer, (nn.BatchNorm2d, nn.GroupNorm)):
-                tb_params, ntb__params, flops = _cac_xx_norm(layer, input, output)
+                tb_params, ntb__params, flops = _cac_xx_norm(
+                    layer, input, output)
             elif isinstance(layer, nn.Linear):
-                tb_params, ntb__params, flops = _cac_linear(layer, input, output)
+                tb_params, ntb__params, flops = _cac_linear(
+                    layer, input, output)
 
             model_summary[s_key]['trainable_params'] = tb_params
             model_summary[s_key]['non_trainable_params'] = ntb__params
@@ -184,7 +186,8 @@ def summary(model, x, return_results=False):
     print('=' * 80)
     print('        Total parameters: {:,}  {}'.format(total_params, param_str))
     print('    Trainable parameters: {:,}'.format(trainable_params))
-    print('Non-trainable parameters: {:,}'.format(total_params - trainable_params))
+    print(
+        'Non-trainable parameters: {:,}'.format(total_params - trainable_params))
     print('Total flops(M)  : {:,}  {}'.format(total_flops // 2, flop_str_m))
     print('Total flops(M+A): {:,}  {}'.format(total_flops, flop_str))
     print('-' * 80)

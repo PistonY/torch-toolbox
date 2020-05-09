@@ -46,13 +46,17 @@ class Activation(nn.Module):
     def __init__(self, act_type, auto_optimize=True, **kwargs):
         super(Activation, self).__init__()
         if act_type == 'relu':
-            self.act = nn.ReLU(inplace=True) if auto_optimize else nn.ReLU(**kwargs)
+            self.act = nn.ReLU(
+                inplace=True) if auto_optimize else nn.ReLU(**kwargs)
         elif act_type == 'relu6':
-            self.act = nn.ReLU6(inplace=True) if auto_optimize else nn.ReLU6(**kwargs)
+            self.act = nn.ReLU6(
+                inplace=True) if auto_optimize else nn.ReLU6(**kwargs)
         elif act_type == 'h_swish':
-            self.act = HardSwish(inplace=True) if auto_optimize else HardSwish(**kwargs)
+            self.act = HardSwish(
+                inplace=True) if auto_optimize else HardSwish(**kwargs)
         elif act_type == 'h_sigmoid':
-            self.act = HardSigmoid(inplace=True) if auto_optimize else HardSigmoid(**kwargs)
+            self.act = HardSigmoid(
+                inplace=True) if auto_optimize else HardSigmoid(**kwargs)
         elif act_type == 'swish':
             self.act = Swish(**kwargs)
         elif act_type == 'sigmoid':
@@ -63,7 +67,8 @@ class Activation(nn.Module):
         elif act_type == 'prelu':
             self.act = nn.PReLU(**kwargs)
         else:
-            raise NotImplementedError('{} activation is not implemented.'.format(act_type))
+            raise NotImplementedError(
+                '{} activation is not implemented.'.format(act_type))
 
     def forward(self, x):
         return self.act(x)

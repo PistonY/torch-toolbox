@@ -58,12 +58,15 @@ class Cutout_PIL(object):
         if np.random.rand() > self.p:
             return img
 
-        left, top, h, w, ch = self.get_params(img, self.s_l, self.s_h, self.r_1, self.r_2)
+        left, top, h, w, ch = self.get_params(
+            img, self.s_l, self.s_h, self.r_1, self.r_2)
 
         if self.pixel_level:
-            c = np.random.randint(self.v_l, self.v_h, (h, w, ch), dtype='uint8')
+            c = np.random.randint(
+                self.v_l, self.v_h, (h, w, ch), dtype='uint8')
         else:
-            c = np.random.randint(self.v_l, self.v_h) * np.ones((h, w, ch), dtype='uint8')
+            c = np.random.randint(self.v_l, self.v_h) * \
+                np.ones((h, w, ch), dtype='uint8')
         c = Image.fromarray(c)
         img.paste(c, (left, top, left + w, top + h))
         return img

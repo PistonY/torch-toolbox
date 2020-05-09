@@ -43,7 +43,12 @@ class XavierInitializer(object):
 
 
 class KaimingInitializer(object):
-    def __init__(self, slope=0, mode='fan_out', nonlinearity='relu', random_type='normal'):
+    def __init__(
+            self,
+            slope=0,
+            mode='fan_out',
+            nonlinearity='relu',
+            random_type='normal'):
         assert random_type in ('uniform', 'normal')
         self.slope = slope
         self.mode = mode
@@ -52,7 +57,11 @@ class KaimingInitializer(object):
 
     def __call__(self, module):
         if isinstance(module, (nn.Conv2d, nn.Conv3d)):
-            self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
+            self.initializer(
+                module.weight.data,
+                self.slope,
+                self.mode,
+                self.nonlinearity)
             if module.bias is not None:
                 module.bias.data.zero_()
         elif isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
@@ -61,7 +70,11 @@ class KaimingInitializer(object):
             if module.bias is not None:
                 module.bias.data.zero_()
         elif isinstance(module, nn.Linear):
-            self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
+            self.initializer(
+                module.weight.data,
+                self.slope,
+                self.mode,
+                self.nonlinearity)
             if module.bias is not None:
                 module.bias.data.zero_()
 

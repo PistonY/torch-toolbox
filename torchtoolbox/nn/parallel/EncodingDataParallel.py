@@ -33,9 +33,11 @@ class EncodingParallel(Module):
 
         self.dim = dim
         self.module = module
-        self.device_ids = list(map(lambda x: _get_device_index(x, True), device_ids))
+        self.device_ids = list(
+            map(lambda x: _get_device_index(x, True), device_ids))
         self.output_device = _get_device_index(output_device, True)
-        self.src_device_obj = torch.device("cuda {}".format(self.device_ids[0]))
+        self.src_device_obj = torch.device(
+            "cuda {}".format(self.device_ids[0]))
 
         _check_balance(self.device_ids)
 
@@ -79,9 +81,11 @@ class EncodingDataParallel(EncodingParallel):
 
         for t in chain(self.module.parameters(), self.module.buffers()):
             if t.device != self.src_device_obj:
-                raise RuntimeError("module must have its parameters and buffers "
-                                   "on device {} (device_ids[0]) but found one of "
-                                   "them on device: {}".format(self.src_device_obj, t.device))
+                raise RuntimeError(
+                    "module must have its parameters and buffers "
+                    "on device {} (device_ids[0]) but found one of "
+                    "them on device: {}".format(
+                        self.src_device_obj, t.device))
         inputs, kwargs = self.scatter(inputs, kwargs, self.device_ids)
         if len(self.device_ids) == 1:
             return self.module(*inputs, **kwargs)
@@ -90,7 +94,8 @@ class EncodingDataParallel(EncodingParallel):
         return outputs
 
     def parallel_apply(self, replicas, inputs, kwargs):
-        return parallel_apply(replicas, inputs, kwargs, self.device_ids[:len(replicas)])
+        return parallel_apply(replicas, inputs, kwargs,
+                              self.device_ids[:len(replicas)])
 
 
 class EncodingCriterionParallel(EncodingParallel):
@@ -107,13 +112,22 @@ class EncodingCriterionParallel(EncodingParallel):
             return self.module(inputs, *targets, **kwargs)
         replicas = self.replicate(self.module, self.device_ids[:len(inputs)])
         outputs = self.criterion_apply(replicas, inputs, targets, kwargs)
-        return ReduceAddCoalesced.apply(self.device_ids[0], len(outputs), *outputs) / len(outputs)
+        return ReduceAddCoalesced.apply(
+            self.device_ids[0],
+            len(outputs),
+            *outputs) / len(outputs)
 
     def criterion_apply(self, replicas, inputs, targets, kwargs):
-        return criterion_parallel_apply(replicas, inputs, targets, kwargs, self.device_ids[:len(replicas)])
+        return criterion_parallel_apply(
+            replicas, inputs, targets, kwargs, self.device_ids[:len(replicas)])
 
 
-def criterion_parallel_apply(modules, inputs, targets, kwargs_tup=None, devices=None):
+def criterion_parallel_apply(
+        modules,
+        inputs,
+        targets,
+        kwargs_tup=None,
+        devices=None):
     assert len(modules) == len(inputs)
     assert len(targets) == len(inputs)
     if kwargs_tup is not None:
