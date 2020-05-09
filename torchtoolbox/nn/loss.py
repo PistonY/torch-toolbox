@@ -233,13 +233,6 @@ class CircleLoss(nn.Module):
         self.dp = 1 - m
         self.dn = m
 
-
-    @torch.no_grad()
-    def _get_param(self, sp, sn):
-        ap = torch.clamp_min(1 + self.m - sp, min=0.)
-        an = torch.clamp_min(sn + self.m, min=0.)
-        return ap, an
-
     def forward(self, x, target):
         similarity_matrix = x @ x.T  # need gard here
         label_matrix = target.unsqueeze(1) == target.unsqueeze(0)
@@ -248,8 +241,9 @@ class CircleLoss(nn.Module):
 
         sp = torch.where(positive_matrix, similarity_matrix, torch.zeros_like(similarity_matrix))
         sn = torch.where(negative_matrix, similarity_matrix, torch.zeros_like(similarity_matrix))
-        ap, an = self._get_param(sp, sn)
 
+        ap = torch.clamp_min(1 + self.m - sp.detach(), min=0.)
+        an = torch.clamp_min(sn.detach() + self.m, min=0.)
 
         logit_p = -self.gamma * ap * (sp - self.dp)
         logit_n = self.gamma * an * (sn - self.dn)
