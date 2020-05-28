@@ -42,7 +42,7 @@ class FeatureVerification(Metric):
         self.far_target = far_target
         default_thresholds = np.arange(
             0, 2, 0.01) if dist_type is 'euclidean' else np.arange(
-            0, 1, 0.01)
+            0, 1, 0.005)
         self.thresholds = default_thresholds if thresholds is None else thresholds
         self.dist_type = dist_type
 
@@ -82,7 +82,7 @@ class FeatureVerification(Metric):
 
         acc, acc_std = np.mean(accuracy), np.std(accuracy)
         threshold = (
-            1 - threshold) if self.dist_type == 'cosine' else threshold
+                1 - threshold) if self.dist_type == 'cosine' else threshold
         return tpr, fpr, acc, threshold, val, val_std, far, acc_std
 
 
@@ -123,8 +123,8 @@ def calculate_roc(thresholds, dist, actual_issame, nrof_folds=10):
         best_threshold_index = np.argmax(acc_train)
         for threshold_idx, threshold in enumerate(thresholds):
             tprs[fold_idx, threshold_idx], \
-                fprs[fold_idx, threshold_idx], _ = calculate_accuracy(threshold, dist[test_set],
-                                                                      actual_issame[test_set])
+            fprs[fold_idx, threshold_idx], _ = calculate_accuracy(threshold, dist[test_set],
+                                                                  actual_issame[test_set])
         avg_thresholds.append(thresholds[best_threshold_index])
         _, _, accuracy[fold_idx] = calculate_accuracy(
             thresholds[best_threshold_index], dist[test_set], actual_issame[test_set])
