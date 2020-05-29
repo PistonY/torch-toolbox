@@ -20,16 +20,16 @@ def no_decay_bias(net):
     no_decay = []
 
     for m in net.modules():
-        if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+        if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.Linear)):
             decay.append(m.weight)
 
             if m.bias is not None:
                 no_decay.append(m.bias)
 
         else:
-            if hasattr(m, 'weight'):
+            if hasattr(m, 'weight') and m.weight is not None:
                 no_decay.append(m.weight)
-            if hasattr(m, 'bias'):
+            if hasattr(m, 'bias') and m.bias is not None:
                 no_decay.append(m.bias)
 
     assert len(list(net.parameters())) == len(decay) + len(no_decay)
