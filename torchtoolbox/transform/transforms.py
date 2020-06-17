@@ -1589,8 +1589,6 @@ class Cutout(object):
     def __init__(self, p=0.5, scale=(0.02, 0.4), ratio=(0.4, 1 / 0.4),
                  value=(0, 255), pixel_level=False, inplace=False):
 
-        # if isinstance(value, ):
-
         if (scale[0] > scale[1]) or (ratio[0] > ratio[1]):
             warnings.warn("range should be of kind (min, max)")
         if scale[0] < 0 or scale[1] > 1:
@@ -1630,9 +1628,7 @@ class Cutout(object):
     def __call__(self, img):
         if random.random() < self.p:
             left, top, h, w, ch = self.get_params(img, self.scale, self.ratio)
-
-            print(left, top, h, w, ch)
-
+            
             if self.pixel_level:
                 c = np.random.randint(*self.value, size=(h, w, ch))
             else:
