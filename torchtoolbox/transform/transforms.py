@@ -6,6 +6,7 @@ import numpy as np
 import numbers
 import collections
 import warnings
+import PIL
 
 from . import functional as F
 
@@ -1587,6 +1588,9 @@ class Cutout(object):
 
     def __init__(self, p=0.5, scale=(0.02, 0.4), ratio=(0.4, 1 / 0.4),
                  value=(0, 255), pixel_level=False, inplace=False):
+
+        # if isinstance(value, ):
+
         if (scale[0] > scale[1]) or (ratio[0] > ratio[1]):
             warnings.warn("range should be of kind (min, max)")
         if scale[0] < 0 or scale[1] > 1:
@@ -1604,7 +1608,11 @@ class Cutout(object):
     @staticmethod
     def get_params(img, scale, ratio):
 
-        img_h, img_w, img_c = img.shape
+        if type(img) == PIL.Image.Image:  
+            img_h, img_w = img.size
+            img_c = len(img.getbands())
+        else:
+            img_h, img_w, img_c = img.shape
 
         s = random.uniform(*scale)
         # if you img_h != img_w you may need this.
@@ -1622,12 +1630,21 @@ class Cutout(object):
     def __call__(self, img):
         if random.random() < self.p:
             left, top, h, w, ch = self.get_params(img, self.scale, self.ratio)
+
+            print(left, top, h, w, ch)
+
             if self.pixel_level:
                 c = np.random.randint(*self.value, size=(h, w, ch))
             else:
                 c = random.randint(*self.value)
-            return F.cutout(img, top, left, h, w, c, self.inplace)
+
+            if type(img) == PIL.Image.Image: 
+                img.paste(c, (left, top, left + w, top + h))
+                return img
+            else:
+                return F.cutout(img, top, left, h, w, c, self.inplace)
         return img
+
 
 
 class RandomTextOverlay(object):
