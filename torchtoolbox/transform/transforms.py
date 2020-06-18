@@ -1606,11 +1606,11 @@ class Cutout(object):
     @staticmethod
     def get_params(img, scale, ratio):
 
-        if type(img) == PIL.Image.Image:  
+        if type(img) == np.ndarray:
+            img_h, img_w, img_c = img.shape
+        else: 
             img_h, img_w = img.size
             img_c = len(img.getbands())
-        else:
-            img_h, img_w, img_c = img.shape
 
         s = random.uniform(*scale)
         # if you img_h != img_w you may need this.
@@ -1628,17 +1628,19 @@ class Cutout(object):
     def __call__(self, img):
         if random.random() < self.p:
             left, top, h, w, ch = self.get_params(img, self.scale, self.ratio)
-            
+
             if self.pixel_level:
-                c = np.random.randint(*self.value, size=(h, w, ch))
+                c = np.random.randint(*self.value, size=(h, w, ch), dtype='uint8')
             else:
                 c = random.randint(*self.value)
 
-            if type(img) == PIL.Image.Image: 
+            if type(img) == np.ndarray:
+                return F.cutout(img, top, left, h, w, c, self.inplace)
+            else: 
+                if self.pixel_level:
+                    c = PIL.Image.fromarray(c)
                 img.paste(c, (left, top, left + w, top + h))
                 return img
-            else:
-                return F.cutout(img, top, left, h, w, c, self.inplace)
         return img
 
 
