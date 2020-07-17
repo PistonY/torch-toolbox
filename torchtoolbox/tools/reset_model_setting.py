@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__all__ = ['no_decay_bias', 'reset_model_setting']
+__all__ = ['no_decay_bias', 'reset_model_setting', 'ZeroLastGamma']
 
 from .utils import to_list
 from torch import nn
@@ -66,3 +66,15 @@ def reset_model_setting(model, layer_names, setting_names, values):
     parameters = [{'params': base_param}, {
         'params': reset_param}.update(dict(zip(setting_names, values)))]
     return parameters
+
+
+class ZeroLastGamma(object):
+    def __init__(self, block_name='Bottleneck', bn_name='bn3'):
+        self.block_name = block_name
+        self.bn_name = bn_name
+
+    def __call__(self, module):
+        if module.__class__.__name__ == self.block_name:
+            target_bn = module.__getattr__(self.bn_name)
+            nn.init.zeros_(target_bn.weight)
+
