@@ -428,6 +428,18 @@ init = ZeroLastGamma(block_name='Bottleneck', bn_name='bn3')
 model.apply(init)
 ```
 
+#### 15. SGC_GC
+[Gradient Centralization: A New Optimization Technique for Deep Neural Networks](https://arxiv.org/pdf/2004.01461.pdf)
+
+```python
+from torchtoolbox.optimizer import SGD_GC
+
+optimizer = SGD_GC(model.parameters())
+optimizer.zero_grad()
+loss.backward()
+optimizer.step()
+
+```
 
 ## Contribution
 
