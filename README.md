@@ -40,6 +40,7 @@ You could also regard this as a auxiliary tool for Pytorch. It will contain what
       - [13. EvoNrom](#13-evonrom)
       - [14. Activation Layer](#14-activation-layer)
       - [15. Zero LastGamma Init](#15-zero-lastgamma-init)
+      - [16. SGD_GC](#16-SGC-GC)
   * [Contribution](#contribution)
 
 ## Installing
@@ -428,7 +429,7 @@ init = ZeroLastGamma(block_name='Bottleneck', bn_name='bn3')
 model.apply(init)
 ```
 
-#### 15. SGC_GC
+#### 16. SGC_GC
 [Gradient Centralization: A New Optimization Technique for Deep Neural Networks](https://arxiv.org/pdf/2004.01461.pdf)
 
 ```python
