@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['SwitchNorm2d', 'SwitchNorm3d', 'EvoNormB0', 'EvoNormS0']
+__all__ = ['SwitchNorm2d', 'SwitchNorm3d', 'EvoNormB0', 'EvoNormS0', 'DropBlock2d']
 
 import torch
 from torch import nn
@@ -114,3 +114,45 @@ class EvoNormS0(_EvoNorm):
     def __init__(self, num_features, groups=32, affine=True):
         super(EvoNormS0, self).__init__('s0', num_features, groups=groups,
                                         affine=affine)
+
+
+class DropBlock2d(nn.Module):
+    r"""Randomly zeroes 2D spatial blocks of the input tensor.
+        As described in the paper
+        `DropBlock: A regularization method for convolutional networks`_ ,
+        dropping whole blocks of feature map allows to remove semantic
+        information as compared to regular dropout.
+        Args:
+            p (float): probability of an element to be dropped.
+            block_size (int): size of the block to drop
+        Shape:
+            - Input: `(N, C, H, W)`
+            - Output: `(N, C, H, W)`
+        .. _DropBlock: A regularization method for convolutional networks:
+           https://arxiv.org/abs/1810.12890
+        """
+
+    def __init__(self, p=0.1, block_size=7):
+        super(DropBlock2d, self).__init__()
+        assert 0 <= p <= 1
+        self.p = p
+        self.block_size = block_size
+
+    def forward(self, x):
+        if not self.training or self.p == 0:
+            return x
+        _, _, h, w = x.size()
+        gamma = self.get_gamma(h, w)
+        mask = self.get_mask(x, gamma)
+        y = F.drop_block(x, mask)
+        return y
+
+    @torch.no_grad()
+    def get_mask(self, x, gamma):
+        mask = torch.bernoulli(torch.ones_like(x) * gamma)
+        mask = 1 - torch.max_pool2d(mask, kernel_size=self.block_size, stride=1, padding=self.block_size // 2)
+        return mask
+
+    def get_gamma(self, h, w):
+        return self.p * (h * w) / (self.block_size ** 2) / \
+               ((w - self.block_size + 1) * (h * self.block_size + 1))
