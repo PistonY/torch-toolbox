@@ -2,3 +2,4 @@
 # @Author  : PistonYang(pistonyang@gmail.com)
 
 from .transforms import *
+from .autoaugment import *
