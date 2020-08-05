@@ -24,7 +24,7 @@ SOFTWARE.
 
 """
 
-__all__ = ['ImageNetPolicy']
+__all__ = ['ImageNetPolicy', 'CIFAR10Policy', 'SVHNPolicy']
 
 from .transforms import RandomChoice, Compose
 from PIL import Image, ImageEnhance, ImageOps
@@ -217,4 +217,68 @@ ImageNetPolicy = RandomChoice([
     Compose([Invert(0.6), Equalize(1.0)]),
     Compose([Color(0.6, 4), Contrast(1.0, 8)]),
     Compose([Equalize(0.8), Equalize(0.6)])
+])
+
+CIFAR10Policy = RandomChoice([
+    Compose([Invert(0.1), Contrast(0.2, 6)]),
+    Compose([Rotate(0.7, 2), TranslateX(0.3, 9)]),
+    Compose([Sharpness(0.8, 1), Sharpness(0.9, 3)]),
+    Compose([ShearY(0.5, 8), TranslateY(0.7, 9)]),
+    Compose([AutoContrast(0.5), Equalize(0.9, )]),
+
+    Compose([ShearY(0.2, 7), Posterize(0.3, 7)]),
+    Compose([Color(0.4, 3), Brightness(0.6, 7)]),
+    Compose([Sharpness(0.3, 9), Brightness(0.7, 9)]),
+    Compose([Equalize(0.6), Equalize(0.5)]),
+    Compose([Contrast(0.6, 7), Sharpness(0.6, 5)]),
+
+    Compose([Color(0.7, 7), TranslateX(0.5, 8)]),
+    Compose([Equalize(0.3), AutoContrast(0.4)]),
+    Compose([TranslateY(0.4, 3), Sharpness(0.2, 6)]),
+    Compose([Brightness(0.9, 6), Color(0.2, 8)]),
+    Compose([Solarize(0.5, 2), Invert(0.0)]),
+
+    Compose([Equalize(0.2), AutoContrast(0.6)]),
+    Compose([Equalize(0.2), Equalize(0.6)]),
+    Compose([Color(0.9, 9), Equalize(0.6)]),
+    Compose([AutoContrast(0.8), Solarize(0.2, 8)]),
+    Compose([Brightness(0.1, 3), Color(0.7, 0)]),
+
+    Compose([Solarize(0.4, 5), AutoContrast(0.9)]),
+    Compose([TranslateY(0.9, 9), TranslateY(0.7, 9)]),
+    Compose([AutoContrast(0.9), Solarize(0.8, 3)]),
+    Compose([Equalize(0.8), Invert(0.1)]),
+    Compose([TranslateY(0.7, 9), AutoContrast(0.9)])
+])
+
+SVHNPolicy = RandomChoice([
+    Compose([ShearX(0.9, 4), Invert(0.2)]),
+    Compose([ShearY(0.9, 8), Invert(0.7)]),
+    Compose([Equalize(0.6), Solarize(0.6, 6)]),
+    Compose([Invert(0.9), Equalize(0.6)]),
+    Compose([Equalize(0.6), Rotate(0.9, 3)]),
+
+    Compose([ShearX(0.9, 4), AutoContrast(0.8)]),
+    Compose([ShearY(0.9, 8), Invert(0.4)]),
+    Compose([ShearY(0.9, 5), Solarize(0.2, 6)]),
+    Compose([Invert(0.9), AutoContrast(0.8)]),
+    Compose([Equalize(0.6), Rotate(0.9, 3)]),
+
+    Compose([ShearX(0.9, 4), Solarize(0.3, 3)]),
+    Compose([ShearY(0.8, 8), Invert(0.7)]),
+    Compose([Equalize(0.9), TranslateY(0.6, 6)]),
+    Compose([Invert(0.9), Equalize(0.6)]),
+    Compose([Contrast(0.3, 3), Rotate(0.8, 4)]),
+
+    Compose([Invert(0.8), TranslateY(0.0, 2)]),
+    Compose([ShearY(0.7, 6), Solarize(0.4, 8)]),
+    Compose([Invert(0.6), Rotate(0.8, 4)]),
+    Compose([ShearY(0.3, 7), TranslateX(0.9, 3)]),
+    Compose([ShearX(0.1, 6), Invert(0.6)]),
+
+    Compose([Solarize(0.7, 2), TranslateY(0.6, 7)]),
+    Compose([ShearY(0.8, 4), Invert(0.8)]),
+    Compose([ShearX(0.7, 9), TranslateY(0.8, 3)]),
+    Compose([ShearY(0.8, 5), AutoContrast(0.7)]),
+    Compose([ShearX(0.7, 2), Invert(0.1)])
 ])
