@@ -40,7 +40,7 @@ You could also regard this as a auxiliary tool for Pytorch. It will contain what
       - [13. EvoNrom](#13-evonrom)
       - [14. Activation Layer](#14-activation-layer)
       - [15. Zero LastGamma Init](#15-zero-lastgamma-init)
-      - [16. SGD_GC](#16-SGC-GC)
+      - [16. SGD_GC](#16-sgc_gc)
       - [17. Autoaugment](#17-autoaugment)
   * [Contribution](#contribution)
 
