@@ -7,7 +7,7 @@ import os
 import pickle
 import numpy as np
 from torch.utils.data import Dataset
-from .utils import decode_img_from_buf, cv_loader
+from .utils import decode_img_from_buf, cv_loader, pil_loader
 
 
 class NonLabelDataset(Dataset):
@@ -22,7 +22,7 @@ class NonLabelDataset(Dataset):
         transform (callable): transform func.
     """
 
-    def __init__(self, root_dir, transform=None, loader=cv_loader):
+    def __init__(self, root_dir, transform=None, loader=pil_loader):
         self.transform = transform
         self.items = sorted(os.listdir(root_dir))
         self.items = [os.path.join(root_dir, f) for f in self.items]
@@ -64,7 +64,7 @@ class FeaturePairDataset(Dataset):
             root,
             is_same_file=None,
             transform=None,
-            loader=cv_loader):
+            loader=pil_loader):
         self.root = root
         is_same = os.path.join(
             root, 'is_same.txt' if is_same_file is None else is_same_file)
@@ -78,15 +78,8 @@ class FeaturePairDataset(Dataset):
         self.pre_check()
 
     def pre_check(self):
-        self.file_list = [
-            [
-                glob.glob(
-                    os.path.join(
-                        self.root,
-                        dir_name,
-                        '*.jpg')),
-                int(is_same)] for dir_name,
-            is_same in self.file_list]
+        self.file_list = [[glob.glob(os.path.join(self.root, dir_name, '*.jpg')), int(is_same)]
+                          for dir_name, is_same in self.file_list]
         for files, _ in self.file_list:
             assert len(files) == 2
 

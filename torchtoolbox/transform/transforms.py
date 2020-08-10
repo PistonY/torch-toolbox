@@ -169,7 +169,7 @@ class Normalize(object):
 
     def __repr__(self):
         return self.__class__.__name__ + \
-            '(mean={0}, std={1})'.format(self.mean, self.std)
+               '(mean={0}, std={1})'.format(self.mean, self.std)
 
 
 class Resize(object):
@@ -188,8 +188,8 @@ class Resize(object):
     def __init__(self, size, interpolation='BILINEAR'):
         assert isinstance(
             size, int) or (
-            isinstance(
-                size, Iterable) and len(size) == 2)
+                       isinstance(
+                           size, Iterable) and len(size) == 2)
         self.size = size
         self.interpolation = interpolation
 
@@ -206,7 +206,7 @@ class Resize(object):
     def __repr__(self):
         interpolate_str = self.interpolation
         return self.__class__.__name__ + \
-            '(size={0}, interpolation={1})'.format(self.size, interpolate_str)
+               '(size={0}, interpolation={1})'.format(self.size, interpolate_str)
 
 
 class Scale(Resize):
@@ -315,7 +315,7 @@ class Lambda(object):
 
     def __init__(self, lambd):
         assert callable(lambd), repr(type(lambd).__name__) + \
-            " object is not callable"
+                                " object is not callable"
         self.lambd = lambd
 
     def __call__(self, img):
@@ -487,7 +487,7 @@ class RandomCrop(object):
                 img,
                 (self.size[1] -
                  img.shape[1],
-                    0),
+                 0),
                 self.fill,
                 self.padding_mode)
         # pad the height if needed
@@ -496,7 +496,7 @@ class RandomCrop(object):
                 img,
                 (0,
                  self.size[0] -
-                    img.shape[0]),
+                 img.shape[0]),
                 self.fill,
                 self.padding_mode)
 
@@ -506,7 +506,7 @@ class RandomCrop(object):
 
     def __repr__(self):
         return self.__class__.__name__ + \
-            '(size={0}, padding={1})'.format(self.size, self.padding)
+               '(size={0}, padding={1})'.format(self.size, self.padding)
 
 
 class RandomHorizontalFlip(object):
@@ -591,10 +591,10 @@ class RandomPerspective(object):
     """
 
     def __init__(
-        self, p, fov=0, anglex=0, angley=0, anglez=0, shear=0, translate=(
-            0, 0), scale=(
-            1, 1), resample='BILINEAR', fillcolor=(
-                0, 0, 0)):
+            self, p, fov=0, anglex=0, angley=0, anglez=0, shear=0, translate=(
+                    0, 0), scale=(
+                    1, 1), resample='BILINEAR', fillcolor=(
+                    0, 0, 0)):
         assert all([isinstance(anglex, (tuple, list)) or anglex >= 0,
                     isinstance(angley, (tuple, list)) or angley >= 0,
                     isinstance(anglez, (tuple, list)) or anglez >= 0,
@@ -721,9 +721,9 @@ class RandomResizedCrop(object):
     """
 
     def __init__(
-        self, size, scale=(
-            0.08, 1.0), ratio=(
-            3. / 4., 4. / 3.), interpolation='BILINEAR'):
+            self, size, scale=(
+                    0.08, 1.0), ratio=(
+                    3. / 4., 4. / 3.), interpolation='BILINEAR'):
         if isinstance(size, tuple):
             self.size = size
         else:
@@ -893,7 +893,7 @@ class TenCrop(object):
 
     def __repr__(self):
         return self.__class__.__name__ + \
-            '(size={0}, vertical_flip={1})'.format(self.size, self.vertical_flip)
+               '(size={0}, vertical_flip={1})'.format(self.size, self.vertical_flip)
 
 
 class LinearTransformation(object):
@@ -926,7 +926,7 @@ class LinearTransformation(object):
             raise ValueError(
                 "mean_vector should have the same length {}".format(
                     mean_vector.size(0)) +
-                " as any one of the dimensions of the transformation_matrix [{} x {}]" .format(
+                " as any one of the dimensions of the transformation_matrix [{} x {}]".format(
                     transformation_matrix.size()))
 
         self.transformation_matrix = transformation_matrix
@@ -993,8 +993,8 @@ class ColorJitter(object):
             name,
             center=1,
             bound=(
-                0,
-                float('inf')),
+                    0,
+                    float('inf')),
             clip_first_on_zero=True):
         if isinstance(value, numbers.Number):
             if value < 0:
@@ -1150,7 +1150,7 @@ class RandomRotation(object):
 
     def __repr__(self):
         format_string = self.__class__.__name__ + \
-            '(degrees={0}'.format(self.degrees)
+                        '(degrees={0}'.format(self.degrees)
         format_string += ', resample={0}'.format(self.resample)
         format_string += ', expand={0}'.format(self.expand)
         if self.center is not None:
@@ -1331,7 +1331,7 @@ class Grayscale(object):
 
     def __repr__(self):
         return self.__class__.__name__ + \
-            '(num_output_channels={0})'.format(self.num_output_channels)
+               '(num_output_channels={0})'.format(self.num_output_channels)
 
 
 class RandomGrayscale(object):
@@ -1394,9 +1394,9 @@ class RandomErasing(object):
     """
 
     def __init__(
-        self, p=0.5, scale=(
-            0.02, 0.33), ratio=(
-            0.3, 3.3), value=0, inplace=False):
+            self, p=0.5, scale=(
+                    0.02, 0.33), ratio=(
+                    0.3, 3.3), value=0, inplace=False):
         assert isinstance(value, (numbers.Number, str, tuple, list))
         if (scale[0] > scale[1]) or (ratio[0] > ratio[1]):
             warnings.warn("range should be of kind (min, max)")
@@ -1608,7 +1608,7 @@ class Cutout(object):
 
         if type(img) == np.ndarray:
             img_h, img_w, img_c = img.shape
-        else: 
+        else:
             img_h, img_w = img.size
             img_c = len(img.getbands())
 
@@ -1636,7 +1636,7 @@ class Cutout(object):
 
             if type(img) == np.ndarray:
                 return F.cutout(img, top, left, h, w, c, self.inplace)
-            else: 
+            else:
                 if self.pixel_level:
                     c = PIL.Image.fromarray(c)
                 img.paste(c, (left, top, left + w, top + h))
@@ -1644,12 +1644,11 @@ class Cutout(object):
         return img
 
 
-
 class RandomTextOverlay(object):
     def __init__(
-        self, p, max_occupancy, length=(
-            10, 25), font=1, text_scale=(
-            0.1, 1.5)):
+            self, p, max_occupancy, length=(
+                    10, 25), font=1, text_scale=(
+                    0.1, 1.5)):
         self.p = p
         self.length = length
         self.font = font
