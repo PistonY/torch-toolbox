@@ -78,3 +78,21 @@ class ZeroLastGamma(object):
             target_bn = module.__getattr__(self.bn_name)
             nn.init.zeros_(target_bn.weight)
 
+
+class SchedulerCollector(object):
+    def __init__(self):
+        self.schedulers = []
+
+    def register(self, scheduler):
+        self.schedulers.append(scheduler)
+
+    def step(self):
+        for shd in self.schedulers:
+            shd.step()
+
+    def state_dict(self):
+        return {str(idx): value.__dict__ for idx, value in enumerate(self.schedulers)}
+
+    def load_state_dict(self, state_dict):
+        for key, values in state_dict:
+            self.schedulers[int(key)].__dict__.update(values.items())
