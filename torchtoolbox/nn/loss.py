@@ -304,6 +304,38 @@ class CircleLoss(nn.Module):
         return loss
 
 
+class CircleLossFC(_WeightedLoss):
+    def __init__(self,
+                 classes,
+                 m,
+                 gamma, weight=None,
+                 size_average=None,
+                 ignore_index=-100,
+                 reduce=None,
+                 reduction='mean'):
+        super().__init__(weight, size_average, reduce, reduction)
+        self.m = m
+        self.gamma = gamma
+        self.dp = 1 - m
+        self.dn = m
+        self.classes = classes
+
+    def forward(self, x, target):
+        ap = torch.clamp_min(1 + self.m - x.detach(), min=0.)
+        an = torch.clamp_min(x.detach() + self.m, min=0.)
+
+        gt_one_hot = F.one_hot(target, num_classes=self.classes)
+        x = (gt_one_hot * (ap * (x - self.dp)) +
+             (1 - gt_one_hot)*(an * (x - self.dn))
+             ) * self.gamma
+        return F.cross_entropy(
+            x,
+            target,
+            weight=self.weight,
+            ignore_index=self.ignore_index,
+            reduction=self.reduction)
+
+
 class RingLoss(nn.Module):
     """Computes the Ring Loss from
     `"Ring loss: Convex Feature Normalization for Face Recognition"
