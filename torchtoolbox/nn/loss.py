@@ -308,7 +308,8 @@ class CircleLossFC(_WeightedLoss):
     def __init__(self,
                  classes,
                  m,
-                 gamma, weight=None,
+                 gamma,
+                 weight=None,
                  size_average=None,
                  ignore_index=-100,
                  reduce=None,
@@ -319,7 +320,8 @@ class CircleLossFC(_WeightedLoss):
         self.dp = 1 - m
         self.dn = m
         self.classes = classes
-
+        self.ignore_index = ignore_index
+        
     def forward(self, x, target):
         ap = torch.clamp_min(1 + self.m - x.detach(), min=0.)
         an = torch.clamp_min(x.detach() + self.m, min=0.)
