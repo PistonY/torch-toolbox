@@ -42,3 +42,48 @@ class DropBlockScheduler(object):
         self.get_value()
         self.update_values(self.value)
         self.iter += 1
+
+
+class ObjectSchedule(object):
+    def __init__(self, object, adjust_param, start_epoch, stop_epoch, batches, start_value, stop_value, mode='linear'):
+        super().__init__()
+        self.start_iter = start_epoch * batches
+        self.end_iter = stop_epoch * batches
+        self.start_value = start_value
+        self.adjust_param = adjust_param
+        self.objcet = objcet
+        self.st_base = (stop_value - start_value) / \
+            (self.end_iter - self.start_iter)
+        self.iter = 0
+        self.value = start_value
+
+    def get_value(self):
+        self.value = self.st_base * \
+            (self.iter - self.start_iter) + self.start_value
+
+    def update_value(self):
+        setattr(self.object, self.adjust_param, self.value)
+
+    def step(self):
+        if not (self.iter < self.start_iter or self.iter > self.end_iter):
+            self.get_value()
+            self.update_value()
+        self.iter += 1
+
+    @property
+    def value(self):
+        return self.value
+
+    def state_dict(self):
+        return {
+            key: value for key,
+            value in self.__dict__.items() if key != 'object'}
+
+    def load_state_dict(self, state_dict):
+        """Loads the schedulers state.
+
+        Arguments:
+            state_dict (dict): scheduler state. Should be an object returned
+                from a call to :meth:`state_dict`.
+        """
+        self.__dict__.update(state_dict)
