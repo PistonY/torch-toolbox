@@ -133,7 +133,7 @@ class L2Softmax(_WeightedLoss):
             reduction=self.reduction)
 
 
-class CosLoss(_WeightedLoss):
+class AMSoftmax(_WeightedLoss):
     r"""CosLoss from
        `"CosFace: Large Margin Cosine Loss for Deep Face Recognition"
        <https://arxiv.org/abs/1801.09414>`_ paper.
@@ -159,7 +159,7 @@ class CosLoss(_WeightedLoss):
 
     def __init__(self, classes, m, s, weight=None, size_average=None,
                  ignore_index=-100, reduce=None, reduction='mean'):
-        super(CosLoss, self).__init__(weight, size_average, reduce, reduction)
+        super(AMSoftmax, self).__init__(weight, size_average, reduce, reduction)
         assert m > 0 and s > 0
         self.ignore_index = ignore_index
         self.classes = classes

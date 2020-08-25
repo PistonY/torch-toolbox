@@ -51,14 +51,14 @@ class ObjectSchedule(object):
         self.end_iter = stop_epoch * batches
         self.start_value = start_value
         self.adjust_param = adjust_param
-        self.objcet = objcet
+        self.object = object
         self.st_base = (stop_value - start_value) / \
             (self.end_iter - self.start_iter)
         self.iter = 0
-        self.value = start_value
+        self._value = start_value
 
     def get_value(self):
-        self.value = self.st_base * \
+        self._value = self.st_base * \
             (self.iter - self.start_iter) + self.start_value
 
     def update_value(self):
@@ -72,7 +72,7 @@ class ObjectSchedule(object):
 
     @property
     def value(self):
-        return self.value
+        return self._value
 
     def state_dict(self):
         return {
