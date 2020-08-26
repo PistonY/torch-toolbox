@@ -374,11 +374,11 @@ If you train a model with big batch size, eg. 64k, you may need this,
 [Highly Scalable Deep Learning Training System with Mixed-Precision: Training ImageNet in Four Minutes](https://arxiv.org/pdf/1807.11205.pdf)
 
 ```python
-from torchtoolbox.tools import split_weights
+from torchtoolbox.tools import no_decay_bias
 from torch import optim
 
 model = XXX
-parameters = split_weights(model)
+parameters = no_decay_bias(model)
 optimizer = optim.SGD(parameters, ...)
 
 ```
