@@ -4,7 +4,8 @@
 import math
 from torch import nn
 from torch.nn.init import xavier_normal_, xavier_uniform_, \
-    kaiming_normal_, kaiming_uniform_, zeros_
+    kaiming_normal_, kaiming_uniform_, zeros_, _no_grad_normal_, \
+    _calculate_fan_in_and_fan_out
 
 
 class XavierInitializer(object):
@@ -75,6 +76,38 @@ class KaimingInitializer(object):
                 self.slope,
                 self.mode,
                 self.nonlinearity)
+            if module.bias is not None:
+                module.bias.data.zero_()
+
+
+class MSRAPrelu(object):
+    """Initialize the weight according to a MSRA paper.
+    This initializer implements *Delving Deep into Rectifiers: Surpassing
+    Human-Level Performance on ImageNet Classification*, available at
+    https://arxiv.org/abs/1502.01852.
+    """
+
+    def __init__(self, slope=0.25):
+        self.magnitude = 2. / (1 + slope ** 2)
+
+    def initializer(self, tensor):
+        fan_in, fan_out = _calculate_fan_in_and_fan_out(tensor)
+        factor = (fan_in + fan_out) / 2.0
+        scale = math.sqrt(self.magnitude / factor)
+        _no_grad_normal_(tensor, 0, scale)
+
+    def __call__(self, module):
+        if isinstance(module, (nn.Conv2d, nn.Conv3d)):
+            self.initializer(module.weight.data)
+            if module.bias is not None:
+                module.bias.data.zero_()
+        elif isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
+            if module.weight is not None:
+                module.weight.data.fill_(1)
+            if module.bias is not None:
+                module.bias.data.zero_()
+        elif isinstance(module, nn.Linear):
+            self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()
 
