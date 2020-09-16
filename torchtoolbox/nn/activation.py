@@ -24,22 +24,22 @@ class Swish(nn.Module):
         return swish(x, self.beta)
 
 
-class HardSwish(nn.Module):
-    def __init__(self, inplace=False):
-        super(HardSwish, self).__init__()
-        self.inplace = inplace
-
-    def forward(self, x):
-        return x * F.relu6(x + 3., inplace=self.inplace) / 6.
-
-
-class HardSigmoid(nn.Module):
-    def __init__(self, inplace=False):
-        super(HardSigmoid, self).__init__()
-        self.inplace = inplace
-
-    def forward(self, x):
-        return F.relu6(x + 3., inplace=self.inplace) / 6.
+# class HardSwish(nn.Module):
+#     def __init__(self, inplace=False):
+#         super(HardSwish, self).__init__()
+#         self.inplace = inplace
+#
+#     def forward(self, x):
+#         return x * F.relu6(x + 3., inplace=self.inplace) / 6.
+#
+#
+# class HardSigmoid(nn.Module):
+#     def __init__(self, inplace=False):
+#         super(HardSigmoid, self).__init__()
+#         self.inplace = inplace
+#
+#     def forward(self, x):
+#         return F.relu6(x + 3., inplace=self.inplace) / 6.
 
 
 class Activation(nn.Module):
@@ -52,11 +52,9 @@ class Activation(nn.Module):
             self.act = nn.ReLU6(
                 inplace=True) if auto_optimize else nn.ReLU6(**kwargs)
         elif act_type == 'h_swish':
-            self.act = HardSwish(
-                inplace=True) if auto_optimize else HardSwish(**kwargs)
+            self.act = nn.Hardswish()
         elif act_type == 'h_sigmoid':
-            self.act = HardSigmoid(
-                inplace=True) if auto_optimize else HardSigmoid(**kwargs)
+            self.act = nn.Hardsigmoid()
         elif act_type == 'swish':
             self.act = Swish(**kwargs)
         elif act_type == 'sigmoid':
