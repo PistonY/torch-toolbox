@@ -10,14 +10,12 @@ jobs:
       - name: Install Pytorch
         run: |
           conda install -y pytorch torchvision cpuonly -c pytorch \
-          && conda clean --all --yes \
-          && usr/share/miniconda/bin/pip install -y opencv-python
-
+          && conda clean --all --yes
       - name: Install dependence
         run: |
           conda install -y tqdm pyarrow six python-lmdb pytest scikit-learn \
           && conda clean --all --yes \
-          && conda install -c conda-forge opencv
+          && /usr/share/miniconda/bin/pip install -y opencv-python
       - name: Checkout
         uses: actions/checkout@master
 
