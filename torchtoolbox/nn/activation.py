@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['Activation', 'Swish', 'HardSwish', 'HardSigmoid']
+__all__ = ['Activation', 'Swish']
 
 from .functional import swish
 from torch import nn

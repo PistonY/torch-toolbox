@@ -41,7 +41,7 @@ class FeatureVerification(Metric):
         self.nfolds = nfolds
         self.far_target = far_target
         default_thresholds = np.arange(
-            0, 2, 0.01) if dist_type is 'euclidean' else np.arange(
+            0, 2, 0.01) if dist_type == 'euclidean' else np.arange(
             0, 1, 0.005)
         self.thresholds = default_thresholds if thresholds is None else thresholds
         self.dist_type = dist_type
@@ -56,7 +56,7 @@ class FeatureVerification(Metric):
     def update(self, embeddings0, embeddings1, labels):
         embeddings0, embeddings1, labels = map(
             to_numpy, (embeddings0, embeddings1, labels))
-        if self.dist_type is 'euclidean':
+        if self.dist_type == 'euclidean':
             diff = np.subtract(embeddings0, embeddings1)
             dists = np.sqrt(np.sum(np.square(diff), 1))
         else:

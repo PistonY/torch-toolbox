@@ -7,7 +7,7 @@ __all__ = [
     'SigmoidCrossEntropy',
     'FocalLoss',
     'L0Loss',
-    'CosLoss',
+    'AMSoftmax',
     'RingLoss',
     'CenterLoss',
     'CircleLoss']
@@ -134,7 +134,7 @@ class L2Softmax(_WeightedLoss):
 
 
 class AMSoftmax(_WeightedLoss):
-    r"""CosLoss from
+    r"""AMSoftmax from
        `"CosFace: Large Margin Cosine Loss for Deep Face Recognition"
        <https://arxiv.org/abs/1801.09414>`_ paper.
 
