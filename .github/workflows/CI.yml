@@ -15,7 +15,7 @@ jobs:
         run: |
           conda install -y tqdm pyarrow six python-lmdb pytest scikit-learn \
           && conda clean --all --yes \
-          && /usr/share/miniconda/bin/pip install -y opencv-python
+          && /usr/share/miniconda/bin/pip install opencv-python
       - name: Checkout
         uses: actions/checkout@master
 
