@@ -18,8 +18,7 @@ def check_dir(*path):
         path: full path(s) to check.
     """
     for p in path:
-        if not os.path.exists(p):
-            os.mkdir(p)
+        os.makedirs(p, exist_ok=True)
 
 
 def make_divisible(v, divisible_by, min_value=None):
