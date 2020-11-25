@@ -15,4 +15,5 @@ def _gen_fake_img(size=None):
 
 def test_augment():
     autoaugment(_gen_fake_img())
-    randaugment(_gen_fake_img())
+    for _ in range(1000):
+        randaugment(_gen_fake_img())

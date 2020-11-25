@@ -322,28 +322,29 @@ class RandAugment(object):
         self.m = m
 
         self.augment_list = [
-            (Identity, 0, 1),
-            (AutoContrast, 0, 1),
-            (Equalize, 0, 1),
-            # (Invert, 0, 1),
-            (Rotate, 0, 30),
-            (Posterize, 0, 4),
-            (Solarize, 0, 256),
-            (Color, 0.1, 1.9),
-            (Contrast, 0.1, 1.9),
-            (Brightness, 0.1, 1.9),
-            (Sharpness, 0.1, 1.9),
-            (ShearX, 0., 0.3),
-            (ShearY, 0., 0.3),
-            (TranslateX, 0., 100),
-            (TranslateY, 0., 100),
+            (Identity(1, m, True), 0, 1),
+            (AutoContrast(1, m, True), 0, 1),
+            (Equalize(1, m, True), 0, 1),
+            # (Invert(1, m, True), 0, 1),
+            (Rotate(1, m, True), 0, 30),
+            (Posterize(1, m, True), 0, 4),
+            (Solarize(1, m, True), 0, 256),
+            (Color(1, m, True), 0.1, 1.9),
+            (Contrast(1, m, True), 0.1, 1.9),
+            (Brightness(1, m, True), 0.1, 1.9),
+            (Sharpness(1, m, True), 0.1, 1.9),
+            (ShearX(1, m, True), 0., 0.3),
+            (ShearY(1, m, True), 0., 0.3),
+            (TranslateX(1, m, True), 0., 100),
+            (TranslateY(1, m, True), 0., 100),
             # (CutoutOp, 0, 40),
-            # (SolarizeAdd, 0, 110)
+            # (SolarizeAdd(1, m, True), 0, 110)
         ]
 
     def __call__(self, img):
         ops = random.choices(self.augment_list, k=self.n)
         for op, minval, maxval in ops:
             val = trans_value(maxval, minval, self.m)
+            op = op()
             img = op(img, 1, val, ignore_ranges=True)
         return img
