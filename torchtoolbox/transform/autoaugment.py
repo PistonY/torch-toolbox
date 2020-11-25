@@ -345,6 +345,5 @@ class RandAugment(object):
         ops = random.choices(self.augment_list, k=self.n)
         for op, minval, maxval in ops:
             val = trans_value(maxval, minval, self.m)
-            op = op()
             img = op(img, 1, val, ignore_ranges=True)
         return img
