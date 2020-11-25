@@ -1605,7 +1605,6 @@ class Cutout(object):
 
     @staticmethod
     def get_params(img, scale, ratio):
-
         if type(img) == np.ndarray:
             img_h, img_w, img_c = img.shape
         else:
