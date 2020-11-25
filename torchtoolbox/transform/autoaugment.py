@@ -335,8 +335,8 @@ class RandAugment(object):
             (Sharpness(1), 0.1, 1.9),
             (ShearX(1), 0., 0.3),
             (ShearY(1), 0., 0.3),
-            (TranslateX(1), 0., 100),
-            (TranslateY(1), 0., 100),
+            (TranslateX(1), 0., 0.33),
+            (TranslateY(1), 0., 0.33),
             # (CutoutOp, 0, 40),
             # (SolarizeAdd(1, m, True), 0, 110)
         ]

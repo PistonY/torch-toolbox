@@ -14,6 +14,11 @@ def _gen_fake_img(size=None):
 
 
 def test_augment():
-    autoaugment(_gen_fake_img())
+    img = _gen_fake_img()
     for _ in range(1000):
-        randaugment(_gen_fake_img())
+        autoaugment(img)
+        randaugment(img)
+    # img = Image.open('/media/devin/data/720p/rzdf/0058.png')
+    # ra = randaugment(img)
+    # aa = autoaugment(img)
+    # Image._show(aa)
