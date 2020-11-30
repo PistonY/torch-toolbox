@@ -52,9 +52,11 @@ class Activation(nn.Module):
             self.act = nn.ReLU6(
                 inplace=True) if auto_optimize else nn.ReLU6(**kwargs)
         elif act_type == 'h_swish':
-            self.act = nn.Hardswish()
+            self.act = nn.Hardswish(inplace=True) if auto_optimize \
+                else nn.Hardswish(**kwargs)
         elif act_type == 'h_sigmoid':
-            self.act = nn.Hardsigmoid()
+            self.act = nn.Hardsigmoid(inplace=True) if auto_optimize \
+                else nn.Hardsigmoid(**kwargs)
         elif act_type == 'swish':
             self.act = Swish(**kwargs)
         elif act_type == 'sigmoid':
