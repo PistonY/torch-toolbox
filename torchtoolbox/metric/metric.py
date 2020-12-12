@@ -230,9 +230,9 @@ class NumericalCost(Metric):
         return ret
 
 
-class DistributeCollector(Metric):
+class DistributedCollector(Metric):
     def __init__(self, dst, rank, record_type='mean', name=None, writer=None):
-        super(DistributeCollector, self).__init__(name, writer)
+        super(DistributedCollector, self).__init__(name, writer)
         assert record_type in ('mean', 'max', 'min', 'sum')
         type_encode = {'mean': distributed.ReduceOp.SUM,
                        'max': distributed.ReduceOp.MAX,
