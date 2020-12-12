@@ -200,7 +200,7 @@ class NumericalCost(Metric):
         self.coll = []
 
     @torch.no_grad()
-    def update(self, cost, stop_record_tb):
+    def update(self, cost, stop_record_tb=False):
         """Update status.
 
         Args:
