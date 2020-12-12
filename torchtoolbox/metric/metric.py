@@ -4,7 +4,7 @@
 __all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost',
            'to_numpy', 'Metric']
 
-from torch import Tensor
+from torch import Tensor, distributed
 from torch.utils.tensorboard import SummaryWriter
 import torch
 import numpy as np
@@ -228,3 +228,28 @@ class NumericalCost(Metric):
         else:
             ret = np.min(self.coll)
         return ret
+
+
+class DistributeCollector(Metric):
+    def __init__(self, dst, rank, name=None, writer=None):
+        super(DistributeCollector, self).__init__(name, writer)
+        self.dst = dst
+        self.rank = rank
+
+        self.last_rlt = 0.
+        self.iter = 0
+
+    def reset(self):
+        self.last_rlt = 0.
+
+    @torch.no_grad()
+    def update(self, item, stop_record_tb=False):
+        assert isinstance(item, (int, float))
+        tensor = torch.tensor(item, device=f"cuda:{self.rank}")
+        distributed.reduce(tensor, self.dst, op=torch.distributed.ReduceOp.SUM)
+        if self.rank == self.dst:
+            self.last_rlt = tensor.item() / distributed.get_world_size()
+            self._update_tb(stop_record_tb)
+
+    def get(self):
+        return self.last_rlt
