@@ -231,13 +231,20 @@ class NumericalCost(Metric):
 
 
 class DistributeCollector(Metric):
-    def __init__(self, dst, rank, name=None, writer=None):
+    def __init__(self, dst, rank, record_type='mean', name=None, writer=None):
         super(DistributeCollector, self).__init__(name, writer)
+        assert record_type in ('mean', 'max', 'min', 'sum')
+        type_encode = {'mean': distributed.ReduceOp.SUM,
+                       'max': distributed.ReduceOp.MAX,
+                       'min': distributed.ReduceOp.MIN,
+                       'sum': distributed.ReduceOp.SUM}
+
+        self.dist_op = type_encode[record_type]
         self.dst = dst
         self.rank = rank
+        self.record_type = record_type
 
         self.last_rlt = 0.
-        self.iter = 0
 
     def reset(self):
         self.last_rlt = 0.
@@ -246,9 +253,10 @@ class DistributeCollector(Metric):
     def update(self, item, stop_record_tb=False):
         assert isinstance(item, (int, float))
         tensor = torch.tensor(item, device=f"cuda:{self.rank}")
-        distributed.reduce(tensor, self.dst, op=torch.distributed.ReduceOp.SUM)
+        distributed.reduce(tensor, self.dst, op=self.dist_op)
         if self.rank == self.dst:
-            self.last_rlt = tensor.item() / distributed.get_world_size()
+            self.last_rlt = tensor.item() if self.record_type != 'avg' else \
+                tensor.item() / distributed.get_world_size()
             self._update_tb(stop_record_tb)
 
     def get(self):
