@@ -5,3 +5,4 @@ from .reset_model_setting import *
 from .mixup import *
 from .summary import *
 from .utils import *
+from .distribute import *

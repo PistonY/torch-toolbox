@@ -2,22 +2,14 @@
 # Author: pistonyang@gmail.com
 
 __all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost',
-           'to_numpy', 'Metric']
+           'DistributedCollector']
+
+from ..tools import to_numpy, reduce_tensor
 
 from torch import Tensor, distributed
 from torch.utils.tensorboard import SummaryWriter
 import torch
 import numpy as np
-
-
-@torch.no_grad()
-def to_numpy(tensor):
-    if isinstance(tensor, np.ndarray):
-        return tensor
-    elif tensor.get_device() == -1:  # cpu tensor
-        return tensor.numpy()
-    else:
-        return tensor.cpu().numpy()
 
 
 class Metric(object):
@@ -227,22 +219,52 @@ class NumericalCost(Metric):
             ret = np.max(self.coll)
         else:
             ret = np.min(self.coll)
-        return ret
+        return ret.item()
 
 
 class DistributedCollector(Metric):
-    def __init__(self, dst, rank, record_type='mean', name=None, writer=None):
+    """Collect Distribute tensors cross ranks.
+
+    Args:
+        name (string or dict, optional): Acc name. eg: name='Loss'
+        record_type (string, optional): how to a calculate this,
+            only 'SUM', 'PRODUCT', 'MAX', 'MIN', 'BAND', 'BOR', 'BXOR' supported.
+        writer (SummaryWriter, optional): TenorBoard writer.
+    Attributes:
+
+    """
+
+    def __init__(self, rank=None, dst=None,
+                 record_type='sum',
+                 dis_coll_type='reduce',
+                 post_process=None,
+                 name=None, writer=None):
         super(DistributedCollector, self).__init__(name, writer)
-        assert record_type in ('mean', 'max', 'min', 'sum')
-        type_encode = {'mean': distributed.ReduceOp.SUM,
+        record_type = record_type.lower()
+        assert record_type in ('sum', 'product', 'min', 'max',
+                               'band', 'bor', 'bxor')
+        assert dis_coll_type in ('reduce', 'all_reduce')
+        if dis_coll_type == 'reduce' or writer is not None:
+            assert dst is not None, 'please select dst device to reduce if use reduce OP.' \
+                                    'please select dst device to write tensorboard if use tensorboard.'
+
+        if rank is None:
+            rank = distributed.get_rank()
+        type_encode = {'sum': distributed.ReduceOp.SUM,
+                       'product': distributed.ReduceOp.PRODUCT,
                        'max': distributed.ReduceOp.MAX,
                        'min': distributed.ReduceOp.MIN,
-                       'sum': distributed.ReduceOp.SUM}
+                       'band': distributed.ReduceOp.BAND,
+                       'bor': distributed.ReduceOp.BOR,
+                       'bxor': distributed.ReduceOp.BXOR}
 
-        self.dist_op = type_encode[record_type]
         self.dst = dst
         self.rank = rank
+        self.device = torch.device(rank)
+        self.dct = dis_coll_type
         self.record_type = record_type
+        self.post_process = post_process
+        self.dist_op = type_encode[record_type]
 
         self.last_rlt = 0.
 
@@ -251,12 +273,22 @@ class DistributedCollector(Metric):
 
     @torch.no_grad()
     def update(self, item, stop_record_tb=False):
-        assert isinstance(item, (int, float))
-        tensor = torch.tensor(item, device=f"cuda:{self.rank}")
-        distributed.reduce(tensor, self.dst, op=self.dist_op)
-        if self.rank == self.dst:
-            self.last_rlt = tensor.item() if self.record_type != 'avg' else \
-                tensor.item() / distributed.get_world_size()
+        item = reduce_tensor(item, self.rank, self.dist_op, self.dst, self.dct)
+
+        if self.post_process is not None:
+            item = self.post_process(item)
+
+        self.last_rlt = item
+
+        if self._writer is not None and self.rank == self.dst:
+            if not isinstance(self.last_rlt, (int, float)):
+                try:
+                    self.last_rlt = self.last_rlt.item()
+                except Exception as e:
+                    print("If you want to write to tensorboard, "
+                          "you need to convert to a scalar in post_process "
+                          "when target tensor is not a pytorch tensor.")
+
             self._update_tb(stop_record_tb)
 
     def get(self):

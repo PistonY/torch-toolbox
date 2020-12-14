@@ -2,7 +2,8 @@
 __all__ = ['FeatureVerification']
 
 import numpy as np
-from .metric import Metric, to_numpy
+from .metric import Metric
+from ..tools.utils import to_numpy
 from sklearn.model_selection import KFold
 from scipy import interpolate
 

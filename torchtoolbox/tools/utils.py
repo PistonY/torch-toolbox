@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['check_dir', 'to_list', 'make_divisible']
+__all__ = ['check_dir', 'to_list', 'make_divisible', 'to_numpy']
 
 import os
 import math
+
+import numpy as np
+import torch
 
 
 def to_list(value):
@@ -33,3 +36,13 @@ def make_divisible(v, divisible_by, min_value=None):
     if new_v < 0.9 * v:
         new_v += divisible_by
     return new_v
+
+
+@torch.no_grad()
+def to_numpy(tensor):
+    if isinstance(tensor, np.ndarray):
+        return tensor
+    elif tensor.get_device() == -1:  # cpu tensor
+        return tensor.numpy()
+    else:
+        return tensor.cpu().numpy()
