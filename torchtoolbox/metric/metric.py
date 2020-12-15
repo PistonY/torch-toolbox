@@ -226,10 +226,15 @@ class DistributedCollector(Metric):
     """Collect Distribute tensors cross ranks.
 
     Args:
-        name (string or dict, optional): Acc name. eg: name='Loss'
-        record_type (string, optional): how to a calculate this,
-            only 'SUM', 'PRODUCT', 'MAX', 'MIN', 'BAND', 'BOR', 'BXOR' supported.
-        writer (SummaryWriter, optional): TenorBoard writer.
+        rank: loc rank.
+        dst: main worker.
+        record_type: how to a calculate this,
+                   only 'SUM', 'PRODUCT', 'MAX', 'MIN', 'BAND', 'BOR', 'BXOR' supported.
+        dis_coll_type:
+        post_process: process after reduce.
+        name: collector name.
+        writer: TenorBoard writer.
+
     Attributes:
 
     """
@@ -239,6 +244,7 @@ class DistributedCollector(Metric):
                  dis_coll_type='reduce',
                  post_process=None,
                  name=None, writer=None):
+
         super(DistributedCollector, self).__init__(name, writer)
         record_type = record_type.lower()
         assert record_type in ('sum', 'product', 'min', 'max',
@@ -273,10 +279,22 @@ class DistributedCollector(Metric):
 
     @torch.no_grad()
     def update(self, item, stop_record_tb=False):
+        """
+
+        Args:
+            item: could be a Python scalar, Numpy ndarray, Pytorch tensor.
+            stop_record_tb: stop write to tensorboard in this time.
+
+        Returns:
+            Reduced result. If dis_coll_type=='reduce' only main rank will do post_process.
+        """
         item = reduce_tensor(item, self.rank, self.dist_op, self.dst, self.dct)
 
         if self.post_process is not None:
-            item = self.post_process(item)
+            if self.dct == 'all_reduce':
+                item = self.post_process(item)
+            elif self.rank == self.dst:
+                item = self.post_process(item)
 
         self.last_rlt = item
 
@@ -285,9 +303,10 @@ class DistributedCollector(Metric):
                 try:
                     self.last_rlt = self.last_rlt.item()
                 except Exception as e:
-                    print("If you want to write to tensorboard, "
+                    print(f"If you want to write to tensorboard, "
                           "you need to convert to a scalar in post_process "
-                          "when target tensor is not a pytorch tensor.")
+                          "when target tensor is not a pytorch tensor. "
+                          "Got error {e}")
 
             self._update_tb(stop_record_tb)
 
