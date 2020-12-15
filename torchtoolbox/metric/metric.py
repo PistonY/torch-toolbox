@@ -52,11 +52,13 @@ class Metric(object):
         raise NotImplementedError
 
     # This is used for common, but may not suit for all.
-    # Default update_tb func.
-    def _update_tb(self, stop_record_tb):
+    # Default write_tb func.
+    def write_tb(self, stop_record_tb=False, name=None, iteration=None):
+        name = name if name is not None else self.name
+        iteration = iteration if iteration is not None else self._iteration
         if self._writer is not None and not stop_record_tb:
+            self._writer.add_scalar(name, self.get(), iteration)
             self._iteration += 1
-            self._writer.add_scalar(self.name, self.get(), self._iteration)
 
 
 class Accuracy(Metric):
@@ -96,7 +98,7 @@ class Accuracy(Metric):
         lbs = to_numpy(labels.view(-1)).astype('int32')
         self.num_metric += int((pred == lbs).sum())
         self.num_inst += len(lbs)
-        self._update_tb(stop_record_tb)
+        self.write_tb(stop_record_tb)
 
     def get(self):
         """Get accuracy recorded.
@@ -154,7 +156,7 @@ class TopKAccuracy(Metric):
         for l, p in zip(labels, preds):
             self.num_metric += 1 if l in p else 0
             self.num_inst += 1
-        self._update_tb(stop_record_tb)
+        self.write_tb(stop_record_tb)
 
     def get(self):
         """Get top k accuracy recorded.
@@ -201,7 +203,7 @@ class NumericalCost(Metric):
                 will not update tensorboard when this set to true.
         """
         self.coll.append(to_numpy(cost))
-        self._update_tb(stop_record_tb)
+        self.write_tb(stop_record_tb)
 
     def get(self):
         """Get top cost recorded.
@@ -308,7 +310,7 @@ class DistributedCollector(Metric):
                           "when target tensor is not a pytorch tensor. "
                           "Got error {e}")
 
-            self._update_tb(stop_record_tb)
+            self.write_tb(stop_record_tb)
 
     def get(self):
         return self.last_rlt
