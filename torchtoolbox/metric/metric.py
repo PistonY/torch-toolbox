@@ -54,9 +54,9 @@ class Metric(object):
     # This is used for common, but may not suit for all.
     # Default write_tb func.
     def write_tb(self, stop_record_tb=False, name=None, iteration=None):
-        name = name if name is not None else self.name
-        iteration = iteration if iteration is not None else self._iteration
         if self._writer is not None and not stop_record_tb:
+            name = name if name is not None else self.name
+            iteration = iteration if iteration is not None else self._iteration
             self._writer.add_scalar(name, self.get(), iteration)
             self._iteration += 1
 
