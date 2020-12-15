@@ -39,7 +39,7 @@ class Metric(object):
         """
         raise NotImplementedError
 
-    def update(self, stop_record_tb=False):
+    def update(self, record_tb=False):
         """Update status.
 
         """
@@ -53,8 +53,8 @@ class Metric(object):
 
     # This is used for common, but may not suit for all.
     # Default write_tb func.
-    def write_tb(self, stop_record_tb=False, name=None, iteration=None):
-        if self._writer is not None and not stop_record_tb:
+    def write_tb(self, record_tb=True, name=None, iteration=None):
+        if self._writer is not None and record_tb:
             name = name if name is not None else self.name
             iteration = iteration if iteration is not None else self._iteration
             self._writer.add_scalar(name, self.get(), iteration)
@@ -84,13 +84,13 @@ class Accuracy(Metric):
         self.num_inst = 0
 
     @torch.no_grad()
-    def update(self, preds, labels, stop_record_tb=False):
+    def update(self, preds, labels, record_tb=False):
         """Update status.
 
         Args:
             preds (Tensor): Model outputs
             labels (Tensor): True label
-            stop_record_tb (Bool): If writer is not None,
+            record_tb (Bool): If writer is not None,
                 will not update tensorboard when this set to true.
         """
         _, pred = torch.max(preds, dim=1)
@@ -98,7 +98,7 @@ class Accuracy(Metric):
         lbs = to_numpy(labels.view(-1)).astype('int32')
         self.num_metric += int((pred == lbs).sum())
         self.num_inst += len(lbs)
-        self.write_tb(stop_record_tb)
+        self.write_tb(record_tb)
 
     def get(self):
         """Get accuracy recorded.
@@ -139,13 +139,13 @@ class TopKAccuracy(Metric):
         self.num_inst = 0
 
     @torch.no_grad()
-    def update(self, preds, labels, stop_record_tb=False):
+    def update(self, preds, labels, record_tb=False):
         """Update status.
 
         Args:
             preds (Tensor): Model outputs
             labels (Tensor): True label
-            stop_record_tb (Bool): If writer is not None,
+            record_tb (Bool): If writer is not None,
                 will not update tensorboard when this set to true.
         """
 
@@ -156,7 +156,7 @@ class TopKAccuracy(Metric):
         for l, p in zip(labels, preds):
             self.num_metric += 1 if l in p else 0
             self.num_inst += 1
-        self.write_tb(stop_record_tb)
+        self.write_tb(record_tb)
 
     def get(self):
         """Get top k accuracy recorded.
@@ -194,16 +194,16 @@ class NumericalCost(Metric):
         self.coll = []
 
     @torch.no_grad()
-    def update(self, cost, stop_record_tb=False):
+    def update(self, cost, record_tb=False):
         """Update status.
 
         Args:
             cost (Tensor): cost to record.
-            stop_record_tb (Bool): If writer is not None,
+            record_tb (Bool): If writer is not None,
                 will not update tensorboard when this set to true.
         """
         self.coll.append(to_numpy(cost))
-        self.write_tb(stop_record_tb)
+        self.write_tb(record_tb)
 
     def get(self):
         """Get top cost recorded.
@@ -280,12 +280,12 @@ class DistributedCollector(Metric):
         self.last_rlt = 0.
 
     @torch.no_grad()
-    def update(self, item, stop_record_tb=False):
+    def update(self, item, record_tb=False):
         """
 
         Args:
             item: could be a Python scalar, Numpy ndarray, Pytorch tensor.
-            stop_record_tb: stop write to tensorboard in this time.
+            record_tb: stop write to tensorboard in this time.
 
         Returns:
             Reduced result. If dis_coll_type=='reduce' only main rank will do post_process.
@@ -310,7 +310,7 @@ class DistributedCollector(Metric):
                           "when target tensor is not a pytorch tensor. "
                           "Got error {e}")
 
-            self.write_tb(stop_record_tb)
+            self.write_tb(record_tb)
 
     def get(self):
         return self.last_rlt
