@@ -305,10 +305,10 @@ class DistributedCollector(Metric):
                 try:
                     self.last_rlt = self.last_rlt.item()
                 except Exception as e:
-                    print(f"If you want to write to tensorboard, "
+                    print("If you want to write to tensorboard, "
                           "you need to convert to a scalar in post_process "
                           "when target tensor is not a pytorch tensor. "
-                          "Got error {e}")
+                          "Got error {}".format(e))
 
             self.write_tb(record_tb)
 

@@ -2,6 +2,7 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = ['check_dir', 'to_list', 'make_divisible', 'to_numpy']
 
+from typing import Union, List
 import os
 import math
 
@@ -24,7 +25,7 @@ def check_dir(*path):
         os.makedirs(p, exist_ok=True)
 
 
-def make_divisible(v, divisible_by, min_value=None):
+def make_divisible(v: Union[int, float], divisible_by: int, min_value: Union[int, None] = None):
     """
     This function is taken from the original tf repo.
     https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet/mobilenet.py
@@ -36,6 +37,20 @@ def make_divisible(v, divisible_by, min_value=None):
     if new_v < 0.9 * v:
         new_v += divisible_by
     return new_v
+
+
+def apply_ratio(src: Union[List, int], ratio: float, **kwargs):
+    if isinstance(src, int):
+        src = [src, ]
+    elif isinstance(src, list):
+        pass
+    else:
+        raise NotImplementedError(f'{type(src)} of src is not support.')
+    src = [make_divisible(s * ratio, **kwargs) for s in src]
+    if len(src) == 1:
+        return src[0]
+    else:
+        return src
 
 
 @torch.no_grad()
