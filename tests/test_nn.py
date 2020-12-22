@@ -29,12 +29,11 @@ def test_logits_loss():
 
     Loss = SigmoidCrossEntropy(classes=10, weight=weight)
     Loss1 = FocalLoss(classes=10, weight=weight, gamma=0.5)
-    Loss2 = ArcLoss(classes=10, weight=weight)
 
     cost = Loss(pred, label)
     cost1 = Loss1(pred, label)
-    cost2 = Loss2(pred, label)
-    print(cost, cost1, cost2)
+
+    # print(cost, cost1)
 
 
 class n_to_n(nn.Module):
