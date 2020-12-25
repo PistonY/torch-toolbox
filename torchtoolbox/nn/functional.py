@@ -191,3 +191,7 @@ def channel_shuffle(x, groups):
     x = x.view(batchsize, -1, height, width)
 
     return x
+
+def channel_shift(x, shift):
+    x = torch.cat([x[:, shift:, ...], x[:, :shift, ...]], dim=1)
+    return x
