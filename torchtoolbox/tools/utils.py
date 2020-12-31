@@ -2,12 +2,10 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = ['check_dir', 'to_list', 'make_divisible', 'to_numpy']
 
-from typing import Union, List
+from typing import Union, List, Dict
 import os
-import math
-
-import numpy as np
 import torch
+import numpy as np
 
 
 def to_list(value):
@@ -32,7 +30,8 @@ def make_divisible(v: Union[int, float], divisible_by: int, min_value: Union[int
     """
     if min_value is None:
         min_value = divisible_by
-    new_v = max(min_value, int(v + divisible_by / 2) // divisible_by * divisible_by)
+    new_v = max(min_value, int(v + divisible_by / 2) //
+                divisible_by * divisible_by)
     # Make sure that round down does not go down by more than 10%.
     if new_v < 0.9 * v:
         new_v += divisible_by
@@ -61,3 +60,34 @@ def to_numpy(tensor):
         return tensor.numpy()
     else:
         return tensor.cpu().numpy()
+
+
+class DotDict(dict):
+    def __init__(self, data_map: Union[Dict, None] = None):
+        if data_map is not None:
+            super(DotDict, self).__init__(data_map)
+            if isinstance(data_map, dict):
+                for k, v in data_map.items():
+                    if not isinstance(v, dict):
+                        self[k] = v
+                    else:
+                        self.__setattr__(k, DotDict(v))
+        else:
+            super().__init__()
+
+    def __getattr__(self, attr):
+        return self.get(attr)
+
+    def __setattr__(self, key, value):
+        self.__setitem__(key, value)
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        self.__dict__.update({key: value})
+
+    def __delattr__(self, item):
+        self.__delitem__(item)
+
+    def __delitem__(self, key):
+        super(DotDict, self).__delitem__(key)
+        del self.__dict__[key]
