@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 # Author: pistonyang@gmail.com
 
-__all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost',
-           'DistributedCollector']
+__all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost', 'DistributedCollector']
 
 from ..tools import to_numpy, reduce_tensor
 
-from torch import Tensor, distributed
+from torch import distributed
 from torch.utils.tensorboard import SummaryWriter
 import torch
 import numpy as np
@@ -19,7 +18,6 @@ class Metric(object):
         name (string or dict, optional): metric name
 
     """
-
     def __init__(self, name: str = None, writer: SummaryWriter = None):
         if name is not None:
             assert isinstance(name, (str, dict))
@@ -71,7 +69,6 @@ class Accuracy(Metric):
         num_metric (int): Number of pred == label
         num_inst (int): All samples
     """
-
     def __init__(self, name=None, writer=None):
         super(Accuracy, self).__init__(name, writer)
         self.num_metric = 0
@@ -109,7 +106,8 @@ class Accuracy(Metric):
             A float number of accuracy.
 
         """
-        assert self.num_inst != 0, 'Please call step before get'
+        if self.num_inst == 0:
+            return 0.
         return self.num_metric / self.num_inst
 
 
@@ -125,7 +123,6 @@ class TopKAccuracy(Metric):
         num_metric (int): Number of pred == label
         num_inst (int): All samples
     """
-
     def __init__(self, top=1, name=None, writer=None):
         super(TopKAccuracy, self).__init__(name, writer)
         assert top > 1, 'Please use Accuracy if top_k is no more than 1'
@@ -167,7 +164,8 @@ class TopKAccuracy(Metric):
             A float number of accuracy.
 
         """
-        assert self.num_inst != 0, 'Please call step before get'
+        if self.num_inst == 0:
+            return 0.
         return self.num_metric / self.num_inst
 
 
@@ -182,7 +180,6 @@ class NumericalCost(Metric):
     Attributes:
         coll (list): element to be calculated.
     """
-
     def __init__(self, name=None, record_type='mean', writer=None):
         super(NumericalCost, self).__init__(name, writer)
         self.coll = []
@@ -240,17 +237,18 @@ class DistributedCollector(Metric):
     Attributes:
 
     """
-
-    def __init__(self, rank=None, dst=None,
+    def __init__(self,
+                 rank=None,
+                 dst=None,
                  record_type='sum',
                  dis_coll_type='reduce',
                  post_process=None,
-                 name=None, writer=None):
+                 name=None,
+                 writer=None):
 
         super(DistributedCollector, self).__init__(name, writer)
         record_type = record_type.lower()
-        assert record_type in ('sum', 'product', 'min', 'max',
-                               'band', 'bor', 'bxor')
+        assert record_type in ('sum', 'product', 'min', 'max', 'band', 'bor', 'bxor')
         assert dis_coll_type in ('reduce', 'all_reduce')
         if dis_coll_type == 'reduce' or writer is not None:
             assert dst is not None, 'please select dst device to reduce if use reduce OP.' \
@@ -258,13 +256,15 @@ class DistributedCollector(Metric):
 
         if rank is None:
             rank = distributed.get_rank()
-        type_encode = {'sum': distributed.ReduceOp.SUM,
-                       'product': distributed.ReduceOp.PRODUCT,
-                       'max': distributed.ReduceOp.MAX,
-                       'min': distributed.ReduceOp.MIN,
-                       'band': distributed.ReduceOp.BAND,
-                       'bor': distributed.ReduceOp.BOR,
-                       'bxor': distributed.ReduceOp.BXOR}
+        type_encode = {
+            'sum': distributed.ReduceOp.SUM,
+            'product': distributed.ReduceOp.PRODUCT,
+            'max': distributed.ReduceOp.MAX,
+            'min': distributed.ReduceOp.MIN,
+            'band': distributed.ReduceOp.BAND,
+            'bor': distributed.ReduceOp.BOR,
+            'bxor': distributed.ReduceOp.BXOR
+        }
 
         self.dst = dst
         self.rank = rank
