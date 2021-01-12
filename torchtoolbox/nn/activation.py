@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['Activation', 'Swish']
+__all__ = ['Activation', 'Swish', 'Mish']
 
-from .functional import swish
+from .functional import swish, mish
 from torch import nn
 from torch.nn import functional as F
 
@@ -22,6 +22,22 @@ class Swish(nn.Module):
 
     def forward(self, x):
         return swish(x, self.beta)
+    
+    
+class Mish(nn.Module):
+    """Mish activation from 'Mish: A Self Regularized Non-Monotonic Activation Function'
+        https://www.bmvc2020-conference.com/assets/papers/0928.pdf
+
+        mish =  x*tanh(softplus(x))
+        d_mish = delta(x)swish(x, beta=1) + mish(x)/x
+
+    """
+
+    def __init__(self):
+        super(Mish, self).__init__()
+
+    def forward(self, x):
+        return mish(x)
 
 
 # class HardSwish(nn.Module):
@@ -59,6 +75,8 @@ class Activation(nn.Module):
                 else nn.Hardsigmoid(**kwargs)
         elif act_type == 'swish':
             self.act = Swish(**kwargs)
+        elif act_type == 'mish':
+            self.act = Mish()
         elif act_type == 'sigmoid':
             self.act = nn.Sigmoid()
         elif act_type == 'lrelu':
