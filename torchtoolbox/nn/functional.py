@@ -76,6 +76,15 @@ def swish(x, beta=1.0):
     return SwishOP.apply(x, beta)
 
 
+def mish(x):
+    """Mish activation.
+    'https://www.bmvc2020-conference.com/assets/papers/0928.pdf'
+    Args:
+        x: Input tensor.
+    """
+    return x * torch.tanh(F.softplus(x))
+
+
 @torch.no_grad()
 def smooth_one_hot(true_labels: torch.Tensor, classes: int, smoothing=0.0):
     """
