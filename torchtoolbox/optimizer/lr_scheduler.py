@@ -32,12 +32,9 @@ class CosineWarmupLr(object):
         warmup_iters (int): number of iterations of all warmup epochs.
 
     """
-
-    def __init__(self, optimizer, batches, epochs, base_lr,
-                 target_lr=0, warmup_epochs=0, warmup_lr=0, last_iter=-1):
+    def __init__(self, optimizer, batches, epochs, base_lr, target_lr=0, warmup_epochs=0, warmup_lr=0, last_iter=-1):
         if not isinstance(optimizer, Optimizer):
-            raise TypeError('{} is not an Optimizer'.format(
-                type(optimizer).__name__))
+            raise TypeError('{} is not an Optimizer'.format(type(optimizer).__name__))
         self.optimizer = optimizer
         if last_iter == -1:
             for group in optimizer.param_groups:
@@ -46,9 +43,8 @@ class CosineWarmupLr(object):
         else:
             for i, group in enumerate(optimizer.param_groups):
                 if 'initial_lr' not in group:
-                    raise KeyError(
-                        "param 'initial_lr' is not specified "
-                        "in param_groups[{}] when resuming an optimizer".format(i))
+                    raise KeyError("param 'initial_lr' is not specified "
+                                   "in param_groups[{}] when resuming an optimizer".format(i))
 
         self.baselr = base_lr
         self.learning_rate = base_lr
@@ -65,9 +61,7 @@ class CosineWarmupLr(object):
         It contains an entry for every variable in self.__dict__ which
         is not the optimizer.
         """
-        return {
-            key: value for key,
-            value in self.__dict__.items() if key != 'optimizer'}
+        return {key: value for key, value in self.__dict__.items() if key != 'optimizer'}
 
     def load_state_dict(self, state_dict):
         """Loads the schedulers state.

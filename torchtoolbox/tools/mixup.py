@@ -16,8 +16,8 @@ def mixup_data(x, y, alpha=0.2):
     else:
         lam = 1
 
-    mixed_x = lam * x + (1 - lam) * x.flip(dims=(0,))
-    y_a, y_b = y, y.flip(dims=(0,))
+    mixed_x = lam * x + (1 - lam) * x.flip(dims=(0, ))
+    y_a, y_b = y, y.flip(dims=(0, ))
     return mixed_x, y_a, y_b, lam
 
 

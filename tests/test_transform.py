@@ -25,8 +25,7 @@ trans = Compose([
     Cutout(p=1),
     ToTensor(),
     # Tensor transforms
-    Normalize(mean=[0.485, 0.456, 0.406],
-              std=[0.229, 0.224, 0.225]),
+    Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     RandomErasing(p=1),
 ])
 

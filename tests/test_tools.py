@@ -94,4 +94,3 @@ from torchtoolbox.optimizer import CosineWarmupLr
 #
 #     def get(self):
 #         return self.learning_rate
-

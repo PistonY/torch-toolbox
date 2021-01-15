@@ -51,20 +51,16 @@ def reset_model_setting(model, layer_names, setting_names, values):
     For example:
     parameters = reset_model_setting(model, 'output', 'lr', '0.1')
     """
-    layer_names, setting_names, values = map(
-        to_list, (layer_names, setting_names, values))
+    layer_names, setting_names, values = map(to_list, (layer_names, setting_names, values))
     assert len(setting_names) == len(values)
     ignore_params = []
     for name in layer_names:
         ignore_params.extend(list(map(id, getattr(model, name).parameters())))
 
-    base_param = filter(
-        lambda p: id(p) not in ignore_params,
-        model.parameters())
+    base_param = filter(lambda p: id(p) not in ignore_params, model.parameters())
     reset_param = filter(lambda p: id(p) in ignore_params, model.parameters())
 
-    parameters = [{'params': base_param}, {
-        'params': reset_param}.update(dict(zip(setting_names, values)))]
+    parameters = [{'params': base_param}, {'params': reset_param}.update(dict(zip(setting_names, values)))]
     return parameters
 
 

@@ -45,10 +45,7 @@ class Lookahead(Optimizer):
 
     def state_dict(self):
         fast_state_dict = self.optimizer.state_dict()
-        slow_state = {
-            (id(k) if isinstance(k, torch.Tensor) else k): v
-            for k, v in self.state.items()
-        }
+        slow_state = {(id(k) if isinstance(k, torch.Tensor) else k): v for k, v in self.state.items()}
         fast_state = fast_state_dict["state"]
         param_groups = fast_state_dict["param_groups"]
         return {

@@ -12,15 +12,13 @@ import collections
 Sequence = collections.abc.Sequence
 Iterable = collections.abc.Iterable
 
-INTER_MODE = {
-    'NEAREST': cv2.INTER_NEAREST,
-    'BILINEAR': cv2.INTER_LINEAR,
-    'BICUBIC': cv2.INTER_CUBIC}
-PAD_MOD = {'constant': cv2.BORDER_CONSTANT,
-           'edge': cv2.BORDER_REPLICATE,
-           'reflect': cv2.BORDER_DEFAULT,
-           'symmetric': cv2.BORDER_REFLECT
-           }
+INTER_MODE = {'NEAREST': cv2.INTER_NEAREST, 'BILINEAR': cv2.INTER_LINEAR, 'BICUBIC': cv2.INTER_CUBIC}
+PAD_MOD = {
+    'constant': cv2.BORDER_CONSTANT,
+    'edge': cv2.BORDER_REPLICATE,
+    'reflect': cv2.BORDER_DEFAULT,
+    'symmetric': cv2.BORDER_REFLECT
+}
 
 
 def _is_tensor_image(img):
@@ -71,17 +69,14 @@ def to_cv_image(pic, mode=None):
         cv2 Image: Image converted to cv2 Image.
     """
     if not (_is_numpy_image(pic) or _is_tensor_image(pic)):
-        raise TypeError(
-            'pic should be Tensor or ndarray. Got {}.'.format(
-                type(pic)))
+        raise TypeError('pic should be Tensor or ndarray. Got {}.'.format(type(pic)))
 
     if isinstance(pic, torch.FloatTensor):
         pic = pic.mul(255).byte()
     if isinstance(pic, torch.Tensor):
         pic = pic.numpy().transpose((1, 2, 0)).squeeze()
     if not isinstance(pic, np.ndarray):
-        raise TypeError('Input pic must be a torch.Tensor or NumPy ndarray, ' +
-                        'not {}'.format(type(pic)))
+        raise TypeError('Input pic must be a torch.Tensor or NumPy ndarray, ' + 'not {}'.format(type(pic)))
     if mode is not None:
         pic = cv2.cvtColor(pic, mode)
     return pic
@@ -135,13 +130,7 @@ def resize(img, size, interpolation='BILINEAR'):
     """
     if not _is_numpy_image(img):
         raise TypeError('img should be CV Image. Got {}'.format(type(img)))
-    if not (
-        isinstance(
-            size,
-            int) or (
-            isinstance(
-                size,
-                Iterable) and len(size) == 2)):
+    if not (isinstance(size, int) or (isinstance(size, Iterable) and len(size) == 2)):
         raise TypeError('Got inappropriate size arg: {}'.format(size))
 
     interpolation = INTER_MODE[interpolation]
@@ -203,10 +192,7 @@ def pad(img, padding, fill=0, padding_mode='constant'):
         raise TypeError('Got inappropriate padding_mode arg')
 
     if isinstance(padding, Sequence) and len(padding) not in [2, 4]:
-        raise ValueError(
-            "Padding must be an int or a 2, or 4 element tuple, not a " +
-            "{} element tuple".format(
-                len(padding)))
+        raise ValueError("Padding must be an int or a 2, or 4 element tuple, not a " + "{} element tuple".format(len(padding)))
 
     assert padding_mode in ['constant', 'edge', 'reflect', 'symmetric'], \
         'Padding mode should be either constant, edge, reflect or symmetric'
@@ -220,13 +206,12 @@ def pad(img, padding, fill=0, padding_mode='constant'):
         pad_left, pad_top, pad_right, pad_bottom = padding
 
     if isinstance(fill, numbers.Number):
-        fill = (fill,) * (2 * len(img.shape) - 3)
+        fill = (fill, ) * (2 * len(img.shape) - 3)
 
     if padding_mode == 'constant':
-        assert (len(fill) == 3 and len(img.shape) == 3) or (len(fill) == 1 and len(img.shape) ==
-                                                            2), 'channel of image is {} but length of fill is {}'.format(img.shape[-1], len(fill))
-    img = cv2.copyMakeBorder(img, pad_top, pad_bottom, pad_left, pad_right,
-                             PAD_MOD[padding_mode], value=fill)
+        assert (len(fill) == 3 and len(img.shape) == 3) or (len(fill) == 1 and len(
+            img.shape) == 2), 'channel of image is {} but length of fill is {}'.format(img.shape[-1], len(fill))
+    img = cv2.copyMakeBorder(img, pad_top, pad_bottom, pad_left, pad_right, PAD_MOD[padding_mode], value=fill)
     return img
 
 
@@ -310,16 +295,7 @@ def vflip(img):
     return cv2.flip(img, 1)
 
 
-def _get_perspective_coeffs(
-        h,
-        w,
-        shear,
-        anglex,
-        angley,
-        anglez,
-        scale,
-        translate,
-        fov):
+def _get_perspective_coeffs(h, w, shear, anglex, angley, anglez, scale, translate, fov):
     """
     This function is partly referred to https://blog.csdn.net/dcrmg/article/details/80273818
     """
@@ -351,10 +327,9 @@ def _get_perspective_coeffs(
         sinb * (lambda2 - lambda1) * sina * cosa
     M02 = centerx - M00 * centerx - M01 * centery + tx
     M12 = centery - M10 * centerx - M11 * centery + ty
-    affine_matrix = np.array(
-        [[M00, M01, M02], [M10, M11, M12], [0, 0, 1]], dtype=np.float32)
+    affine_matrix = np.array([[M00, M01, M02], [M10, M11, M12], [0, 0, 1]], dtype=np.float32)
     # -------------------------------------------------------------------------------
-    z = np.sqrt(w ** 2 + h ** 2) / 2 / np.tan(math.radians(fov / 2))
+    z = np.sqrt(w**2 + h**2) / 2 / np.tan(math.radians(fov / 2))
 
     radx = math.radians(anglex)
     rady = math.radians(angley)
@@ -364,10 +339,8 @@ def _get_perspective_coeffs(
     siny = math.sin(rady)
     cosy = math.cos(rady)
 
-    r = np.array([[cosy, 0, -siny, 0],
-                  [-siny * sinx, cosx, -sinx * cosy, 0],
-                  [cosx * siny, sinx, cosx * cosy, 0],
-                  [0, 0, 0, 1]])
+    r = np.array([[cosy, 0, -siny, 0], [-siny * sinx, cosx, -sinx * cosy, 0], [cosx * siny, sinx, cosx * cosy, 0], [0, 0, 0,
+                                                                                                                    1]])
 
     pcenter = np.array([centerx, centery, 0, 0], np.float32)
 
@@ -383,10 +356,7 @@ def _get_perspective_coeffs(
 
     list_dst = [dst1, dst2, dst3, dst4]
 
-    org = np.array([[0, 0],
-                    [w, 0],
-                    [0, h],
-                    [w, h]], np.float32)
+    org = np.array([[0, 0], [w, 0], [0, h], [w, h]], np.float32)
 
     dst = np.zeros((4, 2), np.float32)
 
@@ -399,11 +369,16 @@ def _get_perspective_coeffs(
     return matrix
 
 
-def perspective(
-    img, fov=45, anglex=0, angley=0, anglez=0, shear=0, translate=(
-        0, 0), scale=(
-            1, 1), resample='BILINEAR', fillcolor=(
-                0, 0, 0)):
+def perspective(img,
+                fov=45,
+                anglex=0,
+                angley=0,
+                anglez=0,
+                shear=0,
+                translate=(0, 0),
+                scale=(1, 1),
+                resample='BILINEAR',
+                fillcolor=(0, 0, 0)):
     """Perform perspective transform of the given CV Image.
     This function is partly referred to https://blog.csdn.net/dcrmg/article/details/80273818
 
@@ -420,24 +395,12 @@ def perspective(
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
 
     h, w, _ = img.shape
-    matrix = _get_perspective_coeffs(
-        h,
-        w,
-        shear,
-        anglex,
-        angley,
-        anglez,
-        scale,
-        translate,
-        fov)
-    img = cv2.warpPerspective(
-        img,
-        matrix,
-        (w,
-         h),
-        flags=INTER_MODE[resample],
-        borderMode=cv2.BORDER_CONSTANT,
-        borderValue=fillcolor)
+    matrix = _get_perspective_coeffs(h, w, shear, anglex, angley, anglez, scale, translate, fov)
+    img = cv2.warpPerspective(img,
+                              matrix, (w, h),
+                              flags=INTER_MODE[resample],
+                              borderMode=cv2.BORDER_CONSTANT,
+                              borderValue=fillcolor)
     if gray_scale:
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     return img.astype(imgtype)
@@ -462,15 +425,12 @@ def five_crop(img, size):
     if isinstance(size, numbers.Number):
         size = (int(size), int(size))
     else:
-        assert len(
-            size) == 2, "Please provide only two dimensions (h, w) for size."
+        assert len(size) == 2, "Please provide only two dimensions (h, w) for size."
 
     w, h, _ = img.shape
     crop_h, crop_w = size
     if crop_w > w or crop_h > h:
-        raise ValueError(
-            "Requested crop size {} is bigger than input size {}".format(
-                size, (h, w)))
+        raise ValueError("Requested crop size {} is bigger than input size {}".format(size, (h, w)))
     tl = img.crop((0, 0, crop_w, crop_h))
     tr = img.crop((w - crop_w, 0, w, crop_h))
     bl = img.crop((0, h - crop_h, crop_w, h))
@@ -501,8 +461,7 @@ def ten_crop(img, size, vertical_flip=False):
     if isinstance(size, numbers.Number):
         size = (int(size), int(size))
     else:
-        assert len(
-            size) == 2, "Please provide only two dimensions (h, w) for size."
+        assert len(size) == 2, "Please provide only two dimensions (h, w) for size."
 
     first_five = five_crop(img, size)
 
@@ -573,11 +532,7 @@ def adjust_saturation(img, saturation_factor):
         raise TypeError('img should be CV Image. Got {}'.format(type(img)))
 
     im = img.astype(np.float32)
-    degenerate = cv2.cvtColor(
-        cv2.cvtColor(
-            im,
-            cv2.COLOR_RGB2GRAY),
-        cv2.COLOR_GRAY2RGB)
+    degenerate = cv2.cvtColor(cv2.cvtColor(im, cv2.COLOR_RGB2GRAY), cv2.COLOR_GRAY2RGB)
     im = (1 - saturation_factor) * degenerate + saturation_factor * im
     im = im.clip(min=0, max=255)
     return im.astype(img.dtype)
@@ -609,8 +564,7 @@ def adjust_hue(img, hue_factor):
         CV Image: Hue adjusted image.
     """
     if not (-0.5 <= hue_factor <= 0.5):
-        raise ValueError(
-            'hue_factor is not in [-0.5, 0.5].'.format(hue_factor))
+        raise ValueError('hue_factor is not in [-0.5, 0.5].'.format(hue_factor))
 
     if not _is_numpy_image(img):
         raise TypeError('img should be CV Image. Got {}'.format(type(img)))
@@ -703,8 +657,7 @@ def rotate(img, angle, resample=False, expand=False, center=None):
         else:
             xx = []
             yy = []
-            for point in (np.array([0, 0, 1]), np.array(
-                    [w - 1, 0, 1]), np.array([w - 1, h - 1, 1]), np.array([0, h - 1, 1])):
+            for point in (np.array([0, 0, 1]), np.array([w - 1, 0, 1]), np.array([w - 1, h - 1, 1]), np.array([0, h - 1, 1])):
                 target = M @ point
                 xx.append(target[0])
                 yy.append(target[1])
@@ -734,16 +687,7 @@ def _get_inverse_affine_matrix(center, angle, translate, scale, shear):
     return matrix
 
 
-def affine(
-        img,
-        angle=0,
-        translate=(
-            0,
-            0),
-    scale=1,
-    shear=0,
-    resample='BILINEAR',
-        fillcolor=None):
+def affine(img, angle=0, translate=(0, 0), scale=1, shear=0, resample='BILINEAR', fillcolor=None):
     """Apply affine transformation on the image keeping image center invariant
 
     Args:
@@ -774,14 +718,11 @@ def affine(
     rows, cols, _ = img.shape
     center = (cols * 0.5, rows * 0.5)
     matrix = _get_inverse_affine_matrix(center, angle, translate, scale, shear)
-    dst_img = cv2.warpAffine(
-        img,
-        matrix,
-        (cols,
-         rows),
-        flags=INTER_MODE[resample],
-        borderMode=cv2.BORDER_CONSTANT,
-        borderValue=fillcolor)
+    dst_img = cv2.warpAffine(img,
+                             matrix, (cols, rows),
+                             flags=INTER_MODE[resample],
+                             borderMode=cv2.BORDER_CONSTANT,
+                             borderValue=fillcolor)
     if gray_scale:
         dst_img = cv2.cvtColor(dst_img, cv2.COLOR_RGB2GRAY)
     return dst_img.astype(imgtype)
@@ -805,11 +746,7 @@ def to_grayscale(img, num_output_channels=1):
     if num_output_channels == 1:
         img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     elif num_output_channels == 3:
-        img = cv2.cvtColor(
-            cv2.cvtColor(
-                img,
-                cv2.COLOR_RGB2GRAY),
-            cv2.COLOR_GRAY2RGB)
+        img = cv2.cvtColor(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), cv2.COLOR_GRAY2RGB)
     else:
         raise ValueError('num_output_channels should be either 1 or 3')
 
@@ -877,7 +814,7 @@ def poisson_noise(img):
     imgtype = img.dtype
     img = img.astype(np.float32) / 255.0
     vals = len(np.unique(img))
-    vals = 2 ** np.ceil(np.log2(vals))
+    vals = 2**np.ceil(np.log2(vals))
     noisy = 255 * \
         np.clip(np.random.poisson(img.astype(np.float32) * vals) / float(vals), 0, 1)
     return noisy.astype(imgtype)

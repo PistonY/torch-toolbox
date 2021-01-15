@@ -33,11 +33,9 @@ class EncodingParallel(Module):
 
         self.dim = dim
         self.module = module
-        self.device_ids = list(
-            map(lambda x: _get_device_index(x, True), device_ids))
+        self.device_ids = list(map(lambda x: _get_device_index(x, True), device_ids))
         self.output_device = _get_device_index(output_device, True)
-        self.src_device_obj = torch.device(
-            "cuda {}".format(self.device_ids[0]))
+        self.src_device_obj = torch.device("cuda {}".format(self.device_ids[0]))
 
         _check_balance(self.device_ids)
 
@@ -74,18 +72,15 @@ class EncodingDataParallel(EncodingParallel):
         >>> net = encoding.nn.DataParallelModel(model, device_ids=[0, 1, 2])
         >>> y = net(x)
     """
-
     def forward(self, *inputs, **kwargs):
         if not self.device_ids:
             return self.module(*inputs, **kwargs)
 
         for t in chain(self.module.parameters(), self.module.buffers()):
             if t.device != self.src_device_obj:
-                raise RuntimeError(
-                    "module must have its parameters and buffers "
-                    "on device {} (device_ids[0]) but found one of "
-                    "them on device: {}".format(
-                        self.src_device_obj, t.device))
+                raise RuntimeError("module must have its parameters and buffers "
+                                   "on device {} (device_ids[0]) but found one of "
+                                   "them on device: {}".format(self.src_device_obj, t.device))
         inputs, kwargs = self.scatter(inputs, kwargs, self.device_ids)
         if len(self.device_ids) == 1:
             return self.module(*inputs, **kwargs)
@@ -94,12 +89,10 @@ class EncodingDataParallel(EncodingParallel):
         return outputs
 
     def parallel_apply(self, replicas, inputs, kwargs):
-        return parallel_apply(replicas, inputs, kwargs,
-                              self.device_ids[:len(replicas)])
+        return parallel_apply(replicas, inputs, kwargs, self.device_ids[:len(replicas)])
 
 
 class EncodingCriterionParallel(EncodingParallel):
-
     def forward(self, inputs, *targets, **kwargs):
         # input should be already scatterd
         # scattering the targets instead
@@ -112,28 +105,19 @@ class EncodingCriterionParallel(EncodingParallel):
             return self.module(inputs, *targets, **kwargs)
         replicas = self.replicate(self.module, self.device_ids[:len(inputs)])
         outputs = self.criterion_apply(replicas, inputs, targets, kwargs)
-        return ReduceAddCoalesced.apply(
-            self.device_ids[0],
-            len(outputs),
-            *outputs) / len(outputs)
+        return ReduceAddCoalesced.apply(self.device_ids[0], len(outputs), *outputs) / len(outputs)
 
     def criterion_apply(self, replicas, inputs, targets, kwargs):
-        return criterion_parallel_apply(
-            replicas, inputs, targets, kwargs, self.device_ids[:len(replicas)])
+        return criterion_parallel_apply(replicas, inputs, targets, kwargs, self.device_ids[:len(replicas)])
 
 
-def criterion_parallel_apply(
-        modules,
-        inputs,
-        targets,
-        kwargs_tup=None,
-        devices=None):
+def criterion_parallel_apply(modules, inputs, targets, kwargs_tup=None, devices=None):
     assert len(modules) == len(inputs)
     assert len(targets) == len(inputs)
     if kwargs_tup is not None:
         assert len(modules) == len(kwargs_tup)
     else:
-        kwargs_tup = ({},) * len(modules)
+        kwargs_tup = ({}, ) * len(modules)
     if devices is not None:
         assert len(modules) == len(devices)
     else:
@@ -150,22 +134,21 @@ def criterion_parallel_apply(
         try:
             with torch.cuda.device(device):
                 if not isinstance(input, (list, tuple)):
-                    input = (input,)
+                    input = (input, )
                 if not isinstance(target, (list, tuple)):
-                    target = (target,)
+                    target = (target, )
                 output = module(*input, *target, **kwargs)
             with lock:
                 results[i] = output
         except Exception:
             with lock:
-                results[i] = ExceptionWrapper(
-                    where="in replica {} on device {}".format(i, device))
+                results[i] = ExceptionWrapper(where="in replica {} on device {}".format(i, device))
 
     if len(modules) > 1:
-        threads = [threading.Thread(target=_worker,
-                                    args=(i, module, input, target, kwargs, device))
-                   for i, (module, input, target, kwargs, device) in
-                   enumerate(zip(modules, inputs, kwargs_tup, devices))]
+        threads = [
+            threading.Thread(target=_worker, args=(i, module, input, target, kwargs, device))
+            for i, (module, input, target, kwargs, device) in enumerate(zip(modules, inputs, kwargs_tup, devices))
+        ]
 
         for thread in threads:
             thread.start()

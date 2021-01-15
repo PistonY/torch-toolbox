@@ -37,36 +37,24 @@ class _SwitchNorm(nn.Module):
 
     def forward(self, x):
         self._check_input_dim(x)
-        return F.switch_norm(
-            x,
-            self.running_mean,
-            self.running_var,
-            self.weight,
-            self.bias,
-            self.mean_weight,
-            self.var_weight,
-            self.training,
-            self.momentum,
-            self.eps)
+        return F.switch_norm(x, self.running_mean, self.running_var, self.weight, self.bias, self.mean_weight, self.var_weight,
+                             self.training, self.momentum, self.eps)
 
 
 class SwitchNorm2d(_SwitchNorm):
     def _check_input_dim(self, x):
         if x.dim() != 4:
-            raise ValueError('expected 4D input (got {}D input)'
-                             .format(x.dim()))
+            raise ValueError('expected 4D input (got {}D input)'.format(x.dim()))
 
 
 class SwitchNorm3d(_SwitchNorm):
     def _check_input_dim(self, x):
         if x.dim() != 5:
-            raise ValueError('expected 5D input (got {}D input)'
-                             .format(x.dim()))
+            raise ValueError('expected 5D input (got {}D input)'.format(x.dim()))
 
 
 class _EvoNorm(nn.Module):
-    def __init__(self, prefix, num_features, eps=1e-5, momentum=0.9, groups=32,
-                 affine=True):
+    def __init__(self, prefix, num_features, eps=1e-5, momentum=0.9, groups=32, affine=True):
         super(_EvoNorm, self).__init__()
         assert prefix in ('s0', 'b0')
         self.prefix = prefix
@@ -94,26 +82,22 @@ class _EvoNorm(nn.Module):
 
     def _check_input_dim(self, x):
         if x.dim() != 4:
-            raise ValueError('expected 4D input (got {}D input)'
-                             .format(x.dim()))
+            raise ValueError('expected 4D input (got {}D input)'.format(x.dim()))
 
     def forward(self, x):
         self._check_input_dim(x)
-        return F.evo_norm(x, self.prefix, self.running_var, self.v,
-                          self.weight, self.bias, self.training,
-                          self.momentum, self.eps, self.groups)
+        return F.evo_norm(x, self.prefix, self.running_var, self.v, self.weight, self.bias, self.training, self.momentum,
+                          self.eps, self.groups)
 
 
 class EvoNormB0(_EvoNorm):
     def __init__(self, num_features, eps=1e-5, momentum=0.9, affine=True):
-        super(EvoNormB0, self).__init__('b0', num_features, eps, momentum,
-                                        affine=affine)
+        super(EvoNormB0, self).__init__('b0', num_features, eps, momentum, affine=affine)
 
 
 class EvoNormS0(_EvoNorm):
     def __init__(self, num_features, groups=32, affine=True):
-        super(EvoNormS0, self).__init__('s0', num_features, groups=groups,
-                                        affine=affine)
+        super(EvoNormS0, self).__init__('s0', num_features, groups=groups, affine=affine)
 
 
 class DropBlock2d(nn.Module):
@@ -131,7 +115,6 @@ class DropBlock2d(nn.Module):
         .. _DropBlock: A regularization method for convolutional networks:
            https://arxiv.org/abs/1810.12890
         """
-
     def __init__(self, p=0.1, block_size=7):
         super(DropBlock2d, self).__init__()
         assert 0 <= p <= 1

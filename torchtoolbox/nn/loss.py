@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = [
-    'LabelSmoothingLoss',
-    'SigmoidCrossEntropy',
-    'FocalLoss',
-    'L0Loss',
-    'RingLoss',
-    'CenterLoss',
-    'CircleLoss']
+__all__ = ['LabelSmoothingLoss', 'SigmoidCrossEntropy', 'FocalLoss', 'L0Loss', 'RingLoss', 'CenterLoss', 'CircleLoss']
 
 from . import functional as BF
 from torch import nn
@@ -18,14 +11,12 @@ import torch
 
 class SigmoidCrossEntropy(_WeightedLoss):
     def __init__(self, classes, weight=None, reduction='mean'):
-        super(SigmoidCrossEntropy, self).__init__(
-            weight=weight, reduction=reduction)
+        super(SigmoidCrossEntropy, self).__init__(weight=weight, reduction=reduction)
         self.classes = classes
 
     def forward(self, pred, target):
         zt = BF.logits_distribution(pred, target, self.classes)
-        return BF.logits_nll_loss(- F.logsigmoid(zt),
-                                  target, self.weight, self.reduction)
+        return BF.logits_nll_loss(-F.logsigmoid(zt), target, self.weight, self.reduction)
 
 
 class FocalLoss(_WeightedLoss):
@@ -36,7 +27,7 @@ class FocalLoss(_WeightedLoss):
 
     def forward(self, pred, target):
         zt = BF.logits_distribution(pred, target, self.classes)
-        ret = - (1 - torch.sigmoid(zt)).pow(self.gamma) * F.logsigmoid(zt)
+        ret = -(1 - torch.sigmoid(zt)).pow(self.gamma) * F.logsigmoid(zt)
         return BF.logits_nll_loss(ret, target, self.weight, self.reduction)
 
 
@@ -46,7 +37,6 @@ class L0Loss(nn.Module):
     <https://arxiv.org/pdf/1803.04189>`_ paper.
 
     """
-
     def __init__(self, gamma=2, eps=1e-8):
         super(L0Loss, self).__init__()
         self.gamma = gamma
@@ -60,7 +50,6 @@ class L0Loss(nn.Module):
 class LabelSmoothingLoss(nn.Module):
     """This is label smoothing loss function.
     """
-
     def __init__(self, classes, smoothing=0.0, dim=-1):
         super(LabelSmoothingLoss, self).__init__()
         self.confidence = 1.0 - smoothing
@@ -89,7 +78,6 @@ class CircleLoss(nn.Module):
     Outputs:
         - **loss**: scalar.
     """
-
     def __init__(self, m, gamma):
         super(CircleLoss, self).__init__()
         self.m = m
@@ -103,10 +91,8 @@ class CircleLoss(nn.Module):
         negative_matrix = label_matrix.logical_not()
         positive_matrix = label_matrix.fill_diagonal_(False)
 
-        sp = torch.where(positive_matrix, similarity_matrix,
-                         torch.zeros_like(similarity_matrix))
-        sn = torch.where(negative_matrix, similarity_matrix,
-                         torch.zeros_like(similarity_matrix))
+        sp = torch.where(positive_matrix, similarity_matrix, torch.zeros_like(similarity_matrix))
+        sn = torch.where(negative_matrix, similarity_matrix, torch.zeros_like(similarity_matrix))
 
         ap = torch.clamp_min(1 + self.m - sp.detach(), min=0.)
         an = torch.clamp_min(sn.detach() + self.m, min=0.)
@@ -114,13 +100,10 @@ class CircleLoss(nn.Module):
         logit_p = -self.gamma * ap * (sp - self.dp)
         logit_n = self.gamma * an * (sn - self.dn)
 
-        logit_p = torch.where(positive_matrix, logit_p,
-                              torch.zeros_like(logit_p))
-        logit_n = torch.where(negative_matrix, logit_n,
-                              torch.zeros_like(logit_n))
+        logit_p = torch.where(positive_matrix, logit_p, torch.zeros_like(logit_p))
+        logit_n = torch.where(negative_matrix, logit_n, torch.zeros_like(logit_n))
 
-        loss = F.softplus(torch.logsumexp(logit_p, dim=1) +
-                          torch.logsumexp(logit_n, dim=1)).mean()
+        loss = F.softplus(torch.logsumexp(logit_p, dim=1) + torch.logsumexp(logit_n, dim=1)).mean()
         return loss
 
 
@@ -139,7 +122,6 @@ class RingLoss(nn.Module):
     Outputs:
         - **loss**: scalar.
     """
-
     def __init__(self, lamda, l2_norm=True, weight_initializer=None):
         super(RingLoss, self).__init__()
         self.lamda = lamda
@@ -147,8 +129,7 @@ class RingLoss(nn.Module):
         if weight_initializer is None:
             self.R = self.parameters(torch.rand(1))
         else:
-            assert torch.is_tensor(
-                weight_initializer), 'weight_initializer should be a Tensor.'
+            assert torch.is_tensor(weight_initializer), 'weight_initializer should be a Tensor.'
             self.R = self.parameters(weight_initializer)
 
     def forward(self, embedding):
@@ -178,7 +159,6 @@ class CenterLoss(nn.Module):
         - **loss**: loss tensor with shape (batch_size,). Dimensions other than
           batch_axis are averaged out.
     """
-
     def __init__(self, classes, embedding_dim, lamda):
         super(CenterLoss, self).__init__()
         self.lamda = lamda

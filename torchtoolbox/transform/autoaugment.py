@@ -34,7 +34,7 @@ import random
 
 def rotate_with_fill(img, magnitude):
     rot = img.convert("RGBA").rotate(magnitude)
-    return Image.composite(rot, Image.new("RGBA", rot.size, (128,) * 4), rot).convert(img.mode)
+    return Image.composite(rot, Image.new("RGBA", rot.size, (128, ) * 4), rot).convert(img.mode)
 
 
 trans_value = lambda maxval, minval, m: (float(m) / 30) * float(maxval - minval) + minval
@@ -69,9 +69,10 @@ class ShearX(SubPolicy):
         self.fillcolor = fillcolor
 
     def do_process(self, img):
-        return img.transform(img.size, Image.AFFINE,
-                             (1, self.magnitude * random.choice([-1, 1]), 0, 0, 1, 0),
-                             Image.BICUBIC, fillcolor=self.fillcolor)
+        return img.transform(img.size,
+                             Image.AFFINE, (1, self.magnitude * random.choice([-1, 1]), 0, 0, 1, 0),
+                             Image.BICUBIC,
+                             fillcolor=self.fillcolor)
 
 
 class ShearY(SubPolicy):
@@ -81,9 +82,10 @@ class ShearY(SubPolicy):
         self.fillcolor = fillcolor
 
     def do_process(self, img):
-        return img.transform(img.size, Image.AFFINE,
-                             (1, 0, 0, self.magnitude * random.choice([-1, 1]), 1, 0),
-                             Image.BICUBIC, fillcolor=self.fillcolor)
+        return img.transform(img.size,
+                             Image.AFFINE, (1, 0, 0, self.magnitude * random.choice([-1, 1]), 1, 0),
+                             Image.BICUBIC,
+                             fillcolor=self.fillcolor)
 
 
 class TranslateX(SubPolicy):
@@ -93,8 +95,8 @@ class TranslateX(SubPolicy):
         self.fillcolor = fillcolor
 
     def do_process(self, img):
-        return img.transform(img.size, Image.AFFINE,
-                             (1, 0, self.magnitude * img.size[0] * random.choice([-1, 1]), 0, 1, 0),
+        return img.transform(img.size,
+                             Image.AFFINE, (1, 0, self.magnitude * img.size[0] * random.choice([-1, 1]), 0, 1, 0),
                              fillcolor=self.fillcolor)
 
 
@@ -105,8 +107,8 @@ class TranslateY(SubPolicy):
         self.fillcolor = fillcolor
 
     def do_process(self, img):
-        return img.transform(img.size, Image.AFFINE,
-                             (1, 0, 0, 0, 1, self.magnitude * img.size[1] * random.choice([-1, 1])),
+        return img.transform(img.size,
+                             Image.AFFINE, (1, 0, 0, 0, 1, self.magnitude * img.size[1] * random.choice([-1, 1])),
                              fillcolor=self.fillcolor)
 
 
@@ -225,25 +227,21 @@ ImageNetPolicy = RandomChoice([
     Compose([Equalize(0.8), Equalize(0.6)]),
     Compose([Posterize(0.6, 7), Posterize(0.6, 6)]),
     Compose([Equalize(0.4), Solarize(0.2, 4)]),
-
     Compose([Equalize(0.4), Rotate(0.8, 8)]),
     Compose([Solarize(0.6, 3), Equalize(0.6)]),
     Compose([Posterize(0.8, 5), Equalize(1.0)]),
     Compose([Rotate(0.2, 3), Solarize(0.6, 8)]),
     Compose([Equalize(0.6), Posterize(0.4, 6)]),
-
     Compose([Rotate(0.8, 8), Color(0.4, 0)]),
     Compose([Rotate(0.4, 9), Equalize(0.6)]),
     Compose([Equalize(0.0), Equalize(0.8)]),
     Compose([Invert(0.6), Equalize(1.0)]),
     Compose([Color(0.6, 4), Contrast(1.0, 8)]),
-
     Compose([Rotate(0.8, 8), Color(1.0, 2)]),
     Compose([Color(0.8, 8), Solarize(0.8, 7)]),
     Compose([Sharpness(0.4, 7), Invert(0.6)]),
     Compose([ShearX(0.6, 5), Equalize(1.0)]),
     Compose([Color(0.4, 0), Equalize(0.6)]),
-
     Compose([Equalize(0.4), Solarize(0.2, 4)]),
     Compose([Solarize(0.6, 5), AutoContrast(0.6)]),
     Compose([Invert(0.6), Equalize(1.0)]),
@@ -257,25 +255,21 @@ CIFAR10Policy = RandomChoice([
     Compose([Sharpness(0.8, 1), Sharpness(0.9, 3)]),
     Compose([ShearY(0.5, 8), TranslateY(0.7, 9)]),
     Compose([AutoContrast(0.5), Equalize(0.9)]),
-
     Compose([ShearY(0.2, 7), Posterize(0.3, 7)]),
     Compose([Color(0.4, 3), Brightness(0.6, 7)]),
     Compose([Sharpness(0.3, 9), Brightness(0.7, 9)]),
     Compose([Equalize(0.6), Equalize(0.5)]),
     Compose([Contrast(0.6, 7), Sharpness(0.6, 5)]),
-
     Compose([Color(0.7, 7), TranslateX(0.5, 8)]),
     Compose([Equalize(0.3), AutoContrast(0.4)]),
     Compose([TranslateY(0.4, 3), Sharpness(0.2, 6)]),
     Compose([Brightness(0.9, 6), Color(0.2, 8)]),
     Compose([Solarize(0.5, 2), Invert(0.0)]),
-
     Compose([Equalize(0.2), AutoContrast(0.6)]),
     Compose([Equalize(0.2), Equalize(0.6)]),
     Compose([Color(0.9, 9), Equalize(0.6)]),
     Compose([AutoContrast(0.8), Solarize(0.2, 8)]),
     Compose([Brightness(0.1, 3), Color(0.7, 0)]),
-
     Compose([Solarize(0.4, 5), AutoContrast(0.9)]),
     Compose([TranslateY(0.9, 9), TranslateY(0.7, 9)]),
     Compose([AutoContrast(0.9), Solarize(0.8, 3)]),
@@ -289,25 +283,21 @@ SVHNPolicy = RandomChoice([
     Compose([Equalize(0.6), Solarize(0.6, 6)]),
     Compose([Invert(0.9), Equalize(0.6)]),
     Compose([Equalize(0.6), Rotate(0.9, 3)]),
-
     Compose([ShearX(0.9, 4), AutoContrast(0.8)]),
     Compose([ShearY(0.9, 8), Invert(0.4)]),
     Compose([ShearY(0.9, 5), Solarize(0.2, 6)]),
     Compose([Invert(0.9), AutoContrast(0.8)]),
     Compose([Equalize(0.6), Rotate(0.9, 3)]),
-
     Compose([ShearX(0.9, 4), Solarize(0.3, 3)]),
     Compose([ShearY(0.8, 8), Invert(0.7)]),
     Compose([Equalize(0.9), TranslateY(0.6, 6)]),
     Compose([Invert(0.9), Equalize(0.6)]),
     Compose([Contrast(0.3, 3), Rotate(0.8, 4)]),
-
     Compose([Invert(0.8), TranslateY(0.0, 2)]),
     Compose([ShearY(0.7, 6), Solarize(0.4, 8)]),
     Compose([Invert(0.6), Rotate(0.8, 4)]),
     Compose([ShearY(0.3, 7), TranslateX(0.9, 3)]),
     Compose([ShearX(0.1, 6), Invert(0.6)]),
-
     Compose([Solarize(0.7, 2), TranslateY(0.6, 7)]),
     Compose([ShearY(0.8, 4), Invert(0.8)]),
     Compose([ShearX(0.7, 9), TranslateY(0.8, 3)]),

@@ -10,7 +10,7 @@ import numpy as np
 @torch.no_grad()
 def test_lsloss():
     pred = torch.rand(3, 10)
-    label = torch.randint(0, 10, size=(3,))
+    label = torch.randint(0, 10, size=(3, ))
     Loss = LabelSmoothingLoss(10, 0.1)
 
     Loss1 = nn.CrossEntropyLoss()
@@ -24,8 +24,8 @@ def test_lsloss():
 @torch.no_grad()
 def test_logits_loss():
     pred = torch.rand(3, 10)
-    label = torch.randint(0, 10, size=(3,))
-    weight = class_balanced_weight(0.9999, np.random.randint(0, 100, size=(10,)).tolist())
+    label = torch.randint(0, 10, size=(3, ))
+    weight = class_balanced_weight(0.9999, np.random.randint(0, 100, size=(10, )).tolist())
 
     Loss = SigmoidCrossEntropy(classes=10, weight=weight)
     Loss1 = FocalLoss(classes=10, weight=weight, gamma=0.5)

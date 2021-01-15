@@ -52,7 +52,6 @@ class AdaptiveSequential(nn.Sequential):
         # torch.Size([1, 3, 32, 32])
 
     """
-
     def forward(self, *inputs):
         for module in self._modules.values():
             if isinstance(inputs, tuple):

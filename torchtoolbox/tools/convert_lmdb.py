@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
 """This file should not be included in __init__"""
-__all__ = [
-    'get_key',
-    'load_pyarrow',
-    'dumps_pyarrow',
-    'generate_lmdb_dataset',
-    'raw_reader']
+
+__all__ = ['get_key', 'load_pyarrow', 'dumps_pyarrow', 'generate_lmdb_dataset', 'raw_reader']
 
 import lmdb
 import os
@@ -35,23 +31,17 @@ def load_pyarrow(buf):
     return pyarrow.deserialize(buf)
 
 
-def generate_lmdb_dataset(
-        data_set: Dataset,
-        save_dir: str,
-        name: str,
-        num_workers=0,
-        max_size_rate=1.0,
-        write_frequency=5000):
-    data_loader = DataLoader(
-        data_set,
-        num_workers=num_workers,
-        collate_fn=lambda x: x)
+def generate_lmdb_dataset(data_set: Dataset, save_dir: str, name: str, num_workers=0, max_size_rate=1.0, write_frequency=5000):
+    data_loader = DataLoader(data_set, num_workers=num_workers, collate_fn=lambda x: x)
     num_samples = len(data_set)
     check_dir(save_dir)
     lmdb_path = os.path.join(save_dir, '{}.lmdb'.format(name))
-    db = lmdb.open(lmdb_path, subdir=False,
+    db = lmdb.open(lmdb_path,
+                   subdir=False,
                    map_size=int(1099511627776 * max_size_rate),
-                   readonly=False, meminit=True, map_async=True)
+                   readonly=False,
+                   meminit=True,
+                   map_async=True)
     txn = db.begin(write=True)
     for idx, data in enumerate(tqdm(data_loader)):
         txn.put(get_key(idx), dumps_pyarrow(data[0]))

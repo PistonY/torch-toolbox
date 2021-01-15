@@ -34,9 +34,7 @@ class DropBlockScheduler(object):
         self.value = self.st_line * self.iter + self.start_value
 
     def state_dict(self):
-        return {
-            key: value for key,
-            value in self.__dict__.items() if (key != 'model' and key != 'groups')}
+        return {key: value for key, value in self.__dict__.items() if (key != 'model' and key != 'groups')}
 
     def step(self):
         self.get_value()
@@ -75,9 +73,7 @@ class ObjectSchedule(object):
         return self._value
 
     def state_dict(self):
-        return {
-            key: value for key,
-            value in self.__dict__.items() if key != 'object'}
+        return {key: value for key, value in self.__dict__.items() if key != 'object'}
 
     def load_state_dict(self, state_dict):
         """Loads the schedulers state.

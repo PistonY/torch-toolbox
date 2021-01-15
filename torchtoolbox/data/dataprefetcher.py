@@ -21,8 +21,7 @@ class DataPreFetcher(object):
             if not isinstance(self.next_data, (tuple, list)):
                 self.next_data = self.next_data.cuda(non_blocking=True)
             else:
-                self.next_data = tuple([d.cuda(non_blocking=True)
-                                        for d in self.next_data])
+                self.next_data = tuple([d.cuda(non_blocking=True) for d in self.next_data])
 
     def __next__(self):
 

@@ -117,7 +117,6 @@ def summary(model, x, return_results=False):
     model.eval()
 
     def register_hook(layer):
-
         def hook(layer, input, output):
             model_name = str(layer.__class__.__name__)
             module_idx = len(model_summary)
@@ -125,9 +124,7 @@ def summary(model, x, return_results=False):
             model_summary[s_key] = OrderedDict()
             model_summary[s_key]['input_shape'] = list(input[0].shape)
             if isinstance(output, (tuple, list)):
-                model_summary[s_key]['output_shape'] = [
-                    list(o.shape) for o in output
-                ]
+                model_summary[s_key]['output_shape'] = [list(o.shape) for o in output]
             else:
                 model_summary[s_key]['output_shape'] = list(output.shape)
             tb_params = 0
@@ -137,19 +134,16 @@ def summary(model, x, return_results=False):
             if isinstance(layer, nn.Conv2d):
                 tb_params, ntb__params, flops = _cac_conv(layer, input, output)
             elif isinstance(layer, (nn.BatchNorm2d, nn.GroupNorm)):
-                tb_params, ntb__params, flops = _cac_xx_norm(
-                    layer, input, output)
+                tb_params, ntb__params, flops = _cac_xx_norm(layer, input, output)
             elif isinstance(layer, nn.Linear):
-                tb_params, ntb__params, flops = _cac_linear(
-                    layer, input, output)
+                tb_params, ntb__params, flops = _cac_linear(layer, input, output)
 
             model_summary[s_key]['trainable_params'] = tb_params
             model_summary[s_key]['non_trainable_params'] = ntb__params
             model_summary[s_key]['params'] = tb_params + ntb__params
             model_summary[s_key]['flops'] = flops
 
-        if not isinstance(layer, (nn.Sequential, nn.ModuleList,
-                                  nn.Identity, nn.ModuleDict)):
+        if not isinstance(layer, (nn.Sequential, nn.ModuleList, nn.Identity, nn.ModuleDict)):
             hooks.append(layer.register_forward_hook(hook))
 
     model_summary = OrderedDict()
@@ -160,8 +154,7 @@ def summary(model, x, return_results=False):
         h.remove()
 
     print('-' * 80)
-    line_new = "{:>20}  {:>25} {:>15} {:>15}".format(
-        "Layer (type)", "Output Shape", "Params", "FLOPs(M+A) #")
+    line_new = "{:>20}  {:>25} {:>15} {:>15}".format("Layer (type)", "Output Shape", "Params", "FLOPs(M+A) #")
     print(line_new)
     print('=' * 80)
     total_params = 0
@@ -182,12 +175,11 @@ def summary(model, x, return_results=False):
     param_str = _flops_str(total_params)
     flop_str = _flops_str(total_flops)
     flop_str_m = _flops_str(total_flops // 2)
-    param_size = total_params * 4 / (1024 ** 2)
+    param_size = total_params * 4 / (1024**2)
     print('=' * 80)
     print('        Total parameters: {:,}  {}'.format(total_params, param_str))
     print('    Trainable parameters: {:,}'.format(trainable_params))
-    print(
-        'Non-trainable parameters: {:,}'.format(total_params - trainable_params))
+    print('Non-trainable parameters: {:,}'.format(total_params - trainable_params))
     print('Total flops(M)  : {:,}  {}'.format(total_flops // 2, flop_str_m))
     print('Total flops(M+A): {:,}  {}'.format(total_flops, flop_str))
     print('-' * 80)

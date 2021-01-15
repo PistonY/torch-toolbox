@@ -26,8 +26,7 @@ class NormLinear(nn.Module):
         return F.linear(x, weight)
 
     def extra_repr(self):
-        return 'in_features={}, out_features={}'.format(
-            self.in_features, self.classes)
+        return 'in_features={}, out_features={}'.format(self.in_features, self.classes)
 
 
 class L2Softmax(nn.Module):
@@ -52,12 +51,10 @@ class L2Softmax(nn.Module):
         - **loss**: loss tensor with shape (1,). Dimensions other than
           batch_axis are averaged out.
     """
-
     def __init__(self, embedding_size, classes, alpha=64, p=0.9):
         super(L2Softmax, self).__init__()
         alpha_low = math.log(p * (classes - 2) / (1 - p))
-        assert alpha > alpha_low, "For given probability of p={}, alpha should higher than {}.".format(
-            p, alpha_low)
+        assert alpha > alpha_low, "For given probability of p={}, alpha should higher than {}.".format(p, alpha_low)
         self.alpha = alpha
         self.linear = NormLinear(embedding_size, classes, True, True)
 
@@ -85,7 +82,6 @@ class ArcLoss(nn.Module):
         - **loss**: loss tensor with shape (batch_size,). Dimensions other than
           batch_axis are averaged out.
     """
-
     def __init__(self, embedding_size, classes, m=0.5, s=64, easy_margin=True):
         super(ArcLoss, self).__init__()
         assert s > 0.
@@ -153,7 +149,6 @@ class AMSoftmax(nn.Module):
         - **loss**: loss tensor with shape (batch_size,). Dimensions other than
           batch_axis are averaged out.
     """
-
     def __init__(self, embedding_size, classes, m=0.35, s=64):
         super(AMSoftmax, self).__init__()
         assert m > 0 and s > 0

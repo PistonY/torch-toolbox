@@ -6,9 +6,9 @@ import numpy as np
 from numpy.testing import assert_allclose
 from torchtoolbox.metric import Accuracy, NumericalCost, TopKAccuracy
 
-numerical_test_data = np.random.uniform(0, 1, size=(10,))
+numerical_test_data = np.random.uniform(0, 1, size=(10, ))
 # Assume we have batch size of 10, and classes of 5.
-acc_test_label = np.random.randint(0, 5, size=(10,))
+acc_test_label = np.random.randint(0, 5, size=(10, ))
 acc_test_pred = np.random.uniform(0, 1, size=(10, 5))
 
 
@@ -56,7 +56,9 @@ def test_numerical_cost():
     true_cost = get_true_numerical_result(numerical_test_data)
     nc = NumericalCost()
     for c in numerical_test_data:
-        nc.update(torch.Tensor([c, ]))
+        nc.update(torch.Tensor([
+            c,
+        ]))
     cost = float(nc.get())
     try:
         assert_allclose(true_cost, cost)

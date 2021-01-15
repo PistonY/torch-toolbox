@@ -15,7 +15,6 @@ class Swish(nn.Module):
         d_swish = (1 + (1+beta*x)) / ((1 + e^-beta*x)^2)
 
     """
-
     def __init__(self, beta=1.0):
         super(Swish, self).__init__()
         self.beta = beta
@@ -62,11 +61,9 @@ class Activation(nn.Module):
     def __init__(self, act_type, auto_optimize=True, **kwargs):
         super(Activation, self).__init__()
         if act_type == 'relu':
-            self.act = nn.ReLU(
-                inplace=True) if auto_optimize else nn.ReLU(**kwargs)
+            self.act = nn.ReLU(inplace=True) if auto_optimize else nn.ReLU(**kwargs)
         elif act_type == 'relu6':
-            self.act = nn.ReLU6(
-                inplace=True) if auto_optimize else nn.ReLU6(**kwargs)
+            self.act = nn.ReLU6(inplace=True) if auto_optimize else nn.ReLU6(**kwargs)
         elif act_type == 'h_swish':
             self.act = nn.Hardswish(inplace=True) if auto_optimize \
                 else nn.Hardswish(**kwargs)
@@ -85,8 +82,7 @@ class Activation(nn.Module):
         elif act_type == 'prelu':
             self.act = nn.PReLU(**kwargs)
         else:
-            raise NotImplementedError(
-                '{} activation is not implemented.'.format(act_type))
+            raise NotImplementedError('{} activation is not implemented.'.format(act_type))
 
     def forward(self, x):
         return self.act(x)

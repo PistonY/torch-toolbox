@@ -38,9 +38,8 @@ def logits_nll_loss(input, target, weight=None, reduction='mean'):
 
     assert input.dim() == 2, 'Input shape should be (B, C).'
     if input.size(0) != target.size(0):
-        raise ValueError(
-            'Expected input batch_size ({}) to match target batch_size ({}).'.format(
-                input.size(0), target.size(0)))
+        raise ValueError('Expected input batch_size ({}) to match target batch_size ({}).'.format(
+            input.size(0), target.size(0)))
 
     ret = input.sum(dim=-1)
     if weight is not None:
@@ -56,9 +55,8 @@ def class_balanced_weight(beta, samples_per_class):
         elif torch.is_tensor(samples_per_class):
             samples_per_class = samples_per_class.numpy()
         else:
-            raise NotImplementedError(
-                'Type of samples_per_class should be {}, {} or {} but got {}'.format(
-                    (list, tuple), np.ndarray, torch.Tensor, type(samples_per_class)))
+            raise NotImplementedError('Type of samples_per_class should be {}, {} or {} but got {}'.format(
+                (list, tuple), np.ndarray, torch.Tensor, type(samples_per_class)))
     assert isinstance(samples_per_class, np.ndarray) \
            and isinstance(beta, numbers.Number)
 
@@ -102,9 +100,17 @@ def smooth_one_hot(true_labels: torch.Tensor, classes: int, smoothing=0.0):
     return smooth_label
 
 
-def switch_norm(x, running_mean, running_var, weight, bias,
-                mean_weight, var_weight, training=False,
-                momentum=0.9, eps=0.1, moving_average=True):
+def switch_norm(x,
+                running_mean,
+                running_var,
+                weight,
+                bias,
+                mean_weight,
+                var_weight,
+                training=False,
+                momentum=0.9,
+                eps=0.1,
+                moving_average=True):
     size = x.size()
     x = x.view(size[0], size[1], -1)
 
@@ -124,7 +130,7 @@ def switch_norm(x, running_mean, running_var, weight, bias,
             running_var.add_((1 - momentum) * var_batch.data)
         else:
             running_mean.add_(mean_batch.data)
-            running_var.add_(mean_batch.data ** 2 + var_batch.data)
+            running_var.add_(mean_batch.data**2 + var_batch.data)
     else:
         mean_batch = running_mean
         var_batch = running_var
@@ -160,8 +166,7 @@ def group_std(x: torch.Tensor, groups=32, eps=1e-5):
     return torch.reshape(std, (n, c, h, w))
 
 
-def evo_norm(x, prefix, running_var, v, weight, bias,
-             training, momentum, eps=0.1, groups=32):
+def evo_norm(x, prefix, running_var, v, weight, bias, training, momentum, eps=0.1, groups=32):
     if prefix == 'b0':
         if training:
             var = torch.var(x, dim=(0, 2, 3), keepdim=True)
@@ -200,6 +205,7 @@ def channel_shuffle(x, groups):
     x = x.view(batchsize, -1, height, width)
 
     return x
+
 
 def channel_shift(x, shift):
     x = torch.cat([x[:, shift:, ...], x[:, :shift, ...]], dim=1)

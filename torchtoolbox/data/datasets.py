@@ -21,7 +21,6 @@ class NonLabelDataset(Dataset):
         root_dir (str): root dir of data.
         transform (callable): transform func.
     """
-
     def __init__(self, root_dir, transform=None, loader=pil_loader):
         self.transform = transform
         self.items = sorted(os.listdir(root_dir))
@@ -58,16 +57,9 @@ class FeaturePairDataset(Dataset):
         yyy 0
         zzz 0
     """
-
-    def __init__(
-            self,
-            root,
-            is_same_file=None,
-            transform=None,
-            loader=pil_loader):
+    def __init__(self, root, is_same_file=None, transform=None, loader=pil_loader):
         self.root = root
-        is_same = os.path.join(
-            root, 'is_same.txt' if is_same_file is None else is_same_file)
+        is_same = os.path.join(root, 'is_same.txt' if is_same_file is None else is_same_file)
         is_same_list = []
         with open(is_same) as f:
             for line in f.readlines():
@@ -78,8 +70,8 @@ class FeaturePairDataset(Dataset):
         self.pre_check()
 
     def pre_check(self):
-        self.file_list = [[glob.glob(os.path.join(self.root, dir_name, '*.jpg')), int(is_same)]
-                          for dir_name, is_same in self.file_list]
+        self.file_list = [[glob.glob(os.path.join(self.root, dir_name, '*.jpg')),
+                           int(is_same)] for dir_name, is_same in self.file_list]
         for files, _ in self.file_list:
             assert len(files) == 2
 
@@ -105,7 +97,6 @@ class FeaturePairBin(Dataset):
         A function that takes data and transforms them.
 
     """
-
     def __init__(self, name, root, transform=None, backend='cv2'):
         self._transform = transform
         self.name = name
