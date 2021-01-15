@@ -23,6 +23,14 @@ def check_dir(*path):
         os.makedirs(p, exist_ok=True)
 
 
+def remove_file(file_path: str, show_detail=False):
+    if not os.path.exists(file_path):
+        if show_detail:
+            print(f'File {file_path} not exist.')
+        return
+    os.remove(file_path)
+
+
 def make_divisible(v: Union[int, float], divisible_by: int, min_value: Union[int, None] = None):
     """
     This function is taken from the original tf repo.
@@ -30,8 +38,7 @@ def make_divisible(v: Union[int, float], divisible_by: int, min_value: Union[int
     """
     if min_value is None:
         min_value = divisible_by
-    new_v = max(min_value, int(v + divisible_by / 2) //
-                divisible_by * divisible_by)
+    new_v = max(min_value, int(v + divisible_by / 2) // divisible_by * divisible_by)
     # Make sure that round down does not go down by more than 10%.
     if new_v < 0.9 * v:
         new_v += divisible_by
@@ -40,7 +47,9 @@ def make_divisible(v: Union[int, float], divisible_by: int, min_value: Union[int
 
 def apply_ratio(src: Union[List, int], ratio: float, **kwargs):
     if isinstance(src, int):
-        src = [src, ]
+        src = [
+            src,
+        ]
     elif isinstance(src, list):
         pass
     else:
