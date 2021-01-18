@@ -2,7 +2,7 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = ['check_dir', 'to_list', 'make_divisible', 'to_numpy']
 
-from typing import Union, List, Dict
+from typing import Union, List
 import os
 import torch
 import numpy as np

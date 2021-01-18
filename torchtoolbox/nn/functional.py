@@ -5,6 +5,8 @@
 import torch
 import numpy as np
 import numbers
+
+from torch import nn
 from .operators import *
 from torch.nn import functional as F
 
@@ -140,11 +142,11 @@ def switch_norm(x,
 
     mean = mean_weight[0] * mean_instance + \
            mean_weight[1] * mean_layer + \
-           mean_weight[2] * mean_batch.unsqueeze(1)
+           mean_weight[2] * mean_batch.unsqueeze(1)  # noqa:E127
 
     var = var_weight[0] * var_instance + \
           var_weight[1] * var_layer + \
-          var_weight[2] * var_batch.unsqueeze(1)
+          var_weight[2] * var_batch.unsqueeze(1)  # noqa:E127
 
     x = (x - mean) / (var + eps).sqrt()
     x = x * weight.unsqueeze(1) + bias.unsqueeze(1)

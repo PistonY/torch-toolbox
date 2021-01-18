@@ -1,0 +1,8 @@
+# Add "python.linting.flake8Args": ["--config=.flake8"] to your vscode setting.json
+# See issues https://github.com/Microsoft/vscode-python/issues/1884
+[flake8]
+ignore = W503, E203, E221, C901, E501
+max-line-length = 120
+max-complexity = 18
+select = B,C,E,F,W,T4,B9
+exclude = build,__init__.py
