@@ -30,3 +30,10 @@ class DotDict(dict):
     def __delitem__(self, key):
         super(DotDict, self).__delitem__(key)
         del self.__dict__[key]
+
+    def __str__(self) -> str:
+        dump_str = '('
+        for k, v in self.__dict__.items():
+            dump_str += f"{k}={v}; "
+        dump_str = dump_str[:-2] + ")"
+        return dump_str
