@@ -153,21 +153,22 @@ def summary(model, x, return_results=False):
     for h in hooks:
         h.remove()
 
-    print('-' * 80)
-    line_new = "{:>20}  {:>25} {:>15} {:>15}".format("Layer (type)", "Output Shape", "Params", "FLOPs(M+A) #")
-    print(line_new)
-    print('=' * 80)
+    summary_str = ''
+    summary_str += '-' * 80 + '\n'
+    line_new = "{:>20}  {:>25} {:>15} {:>15}\n".format("Layer (type)", "Output Shape", "Params", "FLOPs(M+A) #")
+    summary_str += line_new
+    summary_str += '=' * 80 + '\n'
     total_params = 0
     trainable_params = 0
     total_flops = 0
     for layer in model_summary:
-        line_new = "{:>20}  {:>25} {:>15} {:>15}".format(
+        line_new = "{:>20}  {:>25} {:>15} {:>15}\n".format(
             layer,
             str(model_summary[layer]['output_shape']),
             model_summary[layer]['params'],
             model_summary[layer]['flops'],
         )
-        print(line_new)
+        summary_str += line_new
         total_params += model_summary[layer]['params']
         trainable_params += model_summary[layer]['trainable_params']
         total_flops += model_summary[layer]['flops']
@@ -176,13 +177,15 @@ def summary(model, x, return_results=False):
     flop_str = _flops_str(total_flops)
     flop_str_m = _flops_str(total_flops // 2)
     param_size = total_params * 4 / (1024**2)
-    print('=' * 80)
-    print('        Total parameters: {:,}  {}'.format(total_params, param_str))
-    print('    Trainable parameters: {:,}'.format(trainable_params))
-    print('Non-trainable parameters: {:,}'.format(total_params - trainable_params))
-    print('Total flops(M)  : {:,}  {}'.format(total_flops // 2, flop_str_m))
-    print('Total flops(M+A): {:,}  {}'.format(total_flops, flop_str))
-    print('-' * 80)
-    print('Parameters size (MB): {:.2f}'.format(param_size))
     if return_results:
         return total_params, total_flops
+
+    summary_str += '=' * 80 + '\n'
+    summary_str += '        Total parameters: {:,}  {}\n'.format(total_params, param_str)
+    summary_str += '    Trainable parameters: {:,}\n'.format(trainable_params)
+    summary_str += 'Non-trainable parameters: {:,}\n'.format(total_params - trainable_params)
+    summary_str += 'Total flops(M)  : {:,}  {}\n'.format(total_flops // 2, flop_str_m)
+    summary_str += 'Total flops(M+A): {:,}  {}\n'.format(total_flops, flop_str)
+    summary_str += '-' * 80 + '\n'
+    summary_str += 'Parameters size (MB): {:.2f}'.format(param_size)
+    return summary_str
