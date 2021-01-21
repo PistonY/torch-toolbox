@@ -15,7 +15,7 @@ jobs:
         run: |
           conda install -y tqdm pyarrow six python-lmdb pytest scikit-learn \
           && conda clean --all --yes \
-          && /usr/share/miniconda/bin/pip install -q opencv-python tensorboard
+          && /usr/share/miniconda/bin/pip install -q opencv-python tensorboard pyyaml
       - name: Checkout
         uses: actions/checkout@master
 
