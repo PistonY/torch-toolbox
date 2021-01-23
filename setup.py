@@ -13,7 +13,7 @@ setup(name='torchtoolbox',
       long_description_content_type="text/markdown",
       long_description=open('README.md').read(),
       license='BSD 3-Clause',
-      packages=find_packages(exclude=('*tests*', )),
+      packages=find_packages(exclude=('*tests*', 'dirty_code')),
       zip_safe=True,
       classifiers=[
           'Programming Language :: Python :: 3',
