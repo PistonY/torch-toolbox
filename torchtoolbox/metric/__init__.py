@@ -3,3 +3,4 @@
 
 from .metric import *
 from .feature_verification import *
+from .map import MeanAveragePrecision
