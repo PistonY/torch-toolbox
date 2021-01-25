@@ -8,3 +8,4 @@ from .utils import *
 from .distribute import *
 from .dotdict import DotDict
 from .config_parser import parse_config
+from .bbox import *

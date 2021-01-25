@@ -220,4 +220,4 @@ gen
 
 .vscode/
 torchtoolbox/data/sampler.py
-./dirty_code
+dirty_code/*

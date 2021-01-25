@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['check_dir', 'to_list', 'make_divisible', 'to_numpy']
+__all__ = ['check_dir', 'to_list', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index']
 
 from typing import Union, List
 import os
@@ -69,3 +69,16 @@ def to_numpy(tensor):
         return tensor.numpy()
     else:
         return tensor.cpu().numpy()
+
+
+def get_list_index(lst: Union[list, tuple], value):
+    """get not only fist but all index of a value in a list or tuple.
+
+    Args:
+        lst (Union[list, tuple]): target list.
+        value (Any): value to get index.
+
+    Returns:
+        list: result
+    """
+    return [i for i, v in enumerate(lst) if v == value]
