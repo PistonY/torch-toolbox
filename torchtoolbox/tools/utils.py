@@ -65,10 +65,16 @@ def apply_ratio(src: Union[List, int], ratio: float, **kwargs):
 def to_numpy(tensor):
     if isinstance(tensor, np.ndarray):
         return tensor
-    elif tensor.get_device() == -1:  # cpu tensor
-        return tensor.numpy()
+    elif torch.is_tensor(tensor):
+        if tensor.get_device() == -1:  # cpu tensor
+            return tensor.numpy()
+        else:
+            return tensor.cpu().numpy()
+    elif isinstance(tensor, (list, tuple)):
+        return np.array(tensor)
     else:
-        return tensor.cpu().numpy()
+        raise NotImplementedError(f"The type of {type(tensor)} is not support to convert numpy."
+                                  " torch.tensor, list and tuple are support now.")
 
 
 def get_list_index(lst: Union[list, tuple], value):

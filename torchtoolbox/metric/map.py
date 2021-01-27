@@ -4,7 +4,7 @@ from typing import List, Union
 import numpy as np
 
 from .metric import Metric
-from ..tools import BBox
+from ..tools import BBox, to_list
 
 
 class MeanAveragePrecision(Metric):
@@ -12,12 +12,12 @@ class MeanAveragePrecision(Metric):
                  name: str,
                  iou_threshold=np.arange(50, 100, 5),
                  iou_interested=(50, 75),
-                 val_type='bbox',
+                 object_type='bbox',
                  writer: Union[SummaryWriter, None] = None):
         super().__init__(name=name, writer=writer)
         self.iou_threshold = iou_threshold / 100
         self.iou_interested = [iou / 100 for iou in sorted(iou_interested)]
-        self.val_type = val_type
+        self.val_type = object_type
 
         self.coll = []
         self.interested_coll = [[] for _ in range(len(iou_interested))]
@@ -91,6 +91,7 @@ class MeanAveragePrecision(Metric):
 
     def update(self, preds: List[BBox], gt: List[BBox], record_tb=False):
         assert len(preds) == len(gt), "num of two values must be same."
+        preds, gt = to_list(preds), to_list(gt)
         ap_dict = {}
         batch_map = []
         batch_interested_map = [[] for _ in range(len(self.iou_interested))]
