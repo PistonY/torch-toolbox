@@ -4,7 +4,8 @@ from typing import List, Union
 import numpy as np
 
 from .metric import Metric
-from ..tools import BBox, to_list
+from ..objects import BBox
+from ..tools import to_list
 
 
 class MeanAveragePrecision(Metric):
