@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['check_dir', 'to_list', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index']
+__all__ = [
+    'check_dir', 'to_list', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index', 'get_value_from_dicts'
+]
 
 from typing import Union, List
 import os
@@ -88,3 +90,22 @@ def get_list_index(lst: Union[list, tuple], value):
         list: result
     """
     return [i for i, v in enumerate(lst) if v == value]
+
+
+def get_value_from_dicts(dicts, keys, post_process=None):
+    assert isinstance(dicts, (list, tuple, dict))
+    assert post_process in (None, 'max', 'min', 'mean')
+    keys = to_list(keys)
+    if isinstance(dicts, dict):
+        dicts = dicts.values()
+    value_list = [[value[key] for value in dicts if isinstance(value, dict)] for key in keys]
+    if post_process is not None:
+        if post_process == 'mean':
+            value_list = [np.mean(v) for v in value_list]
+        elif post_process == 'max':
+            value_list = [np.max(v) for v in value_list]
+        elif post_process == 'min':
+            value_list = [np.mean(v) for v in value_list]
+        else:
+            raise NotImplementedError
+    return value_list

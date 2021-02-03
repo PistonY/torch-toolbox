@@ -1,11 +1,11 @@
 from torch.utils.tensorboard import SummaryWriter
 from typing import List, Union
-
+from prettytable import PrettyTable
 import numpy as np
 
 from .metric import Metric
 from ..objects import BBox
-from ..tools import to_list
+from ..tools import to_list, get_value_from_dicts
 
 
 class MeanAveragePrecision(Metric):
@@ -20,11 +20,9 @@ class MeanAveragePrecision(Metric):
         self.iou_interested = [iou / 100 for iou in sorted(iou_interested)]
         self.val_type = object_type
 
-        self.coll = []
-        self.interested_coll = [[] for _ in range(len(iou_interested))]
-        self.meta_info = []
+        self.coll = {iou: {} for iou in self.iou_threshold}
 
-    def calculate_iou(self, predict: BBox, gt: BBox, category: str):
+    def calculate_iou(self, predict: np.ndarray, gt: np.ndarray):
         """calculate one to one image iou on category.
 
         Args:
@@ -32,57 +30,43 @@ class MeanAveragePrecision(Metric):
             gt (BBox): gt bbox.
             category (str): category.
         """
-        pred_cate_bbox, predict_score = predict.get_category_bboxes(category, get_score=True)  # shape: Pcat x 4
-        gt_cate_bbox = gt.get_category_bboxes(category)  # shape: Gcat x 4
-        # for pi, gi in product(pred_cate_bbox, gt_cate_bbox):
+
         pred_bbox_iou = []
-        for pcb in pred_cate_bbox:
-            iou_xmin = np.maximum(pcb[0], gt_cate_bbox[:, 0])
-            iou_ymin = np.maximum(pcb[1], gt_cate_bbox[:, 1])
-            iou_xmax = np.minimux(pcb[2], gt_cate_bbox[:, 2])
-            iou_ymax = np.minimux(pcb[3], gt_cate_bbox[:, 3])
-            iou_width = np.maximum(iou_xmax - iou_xmin, 0)
-            iou_height = np.maximum(iou_ymax - iou_ymin, 0)
+        for pcb in predict:
+            inter_xmin = np.maximum(pcb[0], gt[:, 0])
+            inter_ymin = np.maximum(pcb[1], gt[:, 1])
+            inter_xmax = np.minimum(pcb[2], gt[:, 2])
+            inter_ymax = np.minimum(pcb[3], gt[:, 3])
+            inter_width = np.maximum(inter_xmax - inter_xmin, 0)
+            inter_height = np.maximum(inter_ymax - inter_ymin, 0)
 
-            iou_area = iou_width * iou_height
-            cross_area = (pcb[2] - pcb[0]) * (pcb[3] - pcb[1]) + (gt_cate_bbox[:, 2] - gt_cate_bbox[:, 0]) * (
-                gt_cate_bbox[:, 3] - gt_cate_bbox[:, 1]) - iou_area
-            iou = iou_area / cross_area
+            inter_area = inter_width * inter_height
+            union_area = (pcb[2] - pcb[0]) * (pcb[3] - pcb[1]) + (gt[:, 2] - gt[:, 0]) * (gt[:, 3] - gt[:, 1]) - inter_area
+            iou = inter_area / union_area
             pred_bbox_iou.append(iou)
-        return np.stack(pred_bbox_iou), predict_score
+        return np.stack(pred_bbox_iou)
 
-    def calculate_rank(self, iou, iou_threshold, predict_score):
-        rank_list = []  # [[rank, bbox_to_gt, confidence, valid], ...]
+    def calculate_rank(self, iou, iou_threshold):
+        valid_tp = []  # [[rank, bbox_to_gt, confidence, valid], ...]
         first_valid_bbox = []
-        for idx, rank_iou in enumerate(iou):
+        for rank_iou in iou:
             max_iou_bbox = np.argmax(rank_iou)
             if max_iou_bbox not in first_valid_bbox and rank_iou[max_iou_bbox] > iou_threshold:
                 first_valid_bbox.append(max_iou_bbox)
-                gt = 1
+                tp = 1
             else:
-                gt = 0
-            rank_list.append([idx, max_iou_bbox, predict_score[idx], gt])
-        return rank_list
+                tp = 0
+            valid_tp.append(tp)
+        return valid_tp
 
-    def calculate_pr(self, rank_list, gt_num, smooth=True):
-        total_valid = 0
-        precision_list = []
-        recall_list = []
-
-        for idx, rank in enumerate(rank_list):
-            rank_idx = idx + 1
-            total_valid += rank[-1]
-            precision = total_valid / rank_idx
-            recall = total_valid / gt_num
-            precision_list.append(precision)
-            recall_list.append(recall)
-
+    def calculate_pr(self, tp_list, gt_num, smooth=True):
+        precision_list = [sum_tp / (idx + 1) for idx, sum_tp in enumerate(np.cumsum(tp_list))]
+        recall_list = [sum_tp / gt_num for sum_tp in np.cumsum(tp_list)]
         precision = np.array([0.0] + precision_list + [0.0])
         recall = np.array([0.0] + recall_list + [1.0])
         if smooth:
             for i in range(precision.size - 1, 0, -1):
                 precision[i - 1] = np.maximum(precision[i - 1], precision[i])
-
         return precision, recall
 
     def calculate_ap(self, precision, recall):
@@ -91,53 +75,66 @@ class MeanAveragePrecision(Metric):
         return ap
 
     def update(self, preds: List[BBox], gt: List[BBox], record_tb=False):
-        assert len(preds) == len(gt), "num of two values must be same."
         preds, gt = to_list(preds), to_list(gt)
-        ap_dict = {}
-        batch_map = []
-        batch_interested_map = [[] for _ in range(len(self.iou_interested))]
-        for idx, (p, g) in enumerate(zip(preds, gt)):
-            ap_dict[idx] = {}
-            all_category_map = []
-            for i_iou in self.iou_interested:
-                ap_dict[idx][f'ap_{i_iou}'] = []
-            for g_cat in g.contain_category:
-                ap_dict[idx][g_cat] = {}
-                p_to_g_iou, p_score = self.calculate_iou(p, g, g_cat)
-                ap_dict[idx][g_cat]['ap'] = []
-                for iou_td in self.iou_threshold:
-                    ranks = self.calculate_rank(p_to_g_iou, iou_td, p_score)
-                    precision, recall = self.calculate_pr(ranks, p_to_g_iou.shape[-1], smooth=True)
-                    ap = self.calculate_ap(precision, recall)
-                    ap_dict[idx][g_cat]['ap'].append(ap)
-                    if iou_td in self.iou_interested:
-                        ap_dict[idx][f'ap_{iou_td}'].append(ap)
-                p_cat_map = np.mean(np.array(ap_dict[idx][g_cat]['ap']))
-                ap_dict[idx][g_cat]['map'] = p_cat_map
-                all_category_map.append(p_cat_map)
-            p_map = np.array(all_category_map).sum()
-            p_map /= len(p.contain_category) if len(p.contain_category) > 0 else 1
-            ap_dict[idx]['map'] = p_map
+        assert len(preds) == len(gt), "num of two values must be same."
 
-            batch_map.append(map)
-            for i_idx, i_iou in enumerate(self.iou_interested):
-                i_map = np.array(ap_dict[idx][f'ap_{i_iou}']).sum()
-                i_map /= len(p.contain_category) if len(p.contain_category) > 0 else 1
-                ap_dict[idx][f'map_{i_iou}'] = i_map
-                batch_interested_map[i_idx].append(i_map)
-
-        self.coll.extend(batch_map)
-        self.meta_info.extend(ap_dict.values())
-
-        for idx, i_col in enumerate(self.interested_coll):
-            i_col.extend(batch_interested_map[idx])
+        for p, g in zip(preds, gt):
+            if p.empty_bbox and g.empty_bbox:
+                continue
+            for iou in self.iou_threshold:
+                pg_cats = list(set(p.contain_category + g.contain_category))
+                for pgc in pg_cats:
+                    if pgc not in self.coll[iou].keys():
+                        self.coll[iou][pgc] = dict(tp_list=[], gt_num=0)
+                    pred_cat_bbox = p.get_category_bboxes(pgc)  # shape: Pcat x 4
+                    gt_cat_bbox = g.get_category_bboxes(pgc)  # shape: Gcat x 4
+                    if len(gt_cat_bbox) == 0:
+                        self.coll[iou][pgc]['tp_list'] += [0 for _ in range(len(pred_cat_bbox))]
+                    elif len(pred_cat_bbox) == 0:
+                        self.coll[iou][pgc]['gt_num'] += len(gt_cat_bbox)
+                    else:
+                        p_g_iou = self.calculate_iou(pred_cat_bbox, gt_cat_bbox)
+                        tp = self.calculate_rank(p_g_iou, iou)
+                        self.coll[iou][pgc]['tp_list'] += tp
+                        self.coll[iou][pgc]['gt_num'] += len(gt_cat_bbox)
 
     def reset(self):
-        self.coll = []
-        self.interested_coll = [[] for _ in range(len(self.iou_interested))]
-        self.meta_info = []
+        self.coll = {iou: {} for iou in self.iou_threshold}
 
     def get(self):
-        map = np.mean(self.coll)
-        map_interested = [np.mean(ap) for ap in self.interested_coll]
-        return map, {k: v for k, v in zip(self.iou_interested, map_interested)}
+        interested_aps = {}
+        ap_dicts = {}
+        for iou in self.iou_threshold:
+            iou_ap_list = []
+            for cate, tp_gt in self.coll[iou].items():
+                tp_list = tp_gt['tp_list']
+                gt_num = tp_gt['gt_num']
+                gt_num += 1 if gt_num == 0 else 0
+                precision, recall = self.calculate_pr(tp_list, gt_num)
+                ap = self.calculate_ap(precision, recall)
+                precision = 0 if ap == 0 else precision[-2]
+                recall = 0 if ap == 0 else recall[-2]
+                iou_ap_list.append(dict(ap=ap, precision=precision, recall=recall, category=cate))
+            iou_ap, iou_precision, iou_recall = get_value_from_dicts(iou_ap_list, ('ap', "precision", "recall"),
+                                                                     post_process='mean')
+            ap_dicts[iou] = dict(ap=iou_ap, precision=iou_precision, recall=iou_recall)
+            if iou in self.iou_interested:
+                interested_aps[iou] = dict(ap=iou_ap, precision=iou_precision, recall=iou_recall, cate_info=iou_ap_list)
+        mAP = get_value_from_dicts(ap_dicts, 'ap', post_process='mean')[0]
+        rlt_dict = dict(map=mAP)
+        rlt_dict.update(interested_aps)
+        return rlt_dict
+
+    # TODO: info reports in detail
+    def report(self):
+        rlt_dict = self.get()
+        map = rlt_dict['map']
+        print(f"mAP: {map}")
+        for iou in self.iou_interested:
+            tabel = PrettyTable()
+            tabel.field_names = ["field", "AP", "precision", "recall"]
+            tabel.add_row([f"AP{int(iou*100)}", rlt_dict[iou]['ap'], rlt_dict[iou]['precision'], rlt_dict[iou]['recall']])
+            for cate_info in rlt_dict[iou]['cate_info']:
+                tabel.add_row([cate_info['category'], cate_info['ap'], cate_info['precision'], cate_info['recall']])
+            print(tabel)
+        # raise NotImplementedError('TODO')
