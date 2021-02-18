@@ -169,3 +169,14 @@ class CenterLoss(nn.Module):
         intra_distances = embedding.dist(expanded_centers)
         loss = self.lamda * 0.5 * intra_distances / target.size()[0]
         return loss
+
+
+class KnowledgeDistillationLoss(nn.Module):
+    def __init__(self, temperature=1):
+        super().__init__()
+        self.temperature = temperature
+
+    def forward(self, student_output, teacher_output):
+        return self.temperature**2 * torch.mean(
+            torch.sum(-F.softmax(teacher_output / self.temperature) * F.log_softmax(student_output / self.temperature), dim=1))
+

@@ -4,7 +4,7 @@ __all__ = [
     'check_dir', 'to_list', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index', 'get_value_from_dicts'
 ]
 
-from typing import Union, List
+from typing import Union, List, Tuple, Any
 import os
 import torch
 import numpy as np
@@ -14,6 +14,16 @@ def to_list(value):
     if not isinstance(value, (list, tuple)):
         value = [value]
     return value
+
+
+def to_value(container: Union[List, Tuple], check_same=True):
+    if isinstance(container, (list, tuple)):
+        if check_same:
+            for bef, aft in zip(container[:-1], container[1:]):
+                assert bef == aft
+            return container[0]
+    else:
+        return container
 
 
 def check_dir(*path):
