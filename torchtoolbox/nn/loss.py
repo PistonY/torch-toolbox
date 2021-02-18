@@ -179,4 +179,3 @@ class KnowledgeDistillationLoss(nn.Module):
     def forward(self, student_output, teacher_output):
         return self.temperature**2 * torch.mean(
             torch.sum(-F.softmax(teacher_output / self.temperature) * F.log_softmax(student_output / self.temperature), dim=1))
-
