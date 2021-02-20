@@ -5,7 +5,7 @@ from .utils import to_list
 from torch import nn
 
 
-def no_decay_bias(net):
+def no_decay_bias(net, extra_conv=()):
     """split network weights into to categlories,
     one are weights in conv layer and linear layer,
     others are other learnable paramters(conv bias,
@@ -15,14 +15,14 @@ def no_decay_bias(net):
     Returns:
         a dictionary of params splite into to categlories
     """
+    extra_conv = to_list(extra_conv)
 
     decay = []
     no_decay = []
 
     for m in net.modules():
-        if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.Linear)):
+        if isinstance(m, (nn.Conv1d, nn.Conv2d, nn.Conv3d, nn.Linear, *extra_conv)):
             decay.append(m.weight)
-
             if m.bias is not None:
                 no_decay.append(m.bias)
 

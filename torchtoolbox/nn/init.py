@@ -2,17 +2,20 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 import abc
 import math
+
 from torch import nn
-from torch.nn.init import xavier_normal_, xavier_uniform_, \
-    kaiming_normal_, kaiming_uniform_, zeros_, _no_grad_normal_, \
-    _calculate_fan_in_and_fan_out
+from torch.nn.init import (_calculate_fan_in_and_fan_out, _no_grad_normal_,
+                           kaiming_normal_, kaiming_uniform_, xavier_normal_,
+                           xavier_uniform_, zeros_)
+
+from ..tools import to_list
 
 
 class Initializer(abc.ABC):
     def __init__(self, extra_conv=(), extra_norm=(), extra_linear=()) -> None:
-        self.extra_conv = extra_conv
-        self.extra_norm = extra_norm
-        self.extra_linear = extra_linear
+        self.extra_conv = to_list(extra_conv)
+        self.extra_norm = to_list(extra_norm)
+        self.extra_linear = to_list(extra_linear)
 
     def is_conv(self, module):
         return isinstance(module, (nn.Conv2d, nn.Conv3d))
