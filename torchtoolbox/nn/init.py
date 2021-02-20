@@ -73,7 +73,6 @@ class KaimingInitializer(Initializer):
         self.initializer = kaiming_uniform_ if random_type == 'uniform' else kaiming_normal_
 
     def __call__(self, module):
-        print(model)
         if self.is_conv(module):
             self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
             if module.bias is not None:
