@@ -3,15 +3,6 @@ from torchvision import transforms
 from torchvision.transforms import functional as F
 from torchvision.transforms.transforms import _setup_size
 
-_pil_interpolation_to_str = {
-    Image.NEAREST: 'PIL.Image.NEAREST',
-    Image.BILINEAR: 'PIL.Image.BILINEAR',
-    Image.BICUBIC: 'PIL.Image.BICUBIC',
-    Image.LANCZOS: 'PIL.Image.LANCZOS',
-    Image.HAMMING: 'PIL.Image.HAMMING',
-    Image.BOX: 'PIL.Image.BOX',
-}
-
 
 class DynamicRandomResizedCrop(transforms.RandomResizedCrop):
     def __init__(self, size, scale=(0.08, 1.0), ratio=(3. / 4., 4. / 3.), interpolation=Image.BILINEAR):

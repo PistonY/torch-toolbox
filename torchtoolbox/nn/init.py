@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-
+import abc
 import math
 from torch import nn
 from torch.nn.init import xavier_normal_, xavier_uniform_, \
@@ -8,7 +8,27 @@ from torch.nn.init import xavier_normal_, xavier_uniform_, \
     _calculate_fan_in_and_fan_out
 
 
-class XavierInitializer(object):
+class Initializer(abc.ABC):
+    def __init__(self, extra_conv=(), extra_norm=(), extra_linear=()) -> None:
+        self.extra_conv = extra_conv
+        self.extra_norm = extra_norm
+        self.extra_linear = extra_linear
+
+    def is_conv(self, module):
+        return isinstance(module, (nn.Conv2d, nn.Conv3d))
+
+    def is_norm(self, module):
+        return isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm))
+
+    def is_linear(self, module):
+        return isinstance(module, (nn.Linear))
+
+    @abc.abstractmethod
+    def __call__(self, module):
+        pass
+
+
+class XavierInitializer(Initializer):
     """Initialize a model params by Xavier.
 
     Fills the input `Tensor` with values according to the method
@@ -21,29 +41,31 @@ class XavierInitializer(object):
         gain (float): an optional scaling factor, default is sqrt(2.0)
 
     """
-    def __init__(self, random_type='uniform', gain=math.sqrt(2.0)):
+    def __init__(self, random_type='uniform', gain=math.sqrt(2.0), **kwargs):
+        super().__init__(**kwargs)
         assert random_type in ('uniform', 'normal')
         self.initializer = xavier_uniform_ if random_type == 'uniform' else xavier_normal_
         self.gain = gain
 
     def __call__(self, module):
-        if isinstance(module, (nn.Conv2d, nn.Conv3d)):
+        if self.is_conv(module):
             self.initializer(module.weight.data, gain=self.gain)
             if module.bias is not None:
                 module.bias.data.zero_()
-        elif isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
+        elif self.is_norm(module):
             if module.weight is not None:
                 module.weight.data.fill_(1)
             if module.bias is not None:
                 module.bias.data.zero_()
-        elif isinstance(module, nn.Linear):
+        elif self.is_linear(module):
             self.initializer(module.weight.data, gain=self.gain)
             if module.bias is not None:
                 module.bias.data.zero_()
 
 
-class KaimingInitializer(object):
-    def __init__(self, slope=0, mode='fan_out', nonlinearity='relu', random_type='normal'):
+class KaimingInitializer(Initializer):
+    def __init__(self, slope=0, mode='fan_out', nonlinearity='relu', random_type='normal', **kwargs):
+        super().__init__(**kwargs)
         assert random_type in ('uniform', 'normal')
         self.slope = slope
         self.mode = mode
@@ -51,28 +73,34 @@ class KaimingInitializer(object):
         self.initializer = kaiming_uniform_ if random_type == 'uniform' else kaiming_normal_
 
     def __call__(self, module):
-        if isinstance(module, (nn.Conv2d, nn.Conv3d)):
+        print(model)
+        if self.is_conv(module):
             self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
             if module.bias is not None:
                 module.bias.data.zero_()
-        elif isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
+        elif self.is_norm(module):
+            print('is norm')
             if module.weight is not None:
                 module.weight.data.fill_(1)
             if module.bias is not None:
                 module.bias.data.zero_()
-        elif isinstance(module, nn.Linear):
+        elif self.is_linear(module):
+            print('is_linear')
             self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
             if module.bias is not None:
                 module.bias.data.zero_()
+        else:
+            print('is nothing')
 
 
-class MSRAPrelu(object):
+class MSRAPrelu(Initializer):
     """Initialize the weight according to a MSRA paper.
     This initializer implements *Delving Deep into Rectifiers: Surpassing
     Human-Level Performance on ImageNet Classification*, available at
     https://arxiv.org/abs/1502.01852.
     """
-    def __init__(self, slope=0.25):
+    def __init__(self, slope=0.25, **kwargs):
+        super().__init__(**kwargs)
         self.magnitude = 2. / (1 + slope**2)
 
     def initializer(self, tensor):
@@ -82,16 +110,16 @@ class MSRAPrelu(object):
         _no_grad_normal_(tensor, 0, scale)
 
     def __call__(self, module):
-        if isinstance(module, (nn.Conv2d, nn.Conv3d)):
+        if self.is_conv(module):
             self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()
-        elif isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm)):
+        elif self.is_norm(module):
             if module.weight is not None:
                 module.weight.data.fill_(1)
             if module.bias is not None:
                 module.bias.data.zero_()
-        elif isinstance(module, nn.Linear):
+        elif self.is_linear(module):
             self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()

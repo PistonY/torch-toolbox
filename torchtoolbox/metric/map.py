@@ -125,7 +125,6 @@ class MeanAveragePrecision(Metric):
         rlt_dict.update(interested_aps)
         return rlt_dict
 
-    # TODO: info reports in detail
     def report(self):
         rlt_dict = self.get()
         map = rlt_dict['map']
@@ -137,4 +136,3 @@ class MeanAveragePrecision(Metric):
             for cate_info in rlt_dict[iou]['cate_info']:
                 tabel.add_row([cate_info['category'], cate_info['ap'], cate_info['precision'], cate_info['recall']])
             print(tabel)
-        # raise NotImplementedError('TODO')
