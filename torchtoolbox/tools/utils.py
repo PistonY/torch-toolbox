@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = [
-    'check_dir', 'to_list', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index', 'get_value_from_dicts'
+    'check_dir', 'to_list', 'to_value', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index',
+    'get_value_from_dicts'
 ]
 
 from typing import Union, List, Tuple, Any
@@ -16,12 +17,13 @@ def to_list(value):
     return value
 
 
-def to_value(container: Union[List, Tuple], check_same=True):
+def to_value(container: Union[List, Tuple], check_same=False):
     if isinstance(container, (list, tuple)):
         if check_same:
             for bef, aft in zip(container[:-1], container[1:]):
                 assert bef == aft
             return container[0]
+        return container[0]
     else:
         return container
 
