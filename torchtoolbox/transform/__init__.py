@@ -3,3 +3,4 @@
 
 from .transforms import *
 from .autoaugment import *
+from .dynamic_transform import *
