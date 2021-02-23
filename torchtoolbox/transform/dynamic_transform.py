@@ -16,7 +16,6 @@ class DynamicSize(abc.ABC):
 
     @active_size.setter
     def active_size(self, size):
-        # print(f"set active size to {size}")
         self._active_size = _setup_size(size, error_msg="Please provide only two dimensions (h, w) for size.")
 
 
@@ -31,9 +30,10 @@ class DynamicRandomResizedCrop(RandomResizedCrop, DynamicSize):
 
 
 class DynamicResize(Resize, DynamicSize):
-    def __init__(self, size, interpolation=Image.BILINEAR):
+    def __init__(self, size, ratio=None, interpolation=Image.BILINEAR):
         Resize.__init__(self, size, interpolation)
         DynamicSize.__init__(self, self.size)
+        self.ratio = ratio if ratio is not None else 1
 
     def forward(self, img):
         """
@@ -43,7 +43,7 @@ class DynamicResize(Resize, DynamicSize):
         Returns:
             PIL Image or Tensor: Rescaled image.
         """
-        return F.resize(img, self._active_size, self.interpolation)
+        return F.resize(img, int(self._active_size / self.ratio), self.interpolation)
 
 
 class DynamicCenterCrop(CenterCrop, DynamicSize):
