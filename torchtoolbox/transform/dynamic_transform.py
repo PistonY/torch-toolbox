@@ -2,7 +2,7 @@ __all__ = ['DynamicRandomResizedCrop', 'DynamicResize', 'DynamicCenterCrop']
 
 import abc
 from PIL import Image
-from torchvision.transforms import functional as F, RandomResizedCrop, Resize, CenterCrop
+from torchvision.transforms import functional as F, RandomResizedCrop, Resize, CenterCrop, Compose
 from torchvision.transforms.transforms import _setup_size
 
 
@@ -16,12 +16,13 @@ class DynamicSize(abc.ABC):
 
     @active_size.setter
     def active_size(self, size):
+        # print(f"set active size to {size}")
         self._active_size = _setup_size(size, error_msg="Please provide only two dimensions (h, w) for size.")
 
 
 class DynamicRandomResizedCrop(RandomResizedCrop, DynamicSize):
     def __init__(self, size, scale=(0.08, 1.0), ratio=(3. / 4., 4. / 3.), interpolation=Image.BILINEAR):
-        RandomResizedCrop.__init(size, scale=scale, ratio=ratio, interpolation=interpolation)
+        RandomResizedCrop.__init__(self, size, scale=scale, ratio=ratio, interpolation=interpolation)
         DynamicSize.__init__(self, self.size)
 
     def forward(self, img):
@@ -31,8 +32,8 @@ class DynamicRandomResizedCrop(RandomResizedCrop, DynamicSize):
 
 class DynamicResize(Resize, DynamicSize):
     def __init__(self, size, interpolation=Image.BILINEAR):
-        Resize.__init__(size, interpolation)
-        DynamicSize.__init__(self.size)
+        Resize.__init__(self, size, interpolation)
+        DynamicSize.__init__(self, self.size)
 
     def forward(self, img):
         """
@@ -47,8 +48,8 @@ class DynamicResize(Resize, DynamicSize):
 
 class DynamicCenterCrop(CenterCrop, DynamicSize):
     def __init__(self, size):
-        CenterCrop.__init__(size)
-        DynamicSize.__init__(self.size)
+        CenterCrop.__init__(self, size)
+        DynamicSize.__init__(self, self.size)
 
     def forward(self, img):
         """
@@ -59,3 +60,12 @@ class DynamicCenterCrop(CenterCrop, DynamicSize):
             PIL Image or Tensor: Cropped image.
         """
         return F.center_crop(img, self._active_size)
+
+
+class DynamicSizeCompose(Compose):
+    def __call__(self, img, size):
+        for t in self.transforms:
+            if hasattr(t, 'active_size'):
+                t.active_size = size
+            img = t(img)
+        return img
