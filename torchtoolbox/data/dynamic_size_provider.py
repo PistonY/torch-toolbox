@@ -1,6 +1,6 @@
-from torch.utils.data import Sampler, RandomSampler, BatchSampler
+__all__ = ['DynamicBatchSampler', 'DynamicSizeImageFolder']
+from torch.utils.data import BatchSampler
 from torchvision.datasets import ImageFolder
-from torchvision.datasets.folder import default_loader
 
 
 class DynamicBatchSampler(BatchSampler):
@@ -9,7 +9,6 @@ class DynamicBatchSampler(BatchSampler):
     Args:
         info_generate_fn (callable): give batch samples extra info.
     """
-
     def __init__(self, sampler, batch_size: int, drop_last: bool, info_generate_fn) -> None:
         super().__init__(sampler, batch_size, drop_last)
         self.generate_fn = info_generate_fn

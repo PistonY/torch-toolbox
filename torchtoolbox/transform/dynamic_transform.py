@@ -1,4 +1,4 @@
-__all__ = ['DynamicRandomResizedCrop', 'DynamicResize', 'DynamicCenterCrop']
+__all__ = ['DynamicRandomResizedCrop', 'DynamicResize', 'DynamicCenterCrop', 'DynamicSizeCompose']
 
 import abc
 from PIL import Image
