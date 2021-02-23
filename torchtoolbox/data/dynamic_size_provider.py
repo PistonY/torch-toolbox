@@ -11,17 +11,26 @@ class DynamicBatchSampler(BatchSampler):
     """
     def __init__(self, sampler, batch_size: int, drop_last: bool, info_generate_fn) -> None:
         super().__init__(sampler, batch_size, drop_last)
-        self.generate_fn = info_generate_fn
+        self.info_generate_fn = info_generate_fn
+
+    def set_batch_size(self, batch_size: int):
+        if not isinstance(batch_size, int) or isinstance(batch_size, bool) or \
+                batch_size <= 0:
+            raise ValueError("batch_size should be a positive integer value, " "but got batch_size={}".format(batch_size))
+        self.batch_size = batch_size
+
+    def set_info_generate_fn(self, info_generate_fn):
+        self.info_generate_fn = info_generate_fn
 
     def __iter__(self):
         batch = []
-        info = self.generate_fn()
+        info = self.info_generate_fn()
         for idx in self.sampler:
             batch.append([idx, info])
             if len(batch) == self.batch_size:
                 yield batch
                 batch = []
-                info = self.generate_fn()
+                info = self.info_generate_fn()
         if len(batch) > 0 and not self.drop_last:
             yield batch
 
