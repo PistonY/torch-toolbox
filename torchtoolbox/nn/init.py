@@ -81,18 +81,15 @@ class KaimingInitializer(Initializer):
             if module.bias is not None:
                 module.bias.data.zero_()
         elif self.is_norm(module):
-            print('is norm')
             if module.weight is not None:
                 module.weight.data.fill_(1)
             if module.bias is not None:
                 module.bias.data.zero_()
         elif self.is_linear(module):
-            print('is_linear')
             self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
             if module.bias is not None:
                 module.bias.data.zero_()
-        else:
-            print('is nothing')
+
 
 
 class MSRAPrelu(Initializer):
