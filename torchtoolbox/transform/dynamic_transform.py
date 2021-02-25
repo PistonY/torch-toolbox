@@ -65,7 +65,7 @@ class DynamicCenterCrop(CenterCrop, DynamicSize):
 class DynamicSizeCompose(Compose):
     def __call__(self, img, size):
         for t in self.transforms:
-            if hasattr(t, 'active_size'):
+            if hasattr(t, 'active_size') and size is not None:
                 t.active_size = size
             img = t(img)
         return img

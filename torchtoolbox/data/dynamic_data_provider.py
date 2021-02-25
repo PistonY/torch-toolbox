@@ -9,9 +9,9 @@ class DynamicBatchSampler(BatchSampler):
     Args:
         info_generate_fn (callable): give batch samples extra info.
     """
-    def __init__(self, sampler, batch_size: int, drop_last: bool, info_generate_fn) -> None:
+    def __init__(self, sampler, batch_size: int, drop_last: bool, info_generate_fn=None) -> None:
         super().__init__(sampler, batch_size, drop_last)
-        self.info_generate_fn = info_generate_fn
+        self.info_generate_fn = info_generate_fn if info_generate_fn is not None else lambda: None
 
     def set_batch_size(self, batch_size: int):
         if not isinstance(batch_size, int) or isinstance(batch_size, bool) or \
