@@ -4,4 +4,4 @@ from .utils import *
 from .lmdb_dataset import *
 from .datasets import *
 from .dataprefetcher import DataPreFetcher
-from .dynamic_size_provider import *
+from .dynamic_data_provider import *
