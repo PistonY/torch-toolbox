@@ -2,13 +2,14 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = [
     'check_dir', 'to_list', 'to_value', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index',
-    'get_value_from_dicts'
+    'get_value_from_dicts', 'seconds_to_time'
 ]
 
-from typing import Union, List, Tuple, Any
 import os
-import torch
+from typing import List, Tuple, Union
+
 import numpy as np
+import torch
 
 
 def to_list(value):
@@ -121,3 +122,9 @@ def get_value_from_dicts(dicts, keys, post_process=None):
         else:
             raise NotImplementedError
     return value_list
+
+
+def seconds_to_time(seconds: int):
+    m, s = divmod(seconds, 60)
+    h, m = divmod(m, 60)
+    return h, m, s
