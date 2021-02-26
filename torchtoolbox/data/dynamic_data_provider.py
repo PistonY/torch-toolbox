@@ -1,4 +1,4 @@
-__all__ = ['DynamicBatchSampler', 'DynamicSizeImageFolder']
+__all__ = ['DynamicBatchSampler', 'DynamicSizeImageFolder', 'DistributedDynamicBatchSampler']
 import torch
 from torch import distributed
 from torch.utils.data import BatchSampler
@@ -97,19 +97,3 @@ class DynamicSizeImageFolder(ImageFolder):
             target = self.target_transform(target)
 
         return sample, target
-
-
-#%%
-a = [1, 2, 3, 4]
-print(a.pop(0))
-print(a.pop(0))
-print(a)
-import torch
-
-print(torch.device('cuda', 4))
-
-import numpy as np
-b = torch.randint(0, 10, size=(10, ))
-b = b.numpy().tolist()
-print(b)
-# %%
