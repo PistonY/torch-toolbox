@@ -38,7 +38,7 @@ class DynamicBatchSampler(BatchSampler):
 
 
 class DistributedDynamicBatchSampler(BatchSampler):
-    """DynamicBatchSampler
+    """DistributedDynamicBatchSampler to sync all rank info.
 
     Args:
         info_generate_fn (callable): give batch samples extra info.
@@ -47,7 +47,7 @@ class DistributedDynamicBatchSampler(BatchSampler):
 
         the result of info_generate_fn must be convert to tensor, current only support integer.
     """
-    def __init__(self, sampler, batch_size: int, drop_last: bool, main_rank: bool, rank, info_generate_fn=None) -> None:
+    def __init__(self, sampler, batch_size: int, drop_last: bool, main_rank: int, rank, info_generate_fn=None) -> None:
         super().__init__(sampler, batch_size, drop_last)
         self.info_generate_fn = info_generate_fn if info_generate_fn is not None else lambda: None
 
