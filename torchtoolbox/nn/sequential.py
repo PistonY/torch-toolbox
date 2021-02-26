@@ -58,4 +58,4 @@ class AdaptiveSequential(nn.Sequential):
                 inputs = module(*inputs)
             else:
                 inputs = module(inputs)
-            return inputs
+        return inputs
