@@ -51,7 +51,7 @@ class DistributedDynamicBatchSampler(BatchSampler):
         super().__init__(sampler, batch_size, drop_last)
         self.info_generate_fn = info_generate_fn if info_generate_fn is not None else lambda: None
 
-        epoch_info = [info_generate_fn() for _ in range(len(self))]
+        epoch_info = [info_generate_fn() for _ in range(len(self) + 1)]
         epoch_info = torch.as_tensor(epoch_info, dtype=torch.int, device=torch.device('cuda', rank))
         distributed.broadcast(epoch_info, main_rank)
 
