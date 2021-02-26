@@ -35,6 +35,14 @@ class DynamicResize(Resize, DynamicSize):
         DynamicSize.__init__(self, self.size)
         self.ratio = ratio if ratio is not None else 1
 
+    @property
+    def active_size(self):
+        return self._active_size
+
+    @active_size.setter
+    def active_size(self, size):
+        self._active_size = _setup_size(int(size / self.ratio), error_msg="Please provide only two dimensions (h, w) for size.")
+
     def forward(self, img):
         """
         Args:
@@ -69,3 +77,9 @@ class DynamicSizeCompose(Compose):
                 t.active_size = size
             img = t(img)
         return img
+
+
+if __name__ == '__main__':
+    res = DynamicResize(32, 0.875)
+    res.active_size = 64
+    print(res.active_size)
