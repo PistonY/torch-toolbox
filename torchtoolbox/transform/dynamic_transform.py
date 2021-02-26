@@ -51,7 +51,7 @@ class DynamicResize(Resize, DynamicSize):
         Returns:
             PIL Image or Tensor: Rescaled image.
         """
-        return F.resize(img, int(self._active_size / self.ratio), self.interpolation)
+        return F.resize(img, int(self._active_size), self.interpolation)
 
 
 class DynamicCenterCrop(CenterCrop, DynamicSize):
