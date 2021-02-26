@@ -1,4 +1,6 @@
 __all__ = ['DynamicBatchSampler', 'DynamicSizeImageFolder']
+import torch
+from torch import distributed
 from torch.utils.data import BatchSampler
 from torchvision.datasets import ImageFolder
 
@@ -35,6 +37,48 @@ class DynamicBatchSampler(BatchSampler):
             yield batch
 
 
+class DistributedDynamicBatchSampler(BatchSampler):
+    """DynamicBatchSampler
+
+    Args:
+        info_generate_fn (callable): give batch samples extra info.
+        main_rank: rank to send data.
+        rank: current rank.
+
+        the result of info_generate_fn must be convert to tensor, current only support integer.
+    """
+    def __init__(self, sampler, batch_size: int, drop_last: bool, main_rank: bool, rank, info_generate_fn=None) -> None:
+        super().__init__(sampler, batch_size, drop_last)
+        self.info_generate_fn = info_generate_fn if info_generate_fn is not None else lambda: None
+
+        epoch_info = [info_generate_fn() for _ in range(len(self))]
+        epoch_info = torch.as_tensor(epoch_info, dtype=torch.int, device=torch.device('cuda', rank))
+        distributed.broadcast(epoch_info, main_rank)
+
+        self.epoch_info = epoch_info.cpu().numpy().tolist()
+
+    def set_batch_size(self, batch_size: int):
+        if not isinstance(batch_size, int) or isinstance(batch_size, bool) or \
+                batch_size <= 0:
+            raise ValueError("batch_size should be a positive integer value, " "but got batch_size={}".format(batch_size))
+        self.batch_size = batch_size
+
+    def set_info_generate_fn(self, info_generate_fn):
+        self.info_generate_fn = info_generate_fn
+
+    def __iter__(self):
+        batch = []
+        info = self.epoch_info.pop(0)
+        for idx in self.sampler:
+            batch.append([idx, info])
+            if len(batch) == self.batch_size:
+                yield batch
+                batch = []
+                info = self.epoch_info.pop(0)
+        if len(batch) > 0 and not self.drop_last:
+            yield batch
+
+
 class DynamicSizeImageFolder(ImageFolder):
     def __getitem__(self, index_info):
         """
@@ -53,3 +97,19 @@ class DynamicSizeImageFolder(ImageFolder):
             target = self.target_transform(target)
 
         return sample, target
+
+
+#%%
+a = [1, 2, 3, 4]
+print(a.pop(0))
+print(a.pop(0))
+print(a)
+import torch
+
+print(torch.device('cuda', 4))
+
+import numpy as np
+b = torch.randint(0, 10, size=(10, ))
+b = b.numpy().tolist()
+print(b)
+# %%

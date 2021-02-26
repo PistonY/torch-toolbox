@@ -77,9 +77,3 @@ class DynamicSizeCompose(Compose):
                 t.active_size = size
             img = t(img)
         return img
-
-
-if __name__ == '__main__':
-    res = DynamicResize(32, 0.875)
-    res.active_size = 64
-    print(res.active_size)
