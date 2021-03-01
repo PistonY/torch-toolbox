@@ -50,12 +50,17 @@ class DistributedDynamicBatchSampler(BatchSampler):
     def __init__(self, sampler, batch_size: int, drop_last: bool, main_rank: int, rank, info_generate_fn=None) -> None:
         super().__init__(sampler, batch_size, drop_last)
         self.info_generate_fn = info_generate_fn if info_generate_fn is not None else lambda: None
+        self.main_rank = main_rank
+        self.rank = rank
+        self.epoch_info = None
+        self.reset_and_sync_info()
 
-        epoch_info = [info_generate_fn() for _ in range(len(self) + 1)]
-        epoch_info = torch.as_tensor(epoch_info, dtype=torch.int, device=torch.device('cuda', rank))
-        distributed.broadcast(epoch_info, main_rank)
-
+    def reset_and_sync_info(self):
+        epoch_info = [self.info_generate_fn() for _ in range(len(self) + 1)]
+        epoch_info = torch.as_tensor(epoch_info, dtype=torch.int, device=torch.device('cuda', self.rank))
+        distributed.broadcast(epoch_info, self.main_rank)
         self.epoch_info = epoch_info.cpu().numpy().tolist()
+        torch.cuda.empty_cache()
 
     def set_batch_size(self, batch_size: int):
         if not isinstance(batch_size, int) or isinstance(batch_size, bool) or \
