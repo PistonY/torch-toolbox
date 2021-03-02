@@ -7,13 +7,13 @@ import torch
 import numpy as np
 
 
-def reduce_tensor(tensor, rank, op, dst=0, reduce_type='reduce'):
+def reduce_tensor(tensor, rank, op=distributed.ReduceOp.SUM, dst=0, reduce_type='reduce'):
     """Reduce tensor cross ranks.
 
     Args:
         tensor: tensor need to be reduced.
         rank(int): rank where tensor at.
-        op: reduce op.
+        op: reduce op, use `sum` by default.
         dst(int): only used for reduce_type=='reduce'
         reduce_type(str): only support reduce or all_reduce.
 
