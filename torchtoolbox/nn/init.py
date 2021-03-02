@@ -4,8 +4,7 @@ import abc
 import math
 
 from torch import nn
-from torch.nn.init import (_calculate_fan_in_and_fan_out, _no_grad_normal_,
-                           kaiming_normal_, kaiming_uniform_, xavier_normal_,
+from torch.nn.init import (_calculate_fan_in_and_fan_out, _no_grad_normal_, kaiming_normal_, kaiming_uniform_, xavier_normal_,
                            xavier_uniform_, zeros_)
 
 from ..tools import to_list
@@ -18,13 +17,13 @@ class Initializer(abc.ABC):
         self.extra_linear = to_list(extra_linear)
 
     def is_conv(self, module):
-        return isinstance(module, (nn.Conv2d, nn.Conv3d))
+        return isinstance(module, (nn.Conv2d, nn.Conv3d, *self.extra_conv))
 
     def is_norm(self, module):
-        return isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm))
+        return isinstance(module, (nn.BatchNorm2d, nn.BatchNorm3d, nn.GroupNorm, *self.extra_norm))
 
     def is_linear(self, module):
-        return isinstance(module, (nn.Linear))
+        return isinstance(module, (nn.Linear, *self.extra_linear))
 
     @abc.abstractmethod
     def __call__(self, module):
@@ -89,7 +88,6 @@ class KaimingInitializer(Initializer):
             self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
             if module.bias is not None:
                 module.bias.data.zero_()
-
 
 
 class MSRAPrelu(Initializer):
