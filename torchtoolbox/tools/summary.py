@@ -102,7 +102,7 @@ def _cac_linear(layer, input, output):
 
 
 @torch.no_grad()
-def summary(model, x, return_results=False):
+def summary(model, x, return_results=False, extra_conv=(), extra_norm=(), extra_linear=()):
     """
 
     Args:
@@ -131,11 +131,11 @@ def summary(model, x, return_results=False):
             ntb__params = 0
             flops = 0
 
-            if isinstance(layer, nn.Conv2d):
+            if isinstance(layer, (nn.Conv2d, *extra_conv)):
                 tb_params, ntb__params, flops = _cac_conv(layer, input, output)
-            elif isinstance(layer, (nn.BatchNorm2d, nn.GroupNorm)):
+            elif isinstance(layer, (nn.BatchNorm2d, nn.GroupNorm, *extra_norm)):
                 tb_params, ntb__params, flops = _cac_xx_norm(layer, input, output)
-            elif isinstance(layer, nn.Linear):
+            elif isinstance(layer, (nn.Linear, *extra_linear)):
                 tb_params, ntb__params, flops = _cac_linear(layer, input, output)
 
             model_summary[s_key]['trainable_params'] = tb_params
