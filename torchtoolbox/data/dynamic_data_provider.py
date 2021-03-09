@@ -60,7 +60,6 @@ class DistributedDynamicBatchSampler(BatchSampler):
         epoch_info = torch.as_tensor(epoch_info, dtype=torch.int, device=torch.device('cuda', self.rank))
         distributed.broadcast(epoch_info, self.main_rank)
         self.epoch_info = epoch_info.cpu().numpy().tolist()
-        torch.cuda.empty_cache()
 
     def set_batch_size(self, batch_size: int):
         if not isinstance(batch_size, int) or isinstance(batch_size, bool) or \
