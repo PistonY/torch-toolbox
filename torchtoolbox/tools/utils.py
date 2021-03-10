@@ -2,7 +2,7 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = [
     'check_dir', 'to_list', 'to_value', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index',
-    'get_value_from_dicts', 'seconds_to_time'
+    'get_value_from_dicts', 'seconds_to_time', 'one_hot_list'
 ]
 
 import os
@@ -128,3 +128,7 @@ def seconds_to_time(seconds: int):
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
     return h, m, s
+
+
+def one_hot_list(cls: int, num_classes: int):
+    return [0 if cls != c else 1 for c in range(num_classes)]
