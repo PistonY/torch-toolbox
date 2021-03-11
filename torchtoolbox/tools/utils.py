@@ -138,12 +138,11 @@ def encode_one_hot(cls: int, num_classes: int):
 
 
 def decode_one_hot(one_hot_list):
-    # decode from a one-hot list.
     assert isinstance(one_hot_list, (list, tuple))
     num_classes = len(one_hot_list)
     cls = [i for i, c in enumerate(one_hot_list) if c == 1]
-    assert len(cls) == 1, "an one-hot list should only have one class."
-    return cls[0], num_classes
+    assert len(cls) in (0, 1), "an one-hot list should have one or zero class."
+    return cls[:1], num_classes
 
 
 def list_step_slice(lst: list, step: int = 1):
