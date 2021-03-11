@@ -2,7 +2,7 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = [
     'check_dir', 'to_list', 'to_value', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index',
-    'get_value_from_dicts', 'seconds_to_time', 'one_hot_list'
+    'get_value_from_dicts', 'seconds_to_time', 'decode_one_hot', 'decode_one_hot', 'list_step_slice'
 ]
 
 import os
@@ -144,3 +144,18 @@ def decode_one_hot(one_hot_list):
     cls = [i for i, c in enumerate(one_hot_list) if c == 1]
     assert len(cls) == 1, "an one-hot list should only have one class."
     return cls[0], num_classes
+
+
+def list_step_slice(lst: list, step: int = 1):
+    """slice list by step.
+
+    Args:
+        lst (list, tuple): lst to slice.
+        step (int, optional): step. Defaults to 1.
+
+    Yields:
+        [list]: sub list.
+    """
+    assert isinstance(lst, (list, tuple))
+    for i in range(0, len(lst), 2):
+        yield lst[i:i + step]
