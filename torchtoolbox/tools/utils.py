@@ -130,5 +130,17 @@ def seconds_to_time(seconds: int):
     return h, m, s
 
 
-def one_hot_list(cls: int, num_classes: int):
+def encode_one_hot(cls: int, num_classes: int):
+    # encode to a one-hot list.
+    assert isinstance(cls, int) and isinstance(num_classes, int)
+    assert -1 <= cls < num_classes
     return [0 if cls != c else 1 for c in range(num_classes)]
+
+
+def decode_one_hot(one_hot_list):
+    # decode from a one-hot list.
+    assert isinstance(one_hot_list, (list, tuple))
+    num_classes = len(one_hot_list)
+    cls = [i for i, c in enumerate(one_hot_list) if c == 1]
+    assert len(cls) == 1, "an one-hot list should only have one class."
+    return cls[0], num_classes
