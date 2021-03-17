@@ -25,12 +25,10 @@ class Registry:
             Optional[object]: ori obj.
         """
         if obj is None:
-
             def deco(func_or_class: object) -> object:
                 name = func_or_class.__name__
                 self._do_register(name, func_or_class)
                 return func_or_class
-
             return deco
 
         name = obj.__name__
