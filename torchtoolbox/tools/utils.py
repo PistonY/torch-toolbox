@@ -2,7 +2,7 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = [
     'check_dir', 'to_list', 'to_value', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index',
-    'get_value_from_dicts', 'seconds_to_time', 'decode_one_hot', 'decode_one_hot', 'list_step_slice'
+    'get_value_from_dicts', 'seconds_to_time', 'decode_one_hot', 'decode_one_hot', 'list_step_slice', 'convert_module'
 ]
 
 import os
@@ -142,7 +142,8 @@ def decode_one_hot(one_hot_list):
     num_classes = len(one_hot_list)
     cls = [i for i, c in enumerate(one_hot_list) if c == 1]
     assert len(cls) in (0, 1), "an one-hot list should have one or zero class."
-    return cls[:1], num_classes
+    cls = -1 if len(cls) == 0 else cls[0]
+    return cls, num_classes
 
 
 def list_step_slice(lst: list, step: int = 1):
@@ -156,5 +157,13 @@ def list_step_slice(lst: list, step: int = 1):
         [list]: sub list.
     """
     assert isinstance(lst, (list, tuple))
-    for i in range(0, len(lst), 2):
+    for i in range(0, len(lst), step):
         yield lst[i:i + step]
+
+
+def convert_module(model, old_module, new_module, **kwargs):
+    for child_name, child in model.named_children():
+        if isinstance(child, old_module):
+            setattr(model, child_name, new_module(**kwargs))
+        else:
+            convert_module(child)

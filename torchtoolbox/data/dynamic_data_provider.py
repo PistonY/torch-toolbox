@@ -1,7 +1,7 @@
 __all__ = ['DynamicBatchSampler', 'DynamicSizeImageFolder', 'DistributedDynamicBatchSampler']
 import torch
 from torch import distributed
-from torch.utils.data import BatchSampler
+from torch.utils.data import BatchSampler, Dataset
 from torchvision.datasets import ImageFolder
 
 
@@ -101,3 +101,24 @@ class DynamicSizeImageFolder(ImageFolder):
             target = self.target_transform(target)
 
         return sample, target
+
+
+class DynamicSubset(Dataset):
+    r"""
+    Subset of a dynamic dataset at specified indices.
+
+    Arguments:
+        dataset (Dataset): The whole Dataset
+        indices (sequence): Indices in the whole set selected for subset
+    """
+    def __init__(self, dataset: Dataset, indices) -> None:
+        self.dataset = dataset
+        self.indices = indices
+
+    def __getitem__(self, index_info):
+        index, size = index_info
+        index = (self.indices[index], size)
+        return self.dataset[index]
+
+    def __len__(self):
+        return len(self.indices)
