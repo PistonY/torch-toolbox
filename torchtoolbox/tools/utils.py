@@ -2,7 +2,7 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = [
     'check_dir', 'to_list', 'to_value', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index',
-    'get_value_from_dicts', 'seconds_to_time', 'decode_one_hot', 'decode_one_hot', 'list_step_slice', 'convert_module'
+    'get_value_from_dicts', 'seconds_to_time', 'encode_one_hot', 'decode_one_hot', 'list_step_slice', 'convert_module'
 ]
 
 import os
@@ -167,3 +167,7 @@ def convert_module(model, old_module, new_module, **kwargs):
             setattr(model, child_name, new_module(**kwargs))
         else:
             convert_module(child)
+
+
+def remove_module_from_checkpoint(cp_dict):
+    return {k.replace('module.', ''): v for k, v in cp_dict.items()}
