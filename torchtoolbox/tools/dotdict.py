@@ -37,3 +37,8 @@ class DotDict(dict):
             dump_str += f"{k}={v}; "
         dump_str = dump_str[:-2] + ")"
         return dump_str
+
+    def pop(self, key):
+        value = self.get(key)
+        self.__delitem__(key)
+        return value
