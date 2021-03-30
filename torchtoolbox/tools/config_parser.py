@@ -9,7 +9,8 @@ def parse_config(config_file: str):
     with open(config_file, 'r') as f:
         cfg = yaml.load(f, Loader=yaml.SafeLoader)
     cfg = DotDict(cfg)
-    return circulate_parse(cfg, config_file.parent)
+    circulate_parse(cfg, config_file.parent)
+    return cfg
 
 
 def circulate_parse(parse_dict, base_path: pathlib.Path, parse_target='yaml'):
@@ -26,4 +27,3 @@ def circulate_parse(parse_dict, base_path: pathlib.Path, parse_target='yaml'):
                 parse_dict[key] = config
         elif isinstance(value, (dict, DotDict)):
             circulate_parse(value, base_path)
-    return parse_dict

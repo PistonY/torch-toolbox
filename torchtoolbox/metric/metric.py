@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 # Author: pistonyang@gmail.com
 
-__all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost', 'DistributedCollector']
+__all__ = ['Accuracy', 'TopKAccuracy', 'NumericalCost']
 
-from ..tools import to_numpy, reduce_tensor
-
-from torch import distributed
-from torch.utils.tensorboard import SummaryWriter
-import torch
 import numpy as np
+import torch
+from torch.utils.tensorboard import SummaryWriter
+
+from ..tools import to_numpy
 
 
 class Metric(object):
@@ -48,15 +47,6 @@ class Metric(object):
 
         """
         raise NotImplementedError
-
-    # This is used for common, but may not suit for all.
-    # Default write_tb func.
-    def write_tb(self, record_tb=True, name=None, iteration=None):
-        if self._writer is not None and record_tb:
-            name = name if name is not None else self.name
-            iteration = iteration if iteration is not None else self._iteration
-            self._writer.add_scalar(name, self.get(), iteration)
-            self._iteration += 1
 
 
 class Accuracy(Metric):
@@ -221,96 +211,96 @@ class NumericalCost(Metric):
         return ret.item()
 
 
-class DistributedCollector(Metric):
-    """Collect Distribute tensors cross ranks.
+# class DistributedCollector(Metric):
+#     """Collect Distribute tensors cross ranks.
 
-    Args:
-        rank: loc rank.
-        dst: main worker.
-        record_type: how to a calculate this,
-                   only 'SUM', 'PRODUCT', 'MAX', 'MIN', 'BAND', 'BOR', 'BXOR' supported.
-        dis_coll_type:
-        post_process: process after reduce.
-        name: collector name.
-        writer: TenorBoard writer.
+#     Args:
+#         rank: loc rank.
+#         dst: main worker.
+#         record_type: how to a calculate this,
+#                    only 'SUM', 'PRODUCT', 'MAX', 'MIN', 'BAND', 'BOR', 'BXOR' supported.
+#         dis_coll_type:
+#         post_process: process after reduce.
+#         name: collector name.
+#         writer: TenorBoard writer.
 
-    Attributes:
+#     Attributes:
 
-    """
-    def __init__(self,
-                 rank=None,
-                 dst=None,
-                 record_type='sum',
-                 dis_coll_type='reduce',
-                 post_process=None,
-                 name=None,
-                 writer=None):
+#     """
+#     def __init__(self,
+#                  rank=None,
+#                  dst=None,
+#                  record_type='sum',
+#                  dis_coll_type='reduce',
+#                  post_process=None,
+#                  name=None,
+#                  writer=None):
 
-        super(DistributedCollector, self).__init__(name, writer)
-        record_type = record_type.lower()
-        assert record_type in ('sum', 'product', 'min', 'max', 'band', 'bor', 'bxor')
-        assert dis_coll_type in ('reduce', 'all_reduce')
-        if dis_coll_type == 'reduce' or writer is not None:
-            assert dst is not None, 'please select dst device to reduce if use reduce OP.' \
-                                    'please select dst device to write tensorboard if use tensorboard.'
+#         super(DistributedCollector, self).__init__(name, writer)
+#         record_type = record_type.lower()
+#         assert record_type in ('sum', 'product', 'min', 'max', 'band', 'bor', 'bxor')
+#         assert dis_coll_type in ('reduce', 'all_reduce')
+#         if dis_coll_type == 'reduce' or writer is not None:
+#             assert dst is not None, 'please select dst device to reduce if use reduce OP.' \
+#                                     'please select dst device to write tensorboard if use tensorboard.'
 
-        if rank is None:
-            rank = distributed.get_rank()
-        type_encode = {
-            'sum': distributed.ReduceOp.SUM,
-            'product': distributed.ReduceOp.PRODUCT,
-            'max': distributed.ReduceOp.MAX,
-            'min': distributed.ReduceOp.MIN,
-            'band': distributed.ReduceOp.BAND,
-            'bor': distributed.ReduceOp.BOR,
-            'bxor': distributed.ReduceOp.BXOR
-        }
+#         if rank is None:
+#             rank = distributed.get_rank()
+#         type_encode = {
+#             'sum': distributed.ReduceOp.SUM,
+#             'product': distributed.ReduceOp.PRODUCT,
+#             'max': distributed.ReduceOp.MAX,
+#             'min': distributed.ReduceOp.MIN,
+#             'band': distributed.ReduceOp.BAND,
+#             'bor': distributed.ReduceOp.BOR,
+#             'bxor': distributed.ReduceOp.BXOR
+#         }
 
-        self.dst = dst
-        self.rank = rank
-        self.device = torch.device(rank)
-        self.dct = dis_coll_type
-        self.record_type = record_type
-        self.post_process = post_process
-        self.dist_op = type_encode[record_type]
+#         self.dst = dst
+#         self.rank = rank
+#         self.device = torch.device(rank)
+#         self.dct = dis_coll_type
+#         self.record_type = record_type
+#         self.post_process = post_process
+#         self.dist_op = type_encode[record_type]
 
-        self.last_rlt = 0.
+#         self.last_rlt = 0.
 
-    def reset(self):
-        self.last_rlt = 0.
+#     def reset(self):
+#         self.last_rlt = 0.
 
-    @torch.no_grad()
-    def update(self, item, record_tb=False):
-        """
+#     @torch.no_grad()
+#     def update(self, item, record_tb=False):
+#         """
 
-        Args:
-            item: could be a Python scalar, Numpy ndarray, Pytorch tensor.
-            record_tb: stop write to tensorboard in this time.
+#         Args:
+#             item: could be a Python scalar, Numpy ndarray, Pytorch tensor.
+#             record_tb: stop write to tensorboard in this time.
 
-        Returns:
-            Reduced result. If dis_coll_type=='reduce' only main rank will do post_process.
-        """
-        item = reduce_tensor(item, self.rank, self.dist_op, self.dst, self.dct)
+#         Returns:
+#             Reduced result. If dis_coll_type=='reduce' only main rank will do post_process.
+#         """
+#         item = reduce_tensor(item, self.rank, self.dist_op, self.dst, self.dct)
 
-        if self.post_process is not None:
-            if self.dct == 'all_reduce':
-                item = self.post_process(item)
-            elif self.rank == self.dst:
-                item = self.post_process(item)
+#         if self.post_process is not None:
+#             if self.dct == 'all_reduce':
+#                 item = self.post_process(item)
+#             elif self.rank == self.dst:
+#                 item = self.post_process(item)
 
-        self.last_rlt = item
+#         self.last_rlt = item
 
-        if self._writer is not None and self.rank == self.dst:
-            if not isinstance(self.last_rlt, (int, float)):
-                try:
-                    self.last_rlt = self.last_rlt.item()
-                except Exception as e:
-                    print("If you want to write to tensorboard, "
-                          "you need to convert to a scalar in post_process "
-                          "when target tensor is not a pytorch tensor. "
-                          "Got error {}".format(e))
+#         if self._writer is not None and self.rank == self.dst:
+#             if not isinstance(self.last_rlt, (int, float)):
+#                 try:
+#                     self.last_rlt = self.last_rlt.item()
+#                 except Exception as e:
+#                     print("If you want to write to tensorboard, "
+#                           "you need to convert to a scalar in post_process "
+#                           "when target tensor is not a pytorch tensor. "
+#                           "Got error {}".format(e))
 
-            self.write_tb(record_tb)
+#             self.write_tb(record_tb)
 
-    def get(self):
-        return self.last_rlt
+#     def get(self):
+#         return self.last_rlt
