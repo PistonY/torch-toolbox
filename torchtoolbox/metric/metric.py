@@ -85,7 +85,6 @@ class Accuracy(Metric):
         lbs = to_numpy(labels.view(-1)).astype('int32')
         self.num_metric += int((pred == lbs).sum())
         self.num_inst += len(lbs)
-        self.write_tb(record_tb)
 
     def get(self):
         """Get accuracy recorded.
@@ -143,7 +142,6 @@ class TopKAccuracy(Metric):
         for l, p in zip(labels, preds):
             self.num_metric += 1 if l in p else 0
             self.num_inst += 1
-        self.write_tb(record_tb)
 
     def get(self):
         """Get top k accuracy recorded.
@@ -190,7 +188,6 @@ class NumericalCost(Metric):
                 will not update tensorboard when this set to true.
         """
         self.coll.append(to_numpy(cost))
-        self.write_tb(record_tb)
 
     def get(self):
         """Get top cost recorded.
