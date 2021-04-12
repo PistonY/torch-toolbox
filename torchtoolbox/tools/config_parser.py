@@ -13,17 +13,31 @@ def parse_config(config_file: str):
     return cfg
 
 
+def merge_dict(target_dict: dict, sub_dict: dict, key: str, replace=False):
+    """merge sub dict to target dict.
+
+    Now special key is only `__base__`, this can be added if needed.
+
+    Args:
+        target_dict (dict): target to merge
+        sub_dict (dict): merge this to target
+        key (str): key word
+        replace (bool, optional): Whether replace if target sub key is not None. Defaults to False.
+    """
+    if key == '__base__':
+        for sub_key, sub_value in sub_dict.items():
+            if target_dict[sub_key] is None or replace:
+                target_dict[sub_key] = sub_value
+        target_dict.pop(key)
+    else:
+        target_dict[key] = sub_dict
+
+
 def circulate_parse(parse_dict, base_path: pathlib.Path, parse_target='yaml'):
     for key, value in parse_dict.copy().items():
         if isinstance(value, str) and value.endswith(f".{parse_target}"):
             sub_config_path = base_path.joinpath(value)
             config = parse_config(sub_config_path)
-            if key == '__base__':
-                # merge dict
-                for sub_key, sub_value in config.items():
-                    parse_dict[sub_key] = sub_value
-                parse_dict.pop(key)
-            else:
-                parse_dict[key] = config
+            merge_dict(parse_dict, config, key)
         elif isinstance(value, (dict, DotDict)):
             circulate_parse(value, base_path)
