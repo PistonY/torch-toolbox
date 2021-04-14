@@ -26,9 +26,10 @@ def merge_dict(target_dict: dict, sub_dict: dict, key: str, replace=False):
     """
     if key == '__base__':
         for sub_key, sub_value in sub_dict.items():
-            if target_dict[sub_key] is None or replace:
+            if sub_key not in target_dict.keys() or replace:
                 target_dict[sub_key] = sub_value
         target_dict.pop(key)
+
     else:
         target_dict[key] = sub_dict
 
@@ -36,7 +37,7 @@ def merge_dict(target_dict: dict, sub_dict: dict, key: str, replace=False):
 def circulate_parse(parse_dict, base_path: pathlib.Path, parse_target='yaml'):
     for key, value in parse_dict.copy().items():
         if isinstance(value, str) and value.endswith(f".{parse_target}"):
-            sub_config_path = base_path.joinpath(value)
+            sub_config_path = base_path.joinpath(value).resolve()
             config = parse_config(sub_config_path)
             merge_dict(parse_dict, config, key)
         elif isinstance(value, (dict, DotDict)):
