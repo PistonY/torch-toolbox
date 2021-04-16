@@ -5,6 +5,8 @@ __all__ = [
     'get_value_from_dicts', 'seconds_to_time', 'encode_one_hot', 'decode_one_hot', 'list_step_slice', 'convert_module'
 ]
 
+import hashlib
+import json
 import os
 from typing import List, Tuple, Union
 
@@ -171,3 +173,18 @@ def convert_module(model, old_module, new_module, **kwargs):
 
 def remove_module_from_checkpoint(cp_dict):
     return {k.replace('module.', ''): v for k, v in cp_dict.items()}
+
+
+def get_md5(obj, trans_func=None):
+    """get a object md5, if this obj is not supported by `json.dumps` please provide a trains_func.
+
+    Args:
+        obj (object): obj to get md5
+        trans_func (function, optional): use this to trans obj to str. Defaults to None.
+    """
+    if trans_func is None:
+        trans_func = json.dumps
+    obj_str = trans_func(obj)
+    hl = hashlib.md5()
+    hl.update(obj_str.encode(encoding='utf-8'))
+    return hl.hexdigest()
