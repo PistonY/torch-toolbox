@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['SwitchNorm2d', 'SwitchNorm3d', 'EvoNormB0', 'EvoNormS0', 'DropBlock2d']
+__all__ = ['SwitchNorm2d', 'SwitchNorm3d', 'EvoNormB0', 'EvoNormS0', 'DropBlock2d', 'DropPath']
 
 import torch
 from torch import nn
@@ -137,5 +137,35 @@ class DropBlock2d(nn.Module):
         return mask
 
     def get_gamma(self, h, w):
-        return self.p * (h * w) / (self.block_size ** 2) / \
-               ((w - self.block_size + 1) * (h * self.block_size + 1))
+        return self.p * (h * w) / (self.block_size**2) / ((w - self.block_size + 1) * (h * self.block_size + 1))
+
+
+class DropPath(nn.Module):
+    """DropPath method.
+
+    Args:
+        ndim ([type]): input feature dim, don't forget batch.
+        drop_rate ([type], optional): drop path rate. Defaults to 0..
+        batch_axis (int, optional): batch dim axis. Defaults to 0.
+    """
+    def __init__(self, drop_rate=0., batch_axis=0):
+        super().__init__()
+        self.drop_rate = drop_rate
+        self.batch_axis = batch_axis
+
+    @torch.no_grad()
+    def get_param(self, x):
+        keep_prob = 1 - self.drop_rate
+        shape = [
+            1,
+        ] * x.ndim
+        shape[self.batch_axis] *= x.size(self.batch_axis)
+        random_tensor = keep_prob + torch.rand(shape, dtype=x.dtype, device=x.device)
+        random_tensor.floor_()
+        return keep_prob, random_tensor
+
+    def forward(self, x):
+        keep_prob, random_tensor = self.get_param(x)
+        if self.drop_rate == 0 or not self.training:
+            return x
+        return x.div(keep_prob) * random_tensor

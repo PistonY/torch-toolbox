@@ -2,7 +2,8 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = [
     'check_dir', 'to_list', 'to_value', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index',
-    'get_value_from_dicts', 'seconds_to_time', 'encode_one_hot', 'decode_one_hot', 'list_step_slice', 'convert_module'
+    'get_value_from_dicts', 'seconds_to_time', 'encode_one_hot', 'decode_one_hot', 'list_step_slice', 'convert_module',
+    'check_twin'
 ]
 
 import hashlib
@@ -29,6 +30,14 @@ def to_value(container: Union[List, Tuple], check_same=False):
         return container[0]
     else:
         return container
+
+
+def check_twin(value, length=2):
+    if not isinstance(value, (list, tuple)):
+        return [value, value]
+    else:
+        assert len(value) == length, f'length of {value} should be {length} but {len(value)}'
+        return value
 
 
 def check_dir(*path):

@@ -21,8 +21,8 @@ class Swish(nn.Module):
 
     def forward(self, x):
         return swish(x, self.beta)
-    
-    
+
+
 class Mish(nn.Module):
     """Mish activation from 'Mish: A Self Regularized Non-Monotonic Activation Function'
         https://www.bmvc2020-conference.com/assets/papers/0928.pdf
@@ -31,7 +31,6 @@ class Mish(nn.Module):
         d_mish = delta(x)swish(x, beta=1) + mish(x)/x
 
     """
-
     def __init__(self):
         super(Mish, self).__init__()
 
@@ -71,7 +70,8 @@ class Activation(nn.Module):
             self.act = nn.Hardsigmoid(inplace=True) if auto_optimize \
                 else nn.Hardsigmoid(**kwargs)
         elif act_type == 'swish':
-            self.act = Swish(**kwargs)
+            self.act = nn.SiLU(inplace=True) if auto_optimize \
+                else nn.SiLU(**kwargs)
         elif act_type == 'mish':
             self.act = Mish()
         elif act_type == 'sigmoid':
