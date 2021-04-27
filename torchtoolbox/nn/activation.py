@@ -38,24 +38,6 @@ class Mish(nn.Module):
         return mish(x)
 
 
-# class HardSwish(nn.Module):
-#     def __init__(self, inplace=False):
-#         super(HardSwish, self).__init__()
-#         self.inplace = inplace
-#
-#     def forward(self, x):
-#         return x * F.relu6(x + 3., inplace=self.inplace) / 6.
-#
-#
-# class HardSigmoid(nn.Module):
-#     def __init__(self, inplace=False):
-#         super(HardSigmoid, self).__init__()
-#         self.inplace = inplace
-#
-#     def forward(self, x):
-#         return F.relu6(x + 3., inplace=self.inplace) / 6.
-
-
 class Activation(nn.Module):
     def __init__(self, act_type, auto_optimize=True, **kwargs):
         super(Activation, self).__init__()
@@ -64,21 +46,21 @@ class Activation(nn.Module):
         elif act_type == 'relu6':
             self.act = nn.ReLU6(inplace=True) if auto_optimize else nn.ReLU6(**kwargs)
         elif act_type == 'h_swish':
-            self.act = nn.Hardswish(inplace=True) if auto_optimize \
-                else nn.Hardswish(**kwargs)
+            self.act = nn.Hardswish(inplace=True) if auto_optimize else nn.Hardswish(**kwargs)
         elif act_type == 'h_sigmoid':
-            self.act = nn.Hardsigmoid(inplace=True) if auto_optimize \
-                else nn.Hardsigmoid(**kwargs)
+            self.act = nn.Hardsigmoid(inplace=True) if auto_optimize else nn.Hardsigmoid(**kwargs)
         elif act_type == 'swish':
-            self.act = nn.SiLU(inplace=True) if auto_optimize \
-                else nn.SiLU(**kwargs)
+            self.act = nn.SiLU(inplace=True) if auto_optimize else nn.SiLU(**kwargs)
+        elif act_type == 'gelu':
+            self.act = nn.GELU()
+        elif act_type == 'elu':
+            self.act = nn.ELU(inplace=True, **kwargs) if auto_optimize else nn.ELU(**kwargs)
         elif act_type == 'mish':
             self.act = Mish()
         elif act_type == 'sigmoid':
             self.act = nn.Sigmoid()
         elif act_type == 'lrelu':
-            self.act = nn.LeakyReLU(inplace=True, **kwargs) if auto_optimize \
-                else nn.LeakyReLU(**kwargs)
+            self.act = nn.LeakyReLU(inplace=True, **kwargs) if auto_optimize else nn.LeakyReLU(**kwargs)
         elif act_type == 'prelu':
             self.act = nn.PReLU(**kwargs)
         else:
