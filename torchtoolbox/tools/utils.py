@@ -197,4 +197,3 @@ def get_md5(obj, trans_func=None):
     hl = hashlib.md5()
     hl.update(obj_str.encode(encoding='utf-8'))
     return hl.hexdigest()
-

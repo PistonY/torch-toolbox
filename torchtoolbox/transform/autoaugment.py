@@ -307,9 +307,10 @@ SVHNPolicy = RandomChoice([
 
 
 class RandAugment(object):
-    def __init__(self, n, m):
+    def __init__(self, n, m, p=1.0):
         self.n = n
         self.m = m
+        self.p = p
 
         self.augment_list = [
             (Identity(1), 0, 1),
@@ -332,8 +333,9 @@ class RandAugment(object):
         ]
 
     def __call__(self, img):
-        ops = random.choices(self.augment_list, k=self.n)
-        for op, minval, maxval in ops:
-            val = trans_value(maxval, minval, self.m)
-            img = op(img, val)
+        if self.p > random.random():
+            ops = random.choices(self.augment_list, k=self.n)
+            for op, minval, maxval in ops:
+                val = trans_value(maxval, minval, self.m)
+                img = op(img, val)
         return img
