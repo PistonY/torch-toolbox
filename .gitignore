@@ -219,5 +219,4 @@ gen
 .nfs*
 
 .vscode/
-torchtoolbox/data/sampler.py
 dirty_code/*
