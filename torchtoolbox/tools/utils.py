@@ -34,7 +34,7 @@ def to_value(container: Union[List, Tuple], check_same=False):
 
 def check_twin(value, length=2):
     if not isinstance(value, (list, tuple)):
-        return [value, value]
+        return [value for _ in range(length)]
     else:
         assert len(value) == length, f'length of {value} should be {length} but {len(value)}'
         return value
@@ -197,3 +197,4 @@ def get_md5(obj, trans_func=None):
     hl = hashlib.md5()
     hl.update(obj_str.encode(encoding='utf-8'))
     return hl.hexdigest()
+
