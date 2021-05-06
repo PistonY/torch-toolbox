@@ -1,3 +1,5 @@
+__all__ = ['RepeatedAugmentSampler']
+
 import math
 
 import torch
