@@ -2,9 +2,10 @@
 # @Author  : DevinYang(pistonyang@gmail.com)
 __all__ = ['Activation', 'Swish', 'Mish']
 
-from .functional import swish, mish
+import torch
 from torch import nn
-from torch.nn import functional as F
+
+from .functional import mish, swish
 
 
 class Swish(nn.Module):
@@ -38,6 +39,13 @@ class Mish(nn.Module):
         return mish(x)
 
 
+class QuickGELU(nn.Module):
+    """QuickGELU refers to OpenAI-CLIP
+    """
+    def forward(self, x):
+        return x * torch.sigmoid(1.702 * x)
+
+
 class Activation(nn.Module):
     def __init__(self, act_type, auto_optimize=True, **kwargs):
         super(Activation, self).__init__()
@@ -53,6 +61,8 @@ class Activation(nn.Module):
             self.act = nn.SiLU(inplace=True) if auto_optimize else nn.SiLU(**kwargs)
         elif act_type == 'gelu':
             self.act = nn.GELU()
+        elif act_type == 'quick_gelu':
+            self.act = QuickGELU()
         elif act_type == 'elu':
             self.act = nn.ELU(inplace=True, **kwargs) if auto_optimize else nn.ELU(**kwargs)
         elif act_type == 'mish':
