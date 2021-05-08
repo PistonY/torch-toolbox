@@ -59,11 +59,11 @@ class PositionEncoding(nn.Module):
 class FeedForward(nn.Module):
     def __init__(self, dim, hidden_dim, activation='gelu', dropout=0.):
         super().__init__()
+        # do not add last dropout, if need add after this.
         self.ffn = nn.Sequential(nn.Linear(dim, hidden_dim),
                                  Activation(activation),
                                  nn.Dropout(dropout),
-                                 nn.Linear(hidden_dim, dim),
-                                 nn.Dropout(dropout))  # yapf:disable
+                                 nn.Linear(hidden_dim, dim))  # yapf:disable
 
     def forward(self, x):
         return self.ffn(x)

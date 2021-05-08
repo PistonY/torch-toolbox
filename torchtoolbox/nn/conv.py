@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
 
+__all__ = ['DeformConv2d']
+
 import torch
 from torch import nn
 
