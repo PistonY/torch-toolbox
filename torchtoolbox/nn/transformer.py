@@ -37,6 +37,8 @@ class PatchEmbedding(nn.Module):
 class PositionEncoding(nn.Module):
     def __init__(self, sequence_length, dim, dropout=0., learnable=False, batch_axis=0):
         super().__init__()
+        self.learnable = learnable
+
         if not learnable:
             pe = torch.zeros(sequence_length, dim)
             position = torch.arange(0, sequence_length).unsqueeze(1)
@@ -54,6 +56,16 @@ class PositionEncoding(nn.Module):
     def forward(self, x):
         x = self.dropout(x + self.pe)
         return x
+
+    def no_wd(self, decay: list, no_decay: list):
+        if self.learnable:
+            no_decay.append(self.pe)
+
+    def num_param(self):
+        if self.learnable:
+            return self.pe.numel(), 0
+        else:
+            return 0, 0
 
 
 class FeedForward(nn.Module):

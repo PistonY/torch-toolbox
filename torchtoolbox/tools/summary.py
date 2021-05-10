@@ -29,6 +29,39 @@ def _cac_grad_params(p, w):
     return t, n
 
 
+def _cac_msa(layer, input, output):
+    sl, b, dim = input.size()
+    assert b == 1, 'Only support batch size of 1.'
+    tb_params = 0
+    ntb__params = 0
+    flops = 0
+
+    if layer._qkv_same_embed_dim is False:
+        tb_params += layer.q_proj_weight.numel()
+        tb_params += layer.k_proj_weight.numel()
+        tb_params += layer.v_proj_weight.numel()
+    else:
+        tb_params += layer.in_proj_weight.numel()
+
+    if layer.bias:
+        tb_params += layer.in_proj_bias.numel()
+
+    tb_params += layer.embed_dim**2
+
+    # flops of this layer if fixed.
+    # first get KQV
+    flops += sl * dim * 3 * (2 * dim - 1)
+    if layer.bias:
+        flops += dim * 3
+    # then cac sa
+    num_heads = layer.num_heads
+    head_dim = layer.head_dim
+    flops += (num_heads * sl * sl * (2 * head_dim - 1) + num_heads * sl * head_dim * (2 * sl - 1))
+    # last linear
+    flops += sl * dim * (2 * dim - 1) + dim
+    return tb_params, ntb__params, flops
+
+
 def _cac_conv(layer, input, output):
     # bs, ic, ih, iw = input[0].shape
     oh, ow = output.shape[-2:]
@@ -86,19 +119,46 @@ def _cac_linear(layer, input, output):
     tb_params = 0
     ntb__params = 0
     flops = 0
-    if hasattr(layer, 'weight') and hasattr(layer.weight, 'shape'):
-        params = np.prod(layer.weight.shape)
-        t, n = _cac_grad_params(params, layer.weight)
-        tb_params += t
-        ntb__params += n
-        flops += (2 * ic - 1) * oc
-    if hasattr(layer, 'bias') and hasattr(layer.bias, 'shape'):
-        params = np.prod(layer.bias.shape)
-        t, n = _cac_grad_params(params, layer.bias)
-        tb_params += t
-        ntb__params += n
-        flops += oc
-    return tb_params, ntb__params, flops
+
+    in_len = len(input.size())
+    if in_len == 2:
+        if hasattr(layer, 'weight') and hasattr(layer.weight, 'shape'):
+            params = np.prod(layer.weight.shape)
+            t, n = _cac_grad_params(params, layer.weight)
+            tb_params += t
+            ntb__params += n
+            flops += (2 * ic - 1) * oc
+        if hasattr(layer, 'bias') and hasattr(layer.bias, 'shape'):
+            params = np.prod(layer.bias.shape)
+            t, n = _cac_grad_params(params, layer.bias)
+            tb_params += t
+            ntb__params += n
+            flops += oc
+        return tb_params, ntb__params, flops
+    elif in_len == 3:
+        if input.size(0) == 1:
+            sl, dim = input.shape[1:]
+        elif input.size(1) == 1:
+            sl, _, dim = input.shape
+        else:
+            raise ValueError('Only support batch size of 1.')
+
+        if hasattr(layer, 'weight') and hasattr(layer.weight, 'shape'):
+            params = np.prod(layer.weight.shape)
+            t, n = _cac_grad_params(params, layer.weight)
+            tb_params += t
+            ntb__params += n
+            flops += sl * (2 * ic - 1) * oc
+        if hasattr(layer, 'bias') and hasattr(layer.bias, 'shape'):
+            params = np.prod(layer.bias.shape)
+            t, n = _cac_grad_params(params, layer.bias)
+            tb_params += t
+            ntb__params += n
+            flops += oc
+        return tb_params, ntb__params, flops
+
+    else:
+        raise NotImplementedError
 
 
 @torch.no_grad()
@@ -137,7 +197,8 @@ def summary(model, x, return_results=False, extra_conv=(), extra_norm=(), extra_
                 tb_params, ntb__params, flops = _cac_xx_norm(layer, input, output)
             elif isinstance(layer, (nn.Linear, *extra_linear)):
                 tb_params, ntb__params, flops = _cac_linear(layer, input, output)
-
+            elif isinstance(layer, nn.MultiheadAttention):
+                tb_params, ntb__params, flops = _cac_msa(layer, input, output)
             model_summary[s_key]['trainable_params'] = tb_params
             model_summary[s_key]['non_trainable_params'] = ntb__params
             model_summary[s_key]['params'] = tb_params + ntb__params

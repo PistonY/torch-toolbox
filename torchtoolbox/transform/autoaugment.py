@@ -31,11 +31,6 @@ class SubPolicy(object):
         return img
 
 
-class Cutout(SubPolicy):
-    def __init__(self, p, magnitude=None):
-        super(Cutout, self).__init__(p, magnitude)
-
-
 class ShearX(SubPolicy):
     def __init__(self, p, magnitude=None, fillcolor=(128, 128, 128)):
         ranges = np.linspace(0, 0.3, 10)
@@ -302,7 +297,6 @@ class RandAugment(object):
             (ShearY(1), 0., 0.3),
             (TranslateX(1), 0., 0.33),
             (TranslateY(1), 0., 0.33),
-            # (CutoutOp, 0, 40),
             # (SolarizeAdd(1, m, True), 0, 110)
         ]
 

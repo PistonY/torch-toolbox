@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 # @Author：X.Yang(xuyang@deepmotion.ai)
 
-__all__ = ['TBModule', 'ChannelShuffle', 'ChannelCircularShift']
+__all__ = ['ChannelShuffle', 'ChannelCircularShift']
 from . import functional as F
 from torch import nn
 
@@ -34,7 +34,7 @@ class TBModule:
         """This is interface call by 'tools.summary'
 
         Returns:
-            [int]: module num params.
+            [int, int]: module num params.(learnable, not learnable)
         """
         raise NotImplementedError
 
