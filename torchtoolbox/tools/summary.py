@@ -200,6 +200,15 @@ def summary(model, x, return_results=False, extra_conv=(), extra_norm=(), extra_
                 tb_params, ntb__params, flops = _cac_linear(layer, input, output)
             elif isinstance(layer, nn.MultiheadAttention):
                 tb_params, ntb__params, flops = _cac_msa(layer, input, output)
+
+            if callable(getattr(layer, 'num_param')):
+                assert tb_params == 0 and ntb__params == 0, 'params has been calculated by default func.'
+                tb_params, ntb__params = layer.num_param(input, output)
+
+            if callable(getattr(layer, 'flops')):
+                assert flops == 0, 'flops has been calculated by default func.'
+                flops = layer.flops(input, output)
+
             model_summary[s_key]['trainable_params'] = tb_params
             model_summary[s_key]['non_trainable_params'] = ntb__params
             model_summary[s_key]['params'] = tb_params + ntb__params

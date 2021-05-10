@@ -30,7 +30,7 @@ class TBModule:
         """
         raise NotImplementedError
 
-    def num_param(self):
+    def num_param(self, input, output):
         """This is interface call by 'tools.summary'
 
         Returns:
@@ -38,7 +38,7 @@ class TBModule:
         """
         raise NotImplementedError
 
-    def flops(self):
+    def flops(self, input, output):
         """This is a interface call by 'tools.summary'
 
         Returns:
