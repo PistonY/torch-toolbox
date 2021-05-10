@@ -30,7 +30,7 @@ def _cac_grad_params(p, w):
 
 
 def _cac_msa(layer, input, output):
-    sl, b, dim = input.size()
+    sl, b, dim = output[0].size()
     assert b == 1, 'Only support batch size of 1.'
     tb_params = 0
     ntb__params = 0
@@ -43,7 +43,7 @@ def _cac_msa(layer, input, output):
     else:
         tb_params += layer.in_proj_weight.numel()
 
-    if layer.bias:
+    if hasattr(layer, 'in_proj_bias'):
         tb_params += layer.in_proj_bias.numel()
 
     tb_params += layer.embed_dim**2
@@ -51,7 +51,7 @@ def _cac_msa(layer, input, output):
     # flops of this layer if fixed.
     # first get KQV
     flops += sl * dim * 3 * (2 * dim - 1)
-    if layer.bias:
+    if hasattr(layer, 'in_proj_bias'):
         flops += dim * 3
     # then cac sa
     num_heads = layer.num_heads
@@ -120,6 +120,7 @@ def _cac_linear(layer, input, output):
     ntb__params = 0
     flops = 0
 
+    input = input[0]
     in_len = len(input.size())
     if in_len == 2:
         if hasattr(layer, 'weight') and hasattr(layer.weight, 'shape'):
