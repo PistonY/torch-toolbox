@@ -201,11 +201,11 @@ def summary(model, x, return_results=False, extra_conv=(), extra_norm=(), extra_
             elif isinstance(layer, nn.MultiheadAttention):
                 tb_params, ntb__params, flops = _cac_msa(layer, input, output)
 
-            if callable(getattr(layer, 'num_param')):
+            if hasattr(layer, 'num_param') and callable(getattr(layer, 'num_param')):
                 assert tb_params == 0 and ntb__params == 0, 'params has been calculated by default func.'
                 tb_params, ntb__params = layer.num_param(input, output)
 
-            if callable(getattr(layer, 'flops')):
+            if hasattr(layer, 'flops') and callable(getattr(layer, 'flops')):
                 assert flops == 0, 'flops has been calculated by default func.'
                 flops = layer.flops(input, output)
 
