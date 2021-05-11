@@ -92,6 +92,9 @@ class Token(nn.Module):
             x = torch.cat([token, x], dim=0)
         return x
 
+    def no_wd(self, decay: list, no_decay: list):
+        no_decay.append(self.token)
+
 
 class FeedForward(nn.Module):
     def __init__(self, dim, hidden_dim, activation='gelu', dropout=0.):
