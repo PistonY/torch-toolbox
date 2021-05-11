@@ -32,7 +32,15 @@ class CosineWarmupLr(object):
         warmup_iters (int): number of iterations of all warmup epochs.
 
     """
-    def __init__(self, optimizer, batches, epochs, base_lr, target_lr=0, warmup_epochs=0, warmup_lr=0, last_iter=-1):
+    def __init__(self,
+                 optimizer,
+                 batches: int,
+                 epochs: int,
+                 base_lr: float,
+                 target_lr: float = 0,
+                 warmup_epochs: int = 0,
+                 warmup_lr: float = 0,
+                 last_iter: int = -1):
         if not isinstance(optimizer, Optimizer):
             raise TypeError('{} is not an Optimizer'.format(type(optimizer).__name__))
         self.optimizer = optimizer

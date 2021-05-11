@@ -1,4 +1,4 @@
-__all__ = ['PatchEmbedding', 'PositionEncoding', 'FeedForward']
+__all__ = ['PatchEmbedding', 'PositionEncoding', 'FeedForward', 'Token']
 
 import math
 
@@ -45,12 +45,12 @@ class PositionEncoding(nn.Module):
             div_term = torch.exp(torch.arange(0, dim, 2) * -(math.log(10000.) / dim))
             pe[:, 0::2] = torch.sin(position * div_term)
             pe[:, 1::2] = torch.cos(position * div_term)
+            pe.unsqueeze_(batch_axis)
             self.register_buffer('pe', pe)
         else:
-            self.pe = nn.Parameter(torch.Tensor(sequence_length, dim))
+            self.pe = nn.Parameter(torch.Tensor(sequence_length, dim).unsqueeze_(batch_axis))
             nn.init.normal_(self.pe, std=0.02)
 
-        self.pe.unsqueeze_(batch_axis)
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x):
@@ -61,11 +61,36 @@ class PositionEncoding(nn.Module):
         if self.learnable:
             no_decay.append(self.pe)
 
-    def num_param(self):
+    def num_param(self, input, output):
         if self.learnable:
             return self.pe.numel(), 0
         else:
             return 0, 0
+
+
+class Token(nn.Module):
+    def __init__(self, num, dim, token_order='first', in_order=('B', 'SL', 'D')):
+        super().__init__()
+        assert in_order in (('B', 'SL', 'D'), ('SL', 'B', 'D'))
+        assert token_order == 'first', "I think we don't need last order, just remember we will add token at first of other data on sl dim."
+        self.batch_first = True if in_order[0] == 'B' else False
+        self.token = nn.Parameter(torch.Tensor(num, dim))
+        self.num = num
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        nn.init.zeros_(self.token)
+
+    def forward(self, x):
+        if self.batch_first:
+            b, _, d = x.size()
+            token = self.token.expand(b, self.num, d)
+            x = torch.cat([token, x], dim=1)
+        else:
+            _, b, d = x.size()
+            token = self.token.expand(self.num, b, d)
+            x = torch.cat([token, x], dim=0)
+        return x
 
 
 class FeedForward(nn.Module):
