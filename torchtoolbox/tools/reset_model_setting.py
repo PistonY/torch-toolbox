@@ -28,7 +28,7 @@ def no_decay_bias(net, extra_conv=()):
         elif isinstance(m, nn.MultiheadAttention):
             decay.append(m.in_proj_weight)
             if m.in_proj_bias is not None:
-                no_decay(m.in_proj_bias)
+                no_decay.append(m.in_proj_bias)
         elif hasattr(m, 'no_wd') and callable(getattr(m, 'no_wd')):
             m.no_wd(decay, no_decay)
         else:
