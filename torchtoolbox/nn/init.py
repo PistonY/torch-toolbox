@@ -56,12 +56,17 @@ class XavierInitializer(Initializer):
     def __init__(self, random_type='uniform', gain=math.sqrt(2.0), **kwargs):
         super().__init__(**kwargs)
         assert random_type in ('uniform', 'normal')
+        self.random_type = random_type
         self.initializer = xavier_uniform_ if random_type == 'uniform' else xavier_normal_
         self.gain = gain
 
+    def initializer(self, tensor):
+        initializer = xavier_uniform_ if self.random_type == 'uniform' else xavier_normal_
+        initializer(tensor, gain=self.gain)
+
     def __call__(self, module):
         if self.is_conv(module):
-            self.initializer(module.weight.data, gain=self.gain)
+            self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()
 
@@ -69,23 +74,43 @@ class XavierInitializer(Initializer):
             self.init_norm(module)
 
         elif self.is_linear(module):
-            self.initializer(module.weight.data, gain=self.gain)
+            self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()
+
+        elif self.is_msa(module):
+            if module.q_proj_weight is not None:
+                self.initializer(module.q_proj_weight.data)
+            if module.k_proj_weight is not None:
+                self.initializer(module.k_proj_weight.data)
+            if module.v_proj_weight is not None:
+                self.initializer(module.v_proj_weight.data)
+            if module.in_proj_weight is not None:
+                self.initializer(module.in_proj_weight.data)
+            if module.in_proj_bias is not None:
+                module.in_proj_bias.data.zero_()
+            if module.bias_k is not None:
+                module.bias_k.data.zero_()
+            if module.bias_v is not None:
+                module.bias_v.data.zero_()
 
 
 class KaimingInitializer(Initializer):
     def __init__(self, slope=0, mode='fan_out', nonlinearity='relu', random_type='normal', **kwargs):
         super().__init__(**kwargs)
         assert random_type in ('uniform', 'normal')
+        self.random_type = random_type
         self.slope = slope
         self.mode = mode
         self.nonlinearity = nonlinearity
-        self.initializer = kaiming_uniform_ if random_type == 'uniform' else kaiming_normal_
+
+    def initializer(self, tensor):
+        initializer = kaiming_uniform_ if self.random_type == 'uniform' else kaiming_normal_
+        initializer(tensor, self.slope, self.mode, self.nonlinearity)
 
     def __call__(self, module):
         if self.is_conv(module):
-            self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
+            self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()
 
@@ -93,9 +118,25 @@ class KaimingInitializer(Initializer):
             self.init_norm(module)
 
         elif self.is_linear(module):
-            self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
+            self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()
+
+        elif self.is_msa(module):
+            if module.q_proj_weight is not None:
+                self.initializer(module.q_proj_weight.data)
+            if module.k_proj_weight is not None:
+                self.initializer(module.k_proj_weight.data)
+            if module.v_proj_weight is not None:
+                self.initializer(module.v_proj_weight.data)
+            if module.in_proj_weight is not None:
+                self.initializer(module.in_proj_weight.data)
+            if module.in_proj_bias is not None:
+                module.in_proj_bias.data.zero_()
+            if module.bias_k is not None:
+                module.bias_k.data.zero_()
+            if module.bias_v is not None:
+                module.bias_v.data.zero_()
 
 
 class MSRAPrelu(Initializer):
@@ -127,6 +168,22 @@ class MSRAPrelu(Initializer):
             self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()
+
+        elif self.is_msa(module):
+            if module.q_proj_weight is not None:
+                self.initializer(module.q_proj_weight.data)
+            if module.k_proj_weight is not None:
+                self.initializer(module.k_proj_weight.data)
+            if module.v_proj_weight is not None:
+                self.initializer(module.v_proj_weight.data)
+            if module.in_proj_weight is not None:
+                self.initializer(module.in_proj_weight.data)
+            if module.in_proj_bias is not None:
+                module.in_proj_bias.data.zero_()
+            if module.bias_k is not None:
+                module.bias_k.data.zero_()
+            if module.bias_v is not None:
+                module.bias_v.data.zero_()
 
 
 class TruncNormInitializer(Initializer):
