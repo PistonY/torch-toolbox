@@ -49,7 +49,7 @@ class PositionEncoding(nn.Module):
             self.register_buffer('pe', pe)
         else:
             self.pe = nn.Parameter(torch.Tensor(sequence_length, dim).unsqueeze_(batch_axis))
-            nn.init.normal_(self.pe, std=0.02)
+            nn.init.trunc_normal_(self.pe.data, std=0.02)
 
         self.dropout = nn.Dropout(dropout)
 
