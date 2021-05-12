@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['XavierInitializer', 'KaimingInitializer', 'MSRAPrelu', 'ZeroLastGamma']
+__all__ = ['XavierInitializer', 'KaimingInitializer', 'MSRAPrelu', 'TruncNormInitializer', 'ZeroLastGamma']
+
 import abc
 import math
 
