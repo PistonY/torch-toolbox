@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Author  : DevinYang(pistonyang@gmail.com)
+__all__ = ['XavierInitializer', 'KaimingInitializer', 'MSRAPrelu', 'ZeroLastGamma']
 import abc
 import math
 
@@ -24,6 +25,15 @@ class Initializer(abc.ABC):
 
     def is_linear(self, module):
         return isinstance(module, (nn.Linear, *self.extra_linear))
+
+    def is_msa(self, module):
+        return isinstance(module, nn.MultiheadAttention)
+
+    def init_norm(self, module):
+        if module.weight is not None:
+            module.weight.data.fill_(1)
+        if module.bias is not None:
+            module.bias.data.zero_()
 
     @abc.abstractmethod
     def __call__(self, module):
@@ -54,11 +64,10 @@ class XavierInitializer(Initializer):
             self.initializer(module.weight.data, gain=self.gain)
             if module.bias is not None:
                 module.bias.data.zero_()
+
         elif self.is_norm(module):
-            if module.weight is not None:
-                module.weight.data.fill_(1)
-            if module.bias is not None:
-                module.bias.data.zero_()
+            self.init_norm(module)
+
         elif self.is_linear(module):
             self.initializer(module.weight.data, gain=self.gain)
             if module.bias is not None:
@@ -79,11 +88,10 @@ class KaimingInitializer(Initializer):
             self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
             if module.bias is not None:
                 module.bias.data.zero_()
+
         elif self.is_norm(module):
-            if module.weight is not None:
-                module.weight.data.fill_(1)
-            if module.bias is not None:
-                module.bias.data.zero_()
+            self.init_norm(module)
+
         elif self.is_linear(module):
             self.initializer(module.weight.data, self.slope, self.mode, self.nonlinearity)
             if module.bias is not None:
@@ -111,15 +119,55 @@ class MSRAPrelu(Initializer):
             self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()
+
         elif self.is_norm(module):
-            if module.weight is not None:
-                module.weight.data.fill_(1)
-            if module.bias is not None:
-                module.bias.data.zero_()
+            self.init_norm(module)
+
         elif self.is_linear(module):
             self.initializer(module.weight.data)
             if module.bias is not None:
                 module.bias.data.zero_()
+
+
+class TruncNormInitializer(Initializer):
+    def __init__(self, mean=0., std=1, a=-2., b=2.):
+        self.mean = mean
+        self.std = std
+        self.a = a
+        self.b = b
+
+    def initializer(self, tensor):
+        nn.init.trunc_normal_(tensor, self.mean, self.std, self.a, self.b)
+
+    def __call__(self, module):
+        if self.is_conv(module):
+            self.initializer(module.weight.data)
+            if module.bias is not None:
+                module.bias.data.zero_()
+
+        elif self.is_norm(module):
+            self.init_norm(module)
+
+        elif self.is_linear(module):
+            self.initializer(module.weight.data)
+            if module.bias is not None:
+                module.bias.data.zero_()
+
+        elif self.is_msa(module):
+            if module.q_proj_weight is not None:
+                self.initializer(module.q_proj_weight.data)
+            if module.k_proj_weight is not None:
+                self.initializer(module.k_proj_weight.data)
+            if module.v_proj_weight is not None:
+                self.initializer(module.v_proj_weight.data)
+            if module.in_proj_weight is not None:
+                self.initializer(module.in_proj_weight.data)
+            if module.in_proj_bias is not None:
+                module.in_proj_bias.data.zero_()
+            if module.bias_k is not None:
+                module.bias_k.data.zero_()
+            if module.bias_v is not None:
+                module.bias_v.data.zero_()
 
 
 class ZeroLastGamma(object):
