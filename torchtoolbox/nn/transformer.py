@@ -10,7 +10,7 @@ from .activation import Activation
 
 
 class PatchEmbedding(nn.Module):
-    def __init__(self, img_size, patch_size, dim, in_channels=3, norm_layer=nn.LayerNorm, out_order=('B', 'SL', 'D')):
+    def __init__(self, img_size, patch_size, dim, in_channels=3, norm_layer=None, out_order=('B', 'SL', 'D')):
         super().__init__()
         assert out_order in (('B', 'SL', 'D'), ('SL', 'B', 'D'))
         self.batch_first = True if out_order[0] == 'B' else False

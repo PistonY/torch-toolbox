@@ -9,3 +9,4 @@ from .distribute import *
 from .dotdict import DotDict
 from .config_parser import parse_config
 from .registry import Registry
+from .text_data_loading import load_data

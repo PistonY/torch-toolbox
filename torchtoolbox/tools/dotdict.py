@@ -1,8 +1,8 @@
-from typing import Union, Dict
+from typing import Union, Dict, Optional
 
 
 class DotDict(dict):
-    def __init__(self, data_map: Union[Dict, None] = None):
+    def __init__(self, data_map: Optional[Dict] = None):
         if data_map is not None:
             super(DotDict, self).__init__(data_map)
             if isinstance(data_map, dict):

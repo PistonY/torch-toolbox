@@ -220,9 +220,13 @@ def summary(model, x, return_results=False, extra_conv=(), extra_norm=(), extra_
     model_summary = OrderedDict()
     hooks = []
     model.apply(register_hook)
-    model(x)
-    for h in hooks:
-        h.remove()
+    try:
+        model(x)
+    except Exception as e:
+        print(e)
+    finally:
+        for h in hooks:
+            h.remove()
 
     summary_str = ''
     summary_str += '-' * 80 + '\n'
