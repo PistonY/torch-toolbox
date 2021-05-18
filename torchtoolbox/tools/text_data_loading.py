@@ -1,4 +1,4 @@
-__all__ = ['load_data', 'merge_data']
+__all__ = ['load_data', 'save_data']
 
 import json
 import yaml
@@ -33,8 +33,12 @@ def load_data(file_path: str, format: str, to_dot_dict: bool = False, load_kwarg
     return file
 
 
-def merge_data(dicts, **kwargs):
-    new_dict = {}
-    for d in dicts:
-        new_dict.update(d, **kwargs)
-    return new_dict
+def save_data(data, file_path, format, load_kwargs: dict = dict(mode='w'), **kwargs) -> None:
+    assert format in ('json', 'yaml'), 'Now only json and yaml format are supported.'
+    with open(file_path, **load_kwargs) as f:
+        if format == 'json':
+            json.dump(data, f, indent=2, **kwargs)
+        elif format == 'yaml':
+            yaml.dump(data, f, **kwargs)
+        else:
+            raise NotImplementedError
