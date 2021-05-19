@@ -223,7 +223,7 @@ def summary(model, x, return_results=False, extra_conv=(), extra_norm=(), extra_
     try:
         model(x)
     except Exception as e:
-        print(e)
+        raise e
     finally:
         for h in hooks:
             h.remove()

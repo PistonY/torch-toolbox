@@ -25,7 +25,7 @@ def load_data(file_path: str, format: str, to_dot_dict: bool = False, load_kwarg
         if format == 'json':
             file = json.load(f, **kwargs)
         elif format == 'yaml':
-            file = yaml.load(f, **kwargs)
+            file = yaml.load(f, Loader=yaml.SafeLoader)
         else:
             raise NotImplementedError
     if to_dot_dict:
@@ -39,6 +39,6 @@ def save_data(data, file_path, format, load_kwargs: dict = dict(mode='w'), **kwa
         if format == 'json':
             json.dump(data, f, indent=2, **kwargs)
         elif format == 'yaml':
-            yaml.dump(data, f, **kwargs)
+            yaml.dump(data, f, Dumper=yaml.SafeDumper, **kwargs)
         else:
             raise NotImplementedError
