@@ -188,7 +188,8 @@ class MSRAPrelu(Initializer):
 
 
 class TruncNormInitializer(Initializer):
-    def __init__(self, mean=0., std=1, a=-2., b=2.):
+    def __init__(self, mean=0., std=1, a=-2., b=2., **kwargs):
+        super().__init__(**kwargs)
         self.mean = mean
         self.std = std
         self.a = a
