@@ -80,8 +80,11 @@ class MixingDataController(nn.Module):
         self.cutmix_prob = probability
 
     def get_method(self):
-        mu_w = 0.5 * self.mixup_prob if self.mixup else 0.
-        cm_w = 0.5 * self.cutmix_prob if self.cutmix else 0.
+        mu_w = self.mixup_prob if self.mixup else 0.
+        cm_w = self.cutmix_prob if self.cutmix else 0.
+        if self.mixup and self.cutmix:
+            mu_w *= 0.5
+            cm_w *= 0.5
         no_w = 1 - mu_w - cm_w
         return random.choices(['mixup', 'cutmix', None], weights=[mu_w, cm_w, no_w], k=1)[0]
 
