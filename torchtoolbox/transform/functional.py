@@ -13,6 +13,7 @@ Sequence = collections.abc.Sequence
 Iterable = collections.abc.Iterable
 
 INTER_MODE = {'NEAREST': cv2.INTER_NEAREST, 'BILINEAR': cv2.INTER_LINEAR, 'BICUBIC': cv2.INTER_CUBIC}
+
 PAD_MOD = {
     'constant': cv2.BORDER_CONSTANT,
     'edge': cv2.BORDER_REPLICATE,

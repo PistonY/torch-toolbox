@@ -3,7 +3,7 @@
 __all__ = [
     'check_dir', 'to_list', 'to_value', 'remove_file', 'make_divisible', 'apply_ratio', 'to_numpy', 'get_list_index',
     'get_value_from_dicts', 'seconds_to_time', 'encode_one_hot', 'decode_one_hot', 'list_step_slice', 'convert_module',
-    'check_twin'
+    'check_twin', 'get_list_value'
 ]
 
 import hashlib
@@ -114,6 +114,20 @@ def get_list_index(lst: Union[list, tuple], value):
         list: result
     """
     return [i for i, v in enumerate(lst) if v == value]
+
+
+def get_list_value(lst: Union[list, tuple], inds):
+    """get value form index.
+
+    Args:
+        lst (Union[list, tuple]): target list.
+        inds (Any): value from index.
+
+    Returns:
+        list: result
+
+    """
+    return [lst[i] for i in inds]
 
 
 def get_value_from_dicts(dicts, keys, post_process=None):
