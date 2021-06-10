@@ -1,4 +1,4 @@
-from typing import Union, Dict, Optional
+from typing import Dict, Optional
 
 
 class DotDict(dict):

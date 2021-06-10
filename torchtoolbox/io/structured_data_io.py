@@ -2,7 +2,7 @@ __all__ = ['load_data', 'save_data']
 
 import json
 import yaml
-from .dotdict import DotDict
+from ..tools import DotDict
 
 
 def load_data(file_path: str, format: str, to_dot_dict: bool = False, load_kwargs: dict = dict(mode='r'), **kwargs) -> dict:
