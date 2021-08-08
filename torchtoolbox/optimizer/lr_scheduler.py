@@ -5,7 +5,6 @@ __all__ = ['CosineWarmupLr']
 from math import pi, cos
 from torch.optim.optimizer import Optimizer
 
-
 class CosineWarmupLr(object):
     """Cosine lr decay function with warmup.
 
@@ -102,3 +101,61 @@ class CosineWarmupLr(object):
         self.get_lr()
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = self.learning_rate
+
+
+def get_layerwise_decay_param_group(param_group, top_lr=2e-5, decay=0.95):
+  """
+  Param group should look like:
+  [ 
+    [param1a, param2a, ..]
+    [param1b, param2b, ..]
+    ..
+  ]
+  """
+  lrs = [top_lr * pow(decay, len(param_group)-1-i) for i in range(len(param_group))]
+  return get_differential_lr_param_group(param_group, lrs)
+
+
+def get_differential_lr_param_group(param_group, lrs):  
+  assert len(param_group) == len(lrs), f"expect the learning rates to have the same lengths as the param_group length, instead got {len(param_group)} and {len(lrs)} respectively"
+
+  final_param_group = []
+  for i in range(len(param_group)): 
+    final_param_group.append({
+      'params': param_group[i],
+      'lr': lrs[i]
+    })
+  return final_param_group
+
+
+def belongs(name, groups):
+    """
+    name is a parameter name, checks if name belongs to any of the group
+    if yes, return the index of that target
+    """
+    for group in groups: 
+      if group in name: 
+        return group
+    return None
+
+def get_param_group_for_bert(model, number_of_layer=12, top_lr=2e-5, decay=0.95):
+  final_param_groups = [[] for _ in range(number_of_layer+2)] # tail, layer0, layer1 ...., layer11, head
+  head = {'pooler', 'norm', 'relative_attention_bias'} 
+  tail = {'embeddings',}
+  layers = [f'layer.{i}.' for i in range(number_of_layer)]
+
+  for name, param in model.named_parameters():
+    if belongs(name, tail):
+      final_param_groups[0].append(param)
+    elif belongs(name, head):
+      final_param_groups[-1].append(param)
+    else:
+      for i, layer in enumerate(layers):
+        if layer in name:
+          final_param_groups[i+1].append(param)
+  return final_param_groups
+
+def get_layerwise_decay_params_for_bert(model, number_of_layer=12, top_lr=2e-5, decay=0.95):
+  param_group = get_param_group_for_bert(model, number_of_layer=number_of_layer, top_lr=top_lr, decay=decay)
+  final_param_group = get_layerwise_decay_param_group(param_group, top_lr=top_lr, decay=decay)
+  return final_param_group
