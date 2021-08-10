@@ -103,81 +103,137 @@ class CosineWarmupLr(object):
             param_group['lr'] = self.learning_rate
 
 
-def get_differential_lr_param_group(param_group, lrs):  
-  """
-  Assign different learning rates to different parameter groups
+def get_differential_lr_param_group(param_groups, lrs):  
+  """Assigns different learning rates to different parameter groups.
+
+  Discriminative fine-tuning, where different layers of the network have different learning rates, is first proposed in
+  `Jeremy Howard and Sebastian Ruder. 2018. Universal language model fine-tuning for text classification. 
+  https://arxiv.org/pdf/1801.06146.pdf.` It has been found to stabilize training and speed up convergence.
 
   Args: 
-    param_group: a list of parameter groups
+    param_groups: a list of parameter groups (each of which is a list of parameters)
         param group should look like:
         [ 
           [param1a, param1b, ..]  <-- parameter group 1
           [param2a, param2b, ..]  <-- parameter group 2
-          ..
+          ...
         ]
-    learning rate: a list of learning rates you want to assign to each of the parameter groups
-  """
-  assert len(param_group) == len(lrs), f"expect the learning rates to have the same lengths as the param_group length, instead got {len(param_group)} and {len(lrs)} respectively"
+    lrs: a list of learning rates you want to assign to each of the parameter groups
+        lrs should look like
+        [
+          lr1, <-- learning rate for parameter group 1
+          lr2, <-- learning rate for parameter group 2
+          ...
+        ]
 
-  final_param_group = []
-  for i in range(len(param_group)): 
-    final_param_group.append({
-      'params': param_group[i],
+  Returns: 
+    parameter groups with different learning rates that you can then pass into an optimizer
+  """
+  assert len(param_groups) == len(lrs), f"expect the learning rates to have the same lengths as the param_group length, instead got {len(param_groups)} and {len(lrs)} as lengths respectively"
+
+  param_groups_for_optimizer = []
+  for i in range(len(param_groups)): 
+    param_groups_for_optimizer.append({
+      'params': param_groups[i],
       'lr': lrs[i]
     })
-  return final_param_group
+  return param_groups_for_optimizer
 
 
-def get_layerwise_decay_param_group(param_group, top_lr=2e-5, decay=0.95):
-  """
-  Assign layerwise decay learning rates 
+def get_layerwise_decay_param_group(param_groups, top_lr=2e-5, decay=0.95):
+  """Assign layerwise decay learning rates to parameter groups.
 
-  PAPER1: citation (superconvergence)
-  PAPER2: citation
-  
-  Formula
+  Layer-wise decay learning rate is used in `Chi Sun, Xipeng Qiu, Yige Xu, and Xuanjing Huang. 2019. 
+  How to fine-tune BERT for text classification? https://arxiv.org/abs/1905.05583` to improve convergence
+  and prevent catastrophic forgetting. 
 
   Args:
-    param_group: a list of parameter groups
+    param_groups: a list of parameter groups
         param group should look like:
         [ 
           [param1a, param1b, ..]  <-- parameter group 1
           [param2a, param2b, ..]  <-- parameter group 2
           ..
         ]
-    
-      
+    top_lr: learning rate of the top layer 
+    decay: decay factor. When decay < 1, lower layers have lower learning rates; when decay == 1, all layers have the same learning rate
+  
+  Returns: 
+    parameter groups with layerwise decay learning rates that you can then pass into an optimizer
+
+  Examples:
+    ```
+    param_groups = get_layerwise_decay_params_group(model_param_groups, top_lr=2e-5, decay=0.95)
+    optimizer = AdamW(param_groups, lr = 2e-5)
+    ```
   """
-  lrs = [top_lr * pow(decay, len(param_group)-1-i) for i in range(len(param_group))]
-  return get_differential_lr_param_group(param_group, lrs)
+  lrs = [top_lr * pow(decay, len(param_groups)-1-i) for i in range(len(param_groups))]
+  return get_differential_lr_param_group(param_groups, lrs)
 
 
 def get_layerwise_decay_params_for_bert(model, number_of_layer=12, top_lr=2e-5, decay=0.95):
-  param_group = get_param_group_for_bert(model, number_of_layer=number_of_layer, top_lr=top_lr, decay=decay)
-  final_param_group = get_layerwise_decay_param_group(param_group, top_lr=top_lr, decay=decay)
-  return final_param_group
+  """Assign layerwise decay learning rates to parameter groups of BERT.
+
+  Layer-wise decay learning rate is used in `Chi Sun, Xipeng Qiu, Yige Xu, and Xuanjing Huang. 2019. 
+  How to fine-tune BERT for text classification? https://arxiv.org/abs/1905.05583` to improve convergence
+  and prevent catastrophic forgetting. 
+
+  Args:
+    model: your BERT model
+    number_of_layer: number of layers your BERT has
+    top_lr: learning rate of the top layer 
+    decay: decay factor. When decay < 1, lower layers have lower learning rates; when decay == 1, all layers have the same learning rate
+
+  Returns: 
+    BERT parameter groups with different learning rates that you can then pass into an optimizer
+
+  Example:
+    ```
+    param_groups = get_layerwise_decay_params_for_bert(model, number_of_layer=12, top_lr=2e-5, decay=0.95)
+    optimizer = AdamW(param_groups, lr = 2e-5)
+    ```
+  """
+  param_groups = get_param_group_for_bert(model, number_of_layer=number_of_layer, top_lr=top_lr, decay=decay)
+  param_groups_for_optimizer = get_layerwise_decay_param_group(param_groups, top_lr=top_lr, decay=decay)
+  return param_groups_for_optimizer
 
 def get_param_group_for_bert(model, number_of_layer=12, top_lr=2e-5, decay=0.95):
-  final_param_groups = [[] for _ in range(number_of_layer+2)] # tail, layer0, layer1 ...., layer11, head
+  """separate each layer of a BERT models into a parameter group
+
+  Args:
+    model: your BERT model
+    number_of_layer: number of layers your BERT has
+    top_lr: learning rate of the top layer 
+    decay: decay factor. When decay < 1, lower layers have lower learning rates; when decay == 1, all layers have the same learning rate
+
+  Returns:
+    a param group that should look like:
+        [ 
+          ...
+          [param1a, param1b, ..]  <-- parameter group 1, layer 1 of BERT
+          [param2a, param2b, ..]  <-- parameter group 2, layer 2 of BERT
+          ...
+        ]
+  """
+  param_groups_for_optimizer = [[] for _ in range(number_of_layer+2)] # tail, layer0, layer1 ...., layer11, head
   head = {'pooler', 'norm', 'relative_attention_bias'} 
   tail = {'embeddings',}
   layers = [f'layer.{i}.' for i in range(number_of_layer)]
 
   for name, param in model.named_parameters():
     if belongs(name, tail):
-      final_param_groups[0].append(param)
+      param_groups_for_optimizer[0].append(param)
     elif belongs(name, head):
-      final_param_groups[-1].append(param)
+      param_groups_for_optimizer[-1].append(param)
     else:
       for i, layer in enumerate(layers):
         if layer in name:
-          final_param_groups[i+1].append(param)
-  return final_param_groups
+          param_groups_for_optimizer[i+1].append(param)
+  return param_groups_for_optimizer
 
 
 def belongs(name, groups):
-    """
-    name is a parameter name, checks if name belongs to any of the group
+    """ checks if name belongs to any of the group
     """
     for group in groups: 
       if group in name: 
