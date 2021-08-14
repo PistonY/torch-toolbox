@@ -5,9 +5,9 @@ Stable Version: v0.1.5(recommend to use.)
 
 Automatic upload to PyPI has been finished.
 
-This is toolbox project for Pytorch. Aiming to make you write Pytorch code more easier, readable and concise.
+This project aims to provide the most frequently used tools to help you write more concise and readable PyTorch code. 
 
-You could also regard this as a auxiliary tool for Pytorch. It will contain what you use most frequently tools.
+Pull requests and issues are highly encouraged. Please reach out!
 
 - [Pytorch-Toolbox](#pytorch-toolbox)
   * [Installing](#installing)
