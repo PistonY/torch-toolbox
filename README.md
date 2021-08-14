@@ -1,7 +1,7 @@
 # Pytorch-Toolbox
 ![](https://github.com/PistonY/torch-toolbox/workflows/Torch-Toolbox-CI/badge.svg)
 
-Stable Version: v0.1.5(recommend to use.)
+Stable Version: v0.1.5(recommended)
 
 Automatic upload to PyPI has been finished.
 
