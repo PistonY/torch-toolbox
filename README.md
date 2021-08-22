@@ -1,13 +1,13 @@
-# Pytorch-Toolbox
+# Torch Toolbox
 ![](https://github.com/PistonY/torch-toolbox/workflows/Torch-Toolbox-CI/badge.svg)
 
-Stable Version: v0.1.5(recommend to use.)
+Stable Version: v0.1.5 (recommended)
 
-Automatic upload to PyPI has been finished.
+Automatic upload to PyPI is finished.
 
-This is toolbox project for Pytorch. Aiming to make you write Pytorch code more easier, readable and concise.
+This project aims to provide the most frequently used tools to help you write more concise and readable PyTorch code. 
 
-You could also regard this as a auxiliary tool for Pytorch. It will contain what you use most frequently tools.
+Pull requests and issues are highly encouraged. Please reach out!
 
 - [Pytorch-Toolbox](#pytorch-toolbox)
   * [Installing](#installing)
@@ -45,7 +45,7 @@ You could also regard this as a auxiliary tool for Pytorch. It will contain what
   * [Contribution](#contribution)
 
 ## Installing
-A easy way to install this is by using pip:
+An easy way to install Torch Toolbox is via pip:
 ```shell
 pip install torchtoolbox
 ```
@@ -59,8 +59,8 @@ pip install -U git+https://github.com/PistonY/torch-toolbox.git@master
 - [ ] Prepare tensorboard support with metric collection.
 
 ## Usage
-Toolbox have two mainly parts:
-1. Additional tools to make you use Pytorch easier.
+Toolbox have two main parts:
+1. Auxiliary tools to make using Pytorch easier.
 2. Some fashion work which don't exist in Pytorch core.
 
 More examples could be found at [ModelZoo.pytorch](https://github.com/PistonY/ModelZoo.pytorch)
@@ -77,7 +77,7 @@ __all__ = ["Compose", "ToTensor", "ToCVImage", "Normalize", "Resize", "Scale", "
            "RandomTransforms", "Cutout"]
 ```
 Part of this code refers to [opencv_transforms_torchvision](https://github.com/YU-Zhiyang/opencv_transforms_torchvision)
-- [albumentations](https://github.com/albumentations-team/albumentations) is also recommend to use which is cv2 backend transform tools.
+- [albumentations](https://github.com/albumentations-team/albumentations) is also recommended as cv2 backend transform tools.
 
 #### 1. Show your model parameters and FLOPs.
 ```python
@@ -110,7 +110,7 @@ Parameters size (MB): 13.50
 
 #### 2. Metric collection
 When we train a model we usually need to calculate some metrics like accuracy(top1-acc), loss etc.
-Now toolbox support as below:
+Now toolbox support the following:
 1. Accuracy: top-1 acc.
 2. TopKAccuracy: topK-acc.
 3. NumericalCost: This is a number metric collection which support `mean`, `max`, `min` calculate type.
