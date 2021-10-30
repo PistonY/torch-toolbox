@@ -42,7 +42,7 @@ class CosineWarmupLr(Scheduler):
 
     Args:
         optimizer (Optimizer): optimizer of a model.
-        batches (int): batches of one epoch.
+        batches (int): batches per epoch.
         epochs (int): epochs to train.
         base_lr (float): init lr.
         target_lr (float): minimum(final) lr.
@@ -76,32 +76,33 @@ class CosineWarmupLr(Scheduler):
                 if 'initial_lr' not in group:
                     raise KeyError("param 'initial_lr' is not specified "
                                    "in param_groups[{}] when resuming an optimizer".format(i))
-
         self.baselr = base_lr
         self.learning_rate = base_lr
-        self.niters = epochs * batches
+        self.total_iters = epochs * batches
         self.targetlr = target_lr
-        self.warmup_iters = batches * warmup_epochs
+        self.total_warmup_iters = batches * warmup_epochs
+        self.total_cosine_iters = self.total_iters - self.total_warmup_iters
+        self.total_lr_decay = self.baselr - self.targetlr
         self.warmup_lr = warmup_lr
         self.last_iter = last_iter
         self.step()
 
-
     def get_lr(self):
-        if self.last_iter < self.warmup_iters:
+        if self.last_iter < self.total_warmup_iters:
             self.learning_rate = self.warmup_lr + \
-                (self.baselr - self.warmup_lr) * self.last_iter / self.warmup_iters
+                (self.baselr - self.warmup_lr) * self.last_iter / self.total_warmup_iters
         else:
-            self.learning_rate = self.targetlr + (self.baselr - self.targetlr) * \
-                (1 + cos(pi * (self.last_iter - self.warmup_iters) /
-                         (self.niters - self.warmup_iters))) / 2
+            cosine_iter = self.last_iter - self.total_warmup_iters
+            cosine_progress = cosine_iter / self.total_cosine_iters
+            self.learning_rate = self.targetlr + self.total_lr_decay * \
+                (1 + cos(pi * cosine_progress)) / 2
 
     def step(self, iteration=None):
         """Update status of lr.
 
         Args:
             iteration(int, optional): now training iteration of all epochs.
-                Normally need not to set it manually.
+                Usually no need to set it manually.
         """
         if iteration is None:
             iteration = self.last_iter + 1
