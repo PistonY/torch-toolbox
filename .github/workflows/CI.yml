@@ -13,7 +13,7 @@ jobs:
           && conda clean --all --yes
       - name: Install dependence
         run: |
-          conda install -y tqdm pyarrow six python-lmdb pytest scikit-learn \
+          conda install -y tqdm pyarrow six python-lmdb pytest scikit-learn transformers \
           && conda clean --all --yes \
           && /usr/share/miniconda/bin/pip install -q opencv-python tensorboard pyyaml prettytable
       - name: Checkout
