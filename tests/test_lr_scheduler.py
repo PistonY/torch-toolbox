@@ -1,11 +1,8 @@
 from torch import optim
-from transformers import AlbertTokenizer, AlbertModel
+from transformers import AlbertModel
 from math import cos, pi, isclose
 from torchtoolbox.optimizer.lr_scheduler import *
-import matplotlib.pyplot as plt
 
-
-tokenizer = AlbertTokenizer.from_pretrained('albert-base-v2')
 model = AlbertModel.from_pretrained("albert-base-v2")
 
 def run_scheduler(lr_scheduler, steps):
