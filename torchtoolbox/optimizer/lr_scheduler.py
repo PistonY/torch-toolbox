@@ -29,6 +29,7 @@ class Scheduler(object):
             from a call to :meth:`state_dict`.
     """
     self.__dict__.update(state_dict)
+    
 class CosineWarmupLr(Scheduler):
     """Cosine lr decay function with warmup.
 
@@ -42,7 +43,7 @@ class CosineWarmupLr(Scheduler):
 
     Args:
         optimizer (Optimizer): optimizer of a model.
-        batches (int): batches per epoch.
+        batches_per_epoch (int): batches per epoch.
         epochs (int): epochs to train.
         base_lr (float): init lr.
         target_lr (float): minimum(final) lr.
@@ -116,6 +117,25 @@ def get_cosine_warmup_lr_scheduler(optimizer : Optimizer,
                  epochs: int,
                  warmup_epochs: int = 0,
                  last_epoch: int = -1):
+  """Similar to CosineWarmupLr, with support for different learning rate for different parameter groups as well as better compatibility with current PyTorch API
+
+  Args:
+        optimizer (Optimizer): optimizer of a model.
+        batches_per_epoch (int): batches per epoch.
+        epochs (int): epochs to train.
+        warmup_epochs (int): warmup epochs before cosine decay.
+        last_epoch (int): the index of the last epoch when resuming training.
+
+  Example:
+    ```
+    batches_per_epoch = 10
+    epochs = 5
+    warmup_epochs = 1
+    params = get_layerwise_decay_params_for_bert(model)
+    optimizer = optim.SGD(params, lr=3e-5)
+    lr_scheduler = get_cosine_warmup_lr_scheduler(optimizer, batches_per_epoch, epochs, warmup_epochs=warmup_epochs)
+    ```
+  """
   total_steps = epochs * batches_per_epoch
   # warmup params
   total_warmup_steps = batches_per_epoch * warmup_epochs
