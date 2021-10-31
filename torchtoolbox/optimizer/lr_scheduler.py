@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 # @Author  : Devin Yang(pistonyang@gmail.com), Gary Lai (glai9665@gmail.com)
-__all__ = ['CosineWarmupLr']
+__all__ = ['CosineWarmupLr', 'get_cosine_warmup_lr_scheduler', 'get_layerwise_decay_params_for_bert']
 
 from math import pi, cos
 from torch.optim.optimizer import Optimizer
+from torch.optim.lr_scheduler import LambdaLR
 
 class Scheduler(object):
   def __init__(self):
@@ -28,7 +29,6 @@ class Scheduler(object):
             from a call to :meth:`state_dict`.
     """
     self.__dict__.update(state_dict)
-
 class CosineWarmupLr(Scheduler):
     """Cosine lr decay function with warmup.
 
@@ -89,12 +89,12 @@ class CosineWarmupLr(Scheduler):
 
     def get_lr(self):
         if self.last_iter < self.total_warmup_iters:
-            self.learning_rate = self.warmup_lr + \
+            return self.warmup_lr + \
                 (self.baselr - self.warmup_lr) * self.last_iter / self.total_warmup_iters
         else:
             cosine_iter = self.last_iter - self.total_warmup_iters
             cosine_progress = cosine_iter / self.total_cosine_iters
-            self.learning_rate = self.targetlr + self.total_lr_decay * \
+            return self.targetlr + self.total_lr_decay * \
                 (1 + cos(pi * cosine_progress)) / 2
 
     def step(self, iteration=None):
@@ -107,9 +107,31 @@ class CosineWarmupLr(Scheduler):
         if iteration is None:
             iteration = self.last_iter + 1
         self.last_iter = iteration
-        self.get_lr()
+        self.learning_rate = self.get_lr()
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = self.learning_rate
+
+def get_cosine_warmup_lr_scheduler(optimizer : Optimizer,
+                 batches_per_epoch: int,
+                 epochs: int,
+                 warmup_epochs: int = 0,
+                 last_epoch: int = -1):
+  total_steps = epochs * batches_per_epoch
+  # warmup params
+  total_warmup_steps = batches_per_epoch * warmup_epochs
+  # cosine params
+  total_cosine_steps = total_steps - total_warmup_steps
+
+  def lr_lambda(current_step):
+    # lr_lambda should return current lr / top learning rate
+    if current_step < total_warmup_steps:
+      warmup_progress = current_step / total_warmup_steps
+      return warmup_progress
+    else:
+      cosine_step = current_step - total_warmup_steps
+      cosine_progress = cosine_step / total_cosine_steps
+      return (1 + cos(pi * cosine_progress)) / 2
+  return LambdaLR(optimizer, lr_lambda, last_epoch)
 
 
 def get_differential_lr_param_group(param_groups, lrs):  

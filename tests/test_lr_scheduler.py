@@ -23,7 +23,6 @@ for i in range(batches_per_epoch * epochs):
     lrs.append(current_lr)
     lr_scheduler.step()
 
-plt.plot(lrs)
 
 # test warmup 
 warmup_steps = batches_per_epoch * warmup_epochs
