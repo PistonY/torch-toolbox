@@ -1,11 +1,36 @@
 # -*- coding: utf-8 -*-
-# @Author  : DevinYang(pistonyang@gmail.com)
-__all__ = ['CosineWarmupLr']
+# @Author  : Devin Yang(pistonyang@gmail.com), Gary Lai (glai9665@gmail.com)
+__all__ = ['CosineWarmupLr', 'get_cosine_warmup_lr_scheduler', 'get_layerwise_decay_params_for_bert']
 
 from math import pi, cos
 from torch.optim.optimizer import Optimizer
+from torch.optim.lr_scheduler import LambdaLR
 
-class CosineWarmupLr(object):
+class Scheduler(object):
+  def __init__(self):
+    raise NotImplementedError
+
+  def get_lr(self):
+    raise NotImplementedError
+
+  def state_dict(self):
+    """Returns the state of the scheduler as a :class:`dict`.
+
+    It contains an entry for every variable in self.__dict__ which
+    is not the optimizer.
+    """
+    return {key: value for key, value in self.__dict__.items() if key != 'optimizer'}
+
+  def load_state_dict(self, state_dict):
+    """Loads the schedulers state.
+
+    Arguments:
+        state_dict (dict): scheduler state. Should be an object returned
+            from a call to :meth:`state_dict`.
+    """
+    self.__dict__.update(state_dict)
+    
+class CosineWarmupLr(Scheduler):
     """Cosine lr decay function with warmup.
 
     Lr warmup is proposed by `
@@ -18,7 +43,7 @@ class CosineWarmupLr(object):
 
     Args:
         optimizer (Optimizer): optimizer of a model.
-        batches (int): batches of one epoch.
+        batches_per_epoch (int): batches per epoch.
         epochs (int): epochs to train.
         base_lr (float): init lr.
         target_lr (float): minimum(final) lr.
@@ -52,55 +77,81 @@ class CosineWarmupLr(object):
                 if 'initial_lr' not in group:
                     raise KeyError("param 'initial_lr' is not specified "
                                    "in param_groups[{}] when resuming an optimizer".format(i))
-
         self.baselr = base_lr
         self.learning_rate = base_lr
-        self.niters = epochs * batches
+        self.total_iters = epochs * batches
         self.targetlr = target_lr
-        self.warmup_iters = batches * warmup_epochs
+        self.total_warmup_iters = batches * warmup_epochs
+        self.total_cosine_iters = self.total_iters - self.total_warmup_iters
+        self.total_lr_decay = self.baselr - self.targetlr
         self.warmup_lr = warmup_lr
         self.last_iter = last_iter
         self.step()
 
-    def state_dict(self):
-        """Returns the state of the scheduler as a :class:`dict`.
-
-        It contains an entry for every variable in self.__dict__ which
-        is not the optimizer.
-        """
-        return {key: value for key, value in self.__dict__.items() if key != 'optimizer'}
-
-    def load_state_dict(self, state_dict):
-        """Loads the schedulers state.
-
-        Arguments:
-            state_dict (dict): scheduler state. Should be an object returned
-                from a call to :meth:`state_dict`.
-        """
-        self.__dict__.update(state_dict)
-
     def get_lr(self):
-        if self.last_iter < self.warmup_iters:
-            self.learning_rate = self.warmup_lr + \
-                (self.baselr - self.warmup_lr) * self.last_iter / self.warmup_iters
+        if self.last_iter < self.total_warmup_iters:
+            return self.warmup_lr + \
+                (self.baselr - self.warmup_lr) * self.last_iter / self.total_warmup_iters
         else:
-            self.learning_rate = self.targetlr + (self.baselr - self.targetlr) * \
-                (1 + cos(pi * (self.last_iter - self.warmup_iters) /
-                         (self.niters - self.warmup_iters))) / 2
+            cosine_iter = self.last_iter - self.total_warmup_iters
+            cosine_progress = cosine_iter / self.total_cosine_iters
+            return self.targetlr + self.total_lr_decay * \
+                (1 + cos(pi * cosine_progress)) / 2
 
     def step(self, iteration=None):
         """Update status of lr.
 
         Args:
             iteration(int, optional): now training iteration of all epochs.
-                Normally need not to set it manually.
+                Usually no need to set it manually.
         """
         if iteration is None:
             iteration = self.last_iter + 1
         self.last_iter = iteration
-        self.get_lr()
+        self.learning_rate = self.get_lr()
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = self.learning_rate
+
+def get_cosine_warmup_lr_scheduler(optimizer : Optimizer,
+                 batches_per_epoch: int,
+                 epochs: int,
+                 warmup_epochs: int = 0,
+                 last_epoch: int = -1):
+  """Similar to CosineWarmupLr, with support for different learning rate for different parameter groups as well as better compatibility with current PyTorch API
+
+  Args:
+        optimizer (Optimizer): optimizer of a model.
+        batches_per_epoch (int): batches per epoch.
+        epochs (int): epochs to train.
+        warmup_epochs (int): warmup epochs before cosine decay.
+        last_epoch (int): the index of the last epoch when resuming training.
+
+  Example:
+    ```
+    batches_per_epoch = 10
+    epochs = 5
+    warmup_epochs = 1
+    params = get_layerwise_decay_params_for_bert(model)
+    optimizer = optim.SGD(params, lr=3e-5)
+    lr_scheduler = get_cosine_warmup_lr_scheduler(optimizer, batches_per_epoch, epochs, warmup_epochs=warmup_epochs)
+    ```
+  """
+  total_steps = epochs * batches_per_epoch
+  # warmup params
+  total_warmup_steps = batches_per_epoch * warmup_epochs
+  # cosine params
+  total_cosine_steps = total_steps - total_warmup_steps
+
+  def lr_lambda(current_step):
+    # lr_lambda should return current lr / top learning rate
+    if current_step < total_warmup_steps:
+      warmup_progress = current_step / total_warmup_steps
+      return warmup_progress
+    else:
+      cosine_step = current_step - total_warmup_steps
+      cosine_progress = cosine_step / total_cosine_steps
+      return (1 + cos(pi * cosine_progress)) / 2
+  return LambdaLR(optimizer, lr_lambda, last_epoch)
 
 
 def get_differential_lr_param_group(param_groups, lrs):  

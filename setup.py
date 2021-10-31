@@ -20,5 +20,5 @@ setup(name='torchtoolbox',
       ],
       install_requires=[
           'numpy', 'tqdm', 'pyarrow', 'six', 'lmdb', 'scikit-learn', 'scipy', 'opencv-python', 'pyyaml', 'tensorboard',
-          'prettytable'
+          'prettytable', 'transformers'
       ])
