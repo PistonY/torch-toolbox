@@ -278,7 +278,7 @@ def hflip(img):
     if not _is_numpy_image(img):
         raise TypeError('img should be CV Image. Got {}'.format(type(img)))
 
-    return cv2.flip(img, 0)
+    return cv2.flip(img, 1)
 
 
 def vflip(img):
@@ -293,7 +293,7 @@ def vflip(img):
     if not _is_numpy_image(img):
         raise TypeError('img should be CV Image. Got {}'.format(type(img)))
 
-    return cv2.flip(img, 1)
+    return cv2.flip(img, 0)
 
 
 def _get_perspective_coeffs(h, w, shear, anglex, angley, anglez, scale, translate, fov):
