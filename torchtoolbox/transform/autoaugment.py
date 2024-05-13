@@ -101,7 +101,7 @@ class Color(SubPolicy):
 
 class Posterize(SubPolicy):
     def __init__(self, p, magnitude=None):
-        ranges = np.round(np.linspace(8, 4, 10), 0).astype(np.int_)
+        ranges = np.round(np.linspace(8, 4, 10), 0).astype(int)
         super(Posterize, self).__init__(p, magnitude, ranges)
 
     def do_process(self, img):
@@ -123,7 +123,7 @@ class SolarizeAdd(SubPolicy):
         self.threshold = threshold
 
     def do_process(self, img):
-        img_np = np.array(img).astype(np.int_)
+        img_np = np.array(img).astype(int)
         img_np = img_np + self.magnitude
         img_np = np.clip(img_np, 0, 255)
         img_np = img_np.astype(np.uint8)
